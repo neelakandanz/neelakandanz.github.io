@@ -1138,6 +1138,9 @@
         // Save watch face as image
         function saveWatchFace() {
             try {
+                // Show a brief animation on the clock to indicate processing
+                clock.classList.add('animate-pulse');
+                
                 // Create a canvas element
                 const canvas = document.createElement('canvas');
                 const context = canvas.getContext('2d');
@@ -1159,282 +1162,338 @@
                 context.fillStyle = document.getElementById('bg-color').value;
                 context.fill();
                 
-                // If using background image, need to handle it differently
-                if (document.getElementById('use-image').checked && backgroundImage) {
-                    const img = new Image();
-                    img.crossOrigin = "Anonymous";
-                    img.src = backgroundImage;
-                    
-                    img.onload = function() {
-                        // Create circular clipping path
-                        context.save();
+                // Promise-based approach to handle image loading and drawing sequentially
+                const drawComplete = new Promise((resolveMain, rejectMain) => {
+                    // If using background image, need to handle it differently
+                    if (document.getElementById('use-image').checked && backgroundImage) {
+                        const img = new Image();
+                        img.crossOrigin = "Anonymous";
+                        
+                        img.onload = function() {
+                            try {
+                                // Create circular clipping path
+                                context.save();
+                                context.beginPath();
+                                context.arc(clockSize/2, clockSize/2, clockSize/2 - 1, 0, Math.PI * 2);
+                                context.clip();
+                                
+                                // Draw the image
+                                context.drawImage(img, 0, 0, clockSize, clockSize);
+                                context.restore();
+                                
+                                // Continue with drawing the rest
+                                drawClockElements(resolveMain, rejectMain);
+                            } catch (err) {
+                                console.error("Error drawing background image:", err);
+                                // Continue anyway, but without the image
+                                drawClockElements(resolveMain, rejectMain);
+                            }
+                        };
+                        
+                        img.onerror = function() {
+                            console.error("Error loading background image");
+                            // Continue anyway, but without the image
+                            drawClockElements(resolveMain, rejectMain);
+                        };
+                        
+                        img.src = backgroundImage;
+                    } else {
+                        // No image, proceed directly
+                        drawClockElements(resolveMain, rejectMain);
+                    }
+                });
+                
+                function drawClockElements(resolveDrawing, rejectDrawing) {
+                    try {
+                        // Draw border
                         context.beginPath();
                         context.arc(clockSize/2, clockSize/2, clockSize/2 - 1, 0, Math.PI * 2);
-                        context.clip();
+                        context.lineWidth = 2;
+                        context.strokeStyle = '#000';
+                        context.stroke();
                         
-                        // Draw the image
-                        context.drawImage(img, 0, 0, clockSize, clockSize);
-                        context.restore();
-                        
-                        // Continue with drawing the rest
-                        drawClockFace();
-                    };
-                    
-                    img.onerror = function() {
-                        console.error("Error loading background image");
-                        // Continue anyway, but without the image
-                        drawClockFace();
-                    };
-                } else {
-                    // No image, proceed directly
-                    drawClockFace();
-                }
-                
-                function drawClockFace() {
-                    // Draw border
-                    context.beginPath();
-                    context.arc(clockSize/2, clockSize/2, clockSize/2 - 1, 0, Math.PI * 2);
-                    context.lineWidth = 2;
-                    context.strokeStyle = '#000';
-                    context.stroke();
-                    
-                    // Draw numbers if enabled
-                    if (document.getElementById('show-numbers').checked) {
-                        const numberStyle = document.getElementById('number-style').value;
-                        const numberColor = document.getElementById('number-color').value;
-                        const numberSize = document.getElementById('number-size').value;
-                        const radius = clockSize / 2 - 30;
-                        
-                        const romanNumerals = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
-                        const tamilNumerals = ['௧', '௨', '௩', '௪', '௫', '௬', '௭', '௮', '௯', '௧௦', '௧௧', '௧௨'];
-                        
-                        context.fillStyle = numberColor;
-                        context.textAlign = 'center';
-                        context.textBaseline = 'middle';
-                        
-                        for (let i = 1; i <= 12; i++) {
-                            const angle = (i * 30 - 90) * (Math.PI / 180);
-                            const x = radius * Math.cos(angle) + clockSize/2;
-                            const y = radius * Math.sin(angle) + clockSize/2;
+                        // Draw numbers if enabled
+                        if (document.getElementById('show-numbers').checked) {
+                            const numberStyle = document.getElementById('number-style').value;
+                            const numberColor = document.getElementById('number-color').value;
+                            const numberSize = parseInt(document.getElementById('number-size').value) || 20;
+                            const radius = clockSize / 2 - 30;
                             
-                            context.font = `${numberSize}px 'Inter', Arial, sans-serif`;
+                            const romanNumerals = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
+                            const tamilNumerals = ['௧', '௨', '௩', '௪', '௫', '௬', '௭', '௮', '௯', '௧௦', '௧௧', '௧௨'];
                             
-                            // Set number content based on style
-                            if (numberStyle === 'custom') {
-                                const customText = document.getElementById(`custom-${i}`).value.trim();
-                                context.fillText(customText || i.toString(), x, y);
-                            } else if (numberStyle === 'roman') {
-                                context.fillText(romanNumerals[i - 1], x, y);
-                            } else if (numberStyle === 'tamil') {
-                                context.fillText(tamilNumerals[i - 1], x, y);
-                            } else if (numberStyle === 'dots') {
-                                context.fillText('•', x, y);
-                            } else {
-                                context.fillText(i.toString(), x, y);
-                            }
-                        }
-                    }
-                    
-                    // Draw brand elements if enabled
-                    if (document.getElementById('show-brand').checked) {
-                        // Draw logo if enabled
-                        if (document.getElementById('show-logo').checked && logoImage) {
-                            const logoSize = document.getElementById('logo-size').value;
-                            const logoPosition = document.getElementById('logo-position').value;
-                            
-                            const logoImg = new Image();
-                            logoImg.src = logoImage;
-                            
-                            // Function to draw logo once it's loaded
-                            const drawLogo = function() {
-                                // Calculate dimensions while preserving aspect ratio
-                                const maxWidth = clockSize * (logoSize / 100);
-                                const ratio = logoImg.height / logoImg.width;
-                                let logoWidth = maxWidth;
-                                let logoHeight = logoWidth * ratio;
-                                
-                                if (logoHeight > clockSize * 0.15) {
-                                    logoHeight = clockSize * 0.15;
-                                    logoWidth = logoHeight / ratio;
-                                }
-                                
-                                // Position at specified position from top
-                                const logoX = clockSize/2 - logoWidth/2;
-                                const logoY = clockSize * (logoPosition / 100);
-                                
-                                context.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
-                                
-                                // Draw brand text after logo is drawn
-                                drawBrandText();
-                            };
-                            
-                            // If logo is already loaded
-                            if (logoImg.complete) {
-                                drawLogo();
-                            } else {
-                                // Wait for logo to load
-                                logoImg.onload = drawLogo;
-                                logoImg.onerror = function() {
-                                    console.error("Error loading logo image");
-                                    drawBrandText(); // Continue with brand text
-                                };
-                            }
-                        } else {
-                            // No logo, just draw brand text
-                            drawBrandText();
-                        }
-                    } else {
-                        // No branding, proceed directly to clock hands
-                        drawClockHands();
-                    }
-                    
-                    function drawBrandText() {
-                        // Draw the text-based brand
-                        const brandName = document.getElementById('brand-name').value.trim();
-                        if (brandName) {
-                            const brandColor = document.getElementById('brand-color').value;
-                            const brandSize = document.getElementById('brand-size').value;
-                            const brandPosition = document.getElementById('brand-position').value;
-                            
-                            context.font = `${brandSize}px 'Inter', Arial, sans-serif`;
-                            context.fillStyle = brandColor;
+                            context.fillStyle = numberColor;
                             context.textAlign = 'center';
                             context.textBaseline = 'middle';
                             
-                            // Position brand name at specified position
-                            context.fillText(brandName, clockSize/2, clockSize * (brandPosition / 100));
+                            for (let i = 1; i <= 12; i++) {
+                                const angle = (i * 30 - 90) * (Math.PI / 180);
+                                const x = radius * Math.cos(angle) + clockSize/2;
+                                const y = radius * Math.sin(angle) + clockSize/2;
+                                
+                                context.font = `${numberSize}px 'Inter', Arial, sans-serif`;
+                                
+                                // Set number content based on style
+                                if (numberStyle === 'custom') {
+                                    const customText = document.getElementById(`custom-${i}`).value.trim();
+                                    context.fillText(customText || i.toString(), x, y);
+                                } else if (numberStyle === 'roman') {
+                                    context.fillText(romanNumerals[i - 1], x, y);
+                                } else if (numberStyle === 'tamil') {
+                                    context.fillText(tamilNumerals[i - 1], x, y);
+                                } else if (numberStyle === 'dots') {
+                                    context.fillText('•', x, y);
+                                } else {
+                                    context.fillText(i.toString(), x, y);
+                                }
+                            }
                         }
                         
-                        // Move on to drawing the clock hands
-                        drawClockHands();
-                    }
-                    
-                    function drawClockHands() {
-                        // Get current time
-                        const now = new Date();
-                        const hours = now.getHours() % 12;
-                        const minutes = now.getMinutes();
-                        const seconds = now.getSeconds();
+                        // Create a promise chain for branding elements
+                        let brandPromise = Promise.resolve();
                         
-                        // Calculate hand angles
-                        const hourAngle = (hours * 30 + minutes * 0.5) * (Math.PI / 180);
-                        const minuteAngle = minutes * 6 * (Math.PI / 180);
-                        const secondAngle = seconds * 6 * (Math.PI / 180);
-                        
-                        const centerX = clockSize / 2;
-                        const centerY = clockSize / 2;
-                        
-                        // Get hand colors
-                        const hourHandColor = document.getElementById('hour-hand-color').value;
-                        const minuteHandColor = document.getElementById('minute-hand-color').value;
-                        const secondHandColor = document.getElementById('second-hand-color').value;
-                        const centerDotColor = document.getElementById('center-dot-color').value;
-                        
-                        // Draw hour hand if enabled
-                        if (document.getElementById('show-hour-hand').checked) {
-                            const hourHandLength = clockSize * 0.2;
-                            context.beginPath();
-                            context.lineWidth = 4;
-                            context.lineCap = 'round';
-                            context.strokeStyle = hourHandColor;
-                            context.moveTo(centerX, centerY);
-                            context.lineTo(
-                                centerX + hourHandLength * Math.cos(hourAngle - Math.PI/2),
-                                centerY + hourHandLength * Math.sin(hourAngle - Math.PI/2)
-                            );
-                            context.stroke();
-                        }
-                        
-                        // Check if minute hand should be shown
-                        if (document.getElementById('show-minute-hand').checked) {
-                            const minuteHandLength = clockSize * 0.3;
-                            context.beginPath();
-                            context.lineWidth = 3;
-                            context.lineCap = 'round';
-                            context.strokeStyle = minuteHandColor;
-                            context.moveTo(centerX, centerY);
-                            context.lineTo(
-                                centerX + minuteHandLength * Math.cos(minuteAngle - Math.PI/2),
-                                centerY + minuteHandLength * Math.sin(minuteAngle - Math.PI/2)
-                            );
-                            context.stroke();
-                        }
-                        
-                        // Check if second hand should be shown
-                        if (document.getElementById('show-second-hand').checked) {
-                            const secondHandLength = clockSize * 0.35;
-                            context.beginPath();
-                            context.lineWidth = 2;
-                            context.lineCap = 'round';
-                            context.strokeStyle = secondHandColor;
-                            context.moveTo(centerX, centerY);
-                            context.lineTo(
-                                centerX + secondHandLength * Math.cos(secondAngle - Math.PI/2),
-                                centerY + secondHandLength * Math.sin(secondAngle - Math.PI/2)
-                            );
-                            context.stroke();
-                        }
-                        
-                        // Draw center dot if enabled
-                        if (document.getElementById('show-center-dot').checked) {
-                            context.beginPath();
-                            context.arc(centerX, centerY, clockSize * 0.015, 0, Math.PI * 2);
-                            context.fillStyle = centerDotColor;
-                            context.fill();
-                        }
-                        
-                        // Convert canvas to image and trigger download
-                        try {
-                            // Show a brief animation on the clock to indicate processing
-                            clock.classList.add('animate-pulse');
+                        // Draw brand elements if enabled
+                        if (document.getElementById('show-brand').checked) {
+                            // Draw logo if enabled
+                            if (document.getElementById('show-logo').checked && logoImage) {
+                                brandPromise = new Promise((resolveBrand) => {
+                                    const logoImg = new Image();
+                                    logoImg.crossOrigin = "Anonymous";
+                                    
+                                    logoImg.onload = function() {
+                                        try {
+                                            // Calculate dimensions while preserving aspect ratio
+                                            const logoSize = parseInt(document.getElementById('logo-size').value) || 20;
+                                            const logoPosition = parseInt(document.getElementById('logo-position').value) || 20;
+                                            
+                                            const maxWidth = clockSize * (logoSize / 100);
+                                            const ratio = logoImg.height / logoImg.width;
+                                            let logoWidth = maxWidth;
+                                            let logoHeight = logoWidth * ratio;
+                                            
+                                            if (logoHeight > clockSize * 0.15) {
+                                                logoHeight = clockSize * 0.15;
+                                                logoWidth = logoHeight / ratio;
+                                            }
+                                            
+                                            // Position at specified position from top
+                                            const logoX = clockSize/2 - logoWidth/2;
+                                            const logoY = clockSize * (logoPosition / 100);
+                                            
+                                            context.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
+                                        } catch (err) {
+                                            console.error("Error drawing logo:", err);
+                                        } finally {
+                                            resolveBrand();
+                                        }
+                                    };
+                                    
+                                    logoImg.onerror = function() {
+                                        console.error("Error loading logo image");
+                                        resolveBrand();
+                                    };
+                                    
+                                    logoImg.src = logoImage;
+                                });
+                            }
                             
-                            const imageURL = canvas.toDataURL('image/png');
-                            const downloadLink = document.createElement('a');
-                            downloadLink.href = imageURL;
-                            downloadLink.download = 'watchface.png';
-                            downloadLink.style.display = 'none';
-                            document.body.appendChild(downloadLink);
+                            // Add brand text to the promise chain
+                            brandPromise = brandPromise.then(() => {
+                                // Draw the text-based brand
+                                const brandName = document.getElementById('brand-name').value.trim();
+                                if (brandName) {
+                                    try {
+                                        const brandColor = document.getElementById('brand-color').value;
+                                        const brandSize = parseInt(document.getElementById('brand-size').value) || 14;
+                                        const brandPosition = parseInt(document.getElementById('brand-position').value) || 65;
+                                        
+                                        context.font = `${brandSize}px 'Inter', Arial, sans-serif`;
+                                        context.fillStyle = brandColor;
+                                        context.textAlign = 'center';
+                                        context.textBaseline = 'middle';
+                                        
+                                        // Position brand name at specified position
+                                        context.fillText(brandName, clockSize/2, clockSize * (brandPosition / 100));
+                                    } catch (err) {
+                                        console.error("Error drawing brand text:", err);
+                                    }
+                                }
+                            });
+                        }
+                        
+                        // After brand elements are drawn, draw the clock hands
+                        brandPromise.then(() => {
+                            try {
+                                // Get current time
+                                const now = new Date();
+                                const hours = now.getHours() % 12;
+                                const minutes = now.getMinutes();
+                                const seconds = now.getSeconds();
+                                
+                                // Calculate hand angles
+                                const hourAngle = (hours * 30 + minutes * 0.5) * (Math.PI / 180);
+                                const minuteAngle = minutes * 6 * (Math.PI / 180);
+                                const secondAngle = seconds * 6 * (Math.PI / 180);
+                                
+                                const centerX = clockSize / 2;
+                                const centerY = clockSize / 2;
+                                
+                                // Get hand colors
+                                const hourHandColor = document.getElementById('hour-hand-color').value;
+                                const minuteHandColor = document.getElementById('minute-hand-color').value;
+                                const secondHandColor = document.getElementById('second-hand-color').value;
+                                const centerDotColor = document.getElementById('center-dot-color').value;
+                                
+                                // Draw hour hand if enabled
+                                if (document.getElementById('show-hour-hand').checked) {
+                                    const hourHandLength = clockSize * 0.2;
+                                    context.beginPath();
+                                    context.lineWidth = 4;
+                                    context.lineCap = 'round';
+                                    context.strokeStyle = hourHandColor;
+                                    context.moveTo(centerX, centerY);
+                                    context.lineTo(
+                                        centerX + hourHandLength * Math.cos(hourAngle - Math.PI/2),
+                                        centerY + hourHandLength * Math.sin(hourAngle - Math.PI/2)
+                                    );
+                                    context.stroke();
+                                }
+                                
+                                // Check if minute hand should be shown
+                                if (document.getElementById('show-minute-hand').checked) {
+                                    const minuteHandLength = clockSize * 0.3;
+                                    context.beginPath();
+                                    context.lineWidth = 3;
+                                    context.lineCap = 'round';
+                                    context.strokeStyle = minuteHandColor;
+                                    context.moveTo(centerX, centerY);
+                                    context.lineTo(
+                                        centerX + minuteHandLength * Math.cos(minuteAngle - Math.PI/2),
+                                        centerY + minuteHandLength * Math.sin(minuteAngle - Math.PI/2)
+                                    );
+                                    context.stroke();
+                                }
+                                
+                                // Check if second hand should be shown
+                                if (document.getElementById('show-second-hand').checked) {
+                                    const secondHandLength = clockSize * 0.35;
+                                    context.beginPath();
+                                    context.lineWidth = 2;
+                                    context.lineCap = 'round';
+                                    context.strokeStyle = secondHandColor;
+                                    context.moveTo(centerX, centerY);
+                                    context.lineTo(
+                                        centerX + secondHandLength * Math.cos(secondAngle - Math.PI/2),
+                                        centerY + secondHandLength * Math.sin(secondAngle - Math.PI/2)
+                                    );
+                                    context.stroke();
+                                }
+                                
+                                // Draw center dot if enabled
+                                if (document.getElementById('show-center-dot').checked) {
+                                    context.beginPath();
+                                    context.arc(centerX, centerY, clockSize * 0.015, 0, Math.PI * 2);
+                                    context.fillStyle = centerDotColor;
+                                    context.fill();
+                                }
+                                
+                                // Resolve the main drawing promise when we're done
+                                resolveDrawing();
+                            } catch (err) {
+                                console.error("Error drawing clock hands:", err);
+                                rejectDrawing(err);
+                            }
+                        }).catch((err) => {
+                            console.error("Error in brand promise chain:", err);
+                            rejectDrawing(err);
+                        });
+                    } catch (err) {
+                        console.error("Error in drawClockElements:", err);
+                        rejectDrawing(err);
+                    }
+                }
+                
+                // Once all drawing is complete, convert canvas to image and trigger download
+                drawComplete.then(() => {
+                    try {
+                        const imageURL = canvas.toDataURL('image/png');
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = imageURL;
+                        downloadLink.download = 'watchface.png';
+                        downloadLink.style.display = 'none';
+                        document.body.appendChild(downloadLink);
+                        
+                        setTimeout(() => {
+                            downloadLink.click();
+                            document.body.removeChild(downloadLink);
+                            
+                            // Create notification of success
+                            const notification = document.createElement('div');
+                            notification.style.position = 'fixed';
+                            notification.style.bottom = '20px';
+                            notification.style.left = '50%';
+                            notification.style.transform = 'translateX(-50%)';
+                            notification.style.backgroundColor = 'var(--success)';
+                            notification.style.color = 'white';
+                            notification.style.padding = '12px 24px';
+                            notification.style.borderRadius = '6px';
+                            notification.style.boxShadow = 'var(--shadow-md)';
+                            notification.style.zIndex = '1000';
+                            notification.textContent = "Watch face saved successfully!";
+                            
+                            document.body.appendChild(notification);
                             
                             setTimeout(() => {
-                                downloadLink.click();
-                                document.body.removeChild(downloadLink);
-                                
-                                // Create notification of success
-                                const notification = document.createElement('div');
-                                notification.style.position = 'fixed';
-                                notification.style.bottom = '20px';
-                                notification.style.left = '50%';
-                                notification.style.transform = 'translateX(-50%)';
-                                notification.style.backgroundColor = 'var(--success)';
-                                notification.style.color = 'white';
-                                notification.style.padding = '12px 24px';
-                                notification.style.borderRadius = '6px';
-                                notification.style.boxShadow = 'var(--shadow-md)';
-                                notification.style.zIndex = '1000';
-                                notification.textContent = "Watch face saved successfully!";
-                                
-                                document.body.appendChild(notification);
+                                notification.style.opacity = '0';
+                                notification.style.transition = 'opacity 0.5s';
                                 
                                 setTimeout(() => {
-                                    notification.style.opacity = '0';
-                                    notification.style.transition = 'opacity 0.5s';
-                                    
-                                    setTimeout(() => {
-                                        document.body.removeChild(notification);
-                                        clock.classList.remove('animate-pulse');
-                                    }, 500);
-                                }, 3000);
-                            }, 500);
-                        } catch (err) {
-                            console.error("Error generating or downloading image:", err);
-                            alert("There was an error saving the watch face. Please try again.");
-                            clock.classList.remove('animate-pulse');
-                        }
+                                    document.body.removeChild(notification);
+                                    clock.classList.remove('animate-pulse');
+                                }, 500);
+                            }, 3000);
+                        }, 500);
+                    } catch (err) {
+                        console.error("Error generating or downloading image:", err);
+                        showErrorNotification("There was an error saving the watch face. Please try again.");
                     }
+                }).catch(err => {
+                    console.error("Error in drawing process:", err);
+                    showErrorNotification("There was an error saving the watch face. Please try again.");
+                });
+                
+                function showErrorNotification(message) {
+                    clock.classList.remove('animate-pulse');
+                    
+                    // Create error notification
+                    const notification = document.createElement('div');
+                    notification.style.position = 'fixed';
+                    notification.style.bottom = '20px';
+                    notification.style.left = '50%';
+                    notification.style.transform = 'translateX(-50%)';
+                    notification.style.backgroundColor = 'var(--danger)';
+                    notification.style.color = 'white';
+                    notification.style.padding = '12px 24px';
+                    notification.style.borderRadius = '6px';
+                    notification.style.boxShadow = 'var(--shadow-md)';
+                    notification.style.zIndex = '1000';
+                    notification.textContent = message;
+                    
+                    document.body.appendChild(notification);
+                    
+                    setTimeout(() => {
+                        notification.style.opacity = '0';
+                        notification.style.transition = 'opacity 0.5s';
+                        
+                        setTimeout(() => {
+                            document.body.removeChild(notification);
+                        }, 500);
+                    }, 3000);
                 }
             } catch (err) {
                 console.error("Error in saveWatchFace function:", err);
                 alert("There was an error saving the watch face. Please try again.");
+                clock.classList.remove('animate-pulse');
             }
         }
         
