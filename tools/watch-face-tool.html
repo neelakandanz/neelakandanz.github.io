@@ -556,13 +556,13 @@
                 <div class="toggle-container">
                     <span class="toggle-label">Show Logo</span>
                     <label class="toggle">
-                        <input type="checkbox" id="show-logo" onchange="toggleLogoOptions()">
+                        <input type="checkbox" id="show-logo" checked onchange="toggleLogoOptions()">
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
                 
                 <!-- Logo Options -->
-                <div id="logo-brand-options" style="display: none;">
+                <div id="logo-brand-options">
                     <div class="form-control">
                         <label for="brand-logo">Upload Logo</label>
                         <input type="file" id="brand-logo" accept="image/*" onchange="handleLogoUpload(event)">
@@ -584,7 +584,7 @@
                         </div>
                     </div>
                     
-                    <button id="default-logo-button" class="btn btn-secondary">Use Default Flower Logo</button>
+                    <button id="default-logo-button" class="btn btn-secondary">Reset to Default Logo</button>
                 </div>
                 
                 <!-- Text Brand Options -->
@@ -792,27 +792,57 @@
         let clockSize = 300;
         let backgroundImage = null;
         let logoImage = null;
-        const defaultLogoUrl = "https://w7.pngwing.com/pngs/228/903/png-transparent-gloriosa-superba-lilium-flower-climbing-plant-stem-gloriosa-plant-thumbnail.png";
+        const defaultLogoUrl = "https://raw.githubusercontent.com/neelakandanz/neelakandanz.github.io/refs/heads/main/default_brand_logo.png";
+        let defaultLogoLoaded = false;
         
         // Initialize the clock
         function initClock() {
-            updateWatchFace();
-            setInterval(updateClockHands, 1000);
+            // Load the default logo first
+            loadDefaultLogoAndInitialize();
             
             // Set up default logo button
             document.getElementById('default-logo-button').addEventListener('click', useDefaultLogo);
+            
+            // Set up clock hands update timer
+            setInterval(updateClockHands, 1000);
         }
         
-        // Use the default flower logo
+        // Load default logo and initialize watch face
+        function loadDefaultLogoAndInitialize() {
+            const img = new Image();
+            img.crossOrigin = "Anonymous"; // Enable cross-origin loading
+            
+            img.onload = function() {
+                // Set the logo image to the default
+                logoImage = img.src;
+                defaultLogoLoaded = true;
+                
+                // Now that logo is loaded, update the watch face
+                updateWatchFace();
+            };
+            
+            img.onerror = function() {
+                console.error("Could not load the default logo.");
+                defaultLogoLoaded = false;
+                // Still update the watch face even if logo fails to load
+                updateWatchFace();
+            };
+            
+            img.src = defaultLogoUrl;
+        }
+        
+        // Use the default logo
         function useDefaultLogo() {
-            // Create an image element to load the default logo
             const img = new Image();
             img.crossOrigin = "Anonymous"; // Enable cross-origin loading
             
             img.onload = function() {
                 logoImage = img.src;
-                // Make sure the logo toggle is enabled
-                document.getElementById('show-logo').checked = true;
+                // Make sure the logo toggle is enabled if it wasn't already
+                if (!document.getElementById('show-logo').checked) {
+                    document.getElementById('show-logo').checked = true;
+                    document.getElementById('logo-brand-options').style.display = 'block';
+                }
                 updateWatchFace();
             };
             
@@ -825,8 +855,9 @@
         
         // Toggle logo options visibility
         function toggleLogoOptions() {
+            const showLogo = document.getElementById('show-logo').checked;
             const logoOptions = document.getElementById('logo-brand-options');
-            logoOptions.style.display = document.getElementById('show-logo').checked ? 'block' : 'none';
+            logoOptions.style.display = showLogo ? 'block' : 'none';
             updateWatchFace();
         }
         
@@ -1314,7 +1345,7 @@
                             context.stroke();
                         }
                         
-                        // Draw minute hand if enabled
+                        // Check if minute hand should be shown
                         if (document.getElementById('show-minute-hand').checked) {
                             const minuteHandLength = clockSize * 0.3;
                             context.beginPath();
@@ -1329,7 +1360,7 @@
                             context.stroke();
                         }
                         
-                        // Draw second hand if enabled
+                        // Check if second hand should be shown
                         if (document.getElementById('show-second-hand').checked) {
                             const secondHandLength = clockSize * 0.35;
                             context.beginPath();
