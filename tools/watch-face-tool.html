@@ -1298,19 +1298,28 @@
             }
         }
         
-        // Save watch face as image
+        // Save watch face as high-definition image
         function saveWatchFace() {
             try {
                 // Show a brief animation on the clock to indicate processing
                 clock.classList.add('animate-pulse');
                 
-                // Create a canvas element
+                // Scale factor for high definition output
+                const scaleFactor = 3; // 3x resolution for HD output
+                
+                // Create a canvas element with increased resolution
                 const canvas = document.createElement('canvas');
+                const hdSize = clockSize * scaleFactor;
+                canvas.width = hdSize;
+                canvas.height = hdSize;
                 const context = canvas.getContext('2d');
                 
-                // Set canvas size to match the clock
-                canvas.width = clockSize;
-                canvas.height = clockSize;
+                // Enable anti-aliasing
+                context.imageSmoothingEnabled = true;
+                context.imageSmoothingQuality = 'high';
+                
+                // Scale all drawing operations
+                context.scale(scaleFactor, scaleFactor);
                 
                 // Draw white background first (in case of transparency issues)
                 context.fillStyle = '#ffffff';
@@ -1368,7 +1377,7 @@
                 
                 function drawClockElements(resolveDrawing, rejectDrawing) {
                     try {
-                        // Draw border
+                        // Draw border with anti-aliasing
                         context.beginPath();
                         context.arc(clockSize/2, clockSize/2, clockSize/2 - 1, 0, Math.PI * 2);
                         context.lineWidth = 2;
@@ -1388,10 +1397,11 @@
                             
                             const radius = clockSize / 2;
                             
-                            // Draw minute markers
+                            // Draw minute markers with higher precision
                             if (showMinuteMarkers) {
                                 context.strokeStyle = markersColor;
                                 context.lineWidth = minuteMarkersWidth;
+                                context.lineCap = 'butt'; // Sharper lines
                                 
                                 for (let i = 0; i < 60; i++) {
                                     // Skip positions where hour markers will be placed
@@ -1412,10 +1422,11 @@
                                 }
                             }
                             
-                            // Draw hour markers
+                            // Draw hour markers with higher precision
                             if (showHourMarkers) {
                                 context.strokeStyle = markersColor;
                                 context.lineWidth = hourMarkersWidth;
+                                context.lineCap = 'butt'; // Sharper lines
                                 
                                 for (let i = 0; i < 12; i++) {
                                     const angle = (i * 30 - 90) * (Math.PI / 180);
@@ -1447,27 +1458,34 @@
                             context.fillStyle = numberColor;
                             context.textAlign = 'center';
                             context.textBaseline = 'middle';
+                            context.font = `${numberSize}px 'Inter', Arial, sans-serif`;
                             
                             for (let i = 1; i <= 12; i++) {
                                 const angle = (i * 30 - 90) * (Math.PI / 180);
                                 const x = radius * Math.cos(angle) + clockSize/2;
                                 const y = radius * Math.sin(angle) + clockSize/2;
                                 
-                                context.font = `${numberSize}px 'Inter', Arial, sans-serif`;
-                                
-                                // Set number content based on style
+                                // Add extra precision for text rendering
+                                let text;
                                 if (numberStyle === 'custom') {
                                     const customText = document.getElementById(`custom-${i}`).value.trim();
-                                    context.fillText(customText || i.toString(), x, y);
+                                    text = customText || i.toString();
                                 } else if (numberStyle === 'roman') {
-                                    context.fillText(romanNumerals[i - 1], x, y);
+                                    text = romanNumerals[i - 1];
                                 } else if (numberStyle === 'tamil') {
-                                    context.fillText(tamilNumerals[i - 1], x, y);
+                                    text = tamilNumerals[i - 1];
                                 } else if (numberStyle === 'dots') {
-                                    context.fillText('•', x, y);
+                                    text = '•';
+                                    // Adjust font size for dots
+                                    context.font = `${numberSize + 5}px 'Inter', Arial, sans-serif`;
+                                    context.fillText(text, x, y);
+                                    context.font = `${numberSize}px 'Inter', Arial, sans-serif`;
+                                    continue;
                                 } else {
-                                    context.fillText(i.toString(), x, y);
+                                    text = i.toString();
                                 }
+                                
+                                context.fillText(text, x, y);
                             }
                         }
                         
@@ -1566,7 +1584,7 @@
                                 const secondHandColor = document.getElementById('second-hand-color').value;
                                 const centerDotColor = document.getElementById('center-dot-color').value;
                                 
-                                // Draw hour hand if enabled
+                                // Draw hour hand if enabled with anti-aliasing
                                 if (document.getElementById('show-hour-hand').checked) {
                                     const hourHandLength = clockSize * 0.2;
                                     context.beginPath();
@@ -1611,7 +1629,7 @@
                                     context.stroke();
                                 }
                                 
-                                // Draw center dot if enabled
+                                // Draw center dot if enabled with enhanced quality
                                 if (document.getElementById('show-center-dot').checked) {
                                     context.beginPath();
                                     context.arc(centerX, centerY, clockSize * 0.015, 0, Math.PI * 2);
@@ -1638,10 +1656,11 @@
                 // Once all drawing is complete, convert canvas to image and trigger download
                 drawComplete.then(() => {
                     try {
-                        const imageURL = canvas.toDataURL('image/png');
+                        // Use maximum quality settings for PNG output
+                        const imageURL = canvas.toDataURL('image/png', 1.0);
                         const downloadLink = document.createElement('a');
                         downloadLink.href = imageURL;
-                        downloadLink.download = 'watchface.png';
+                        downloadLink.download = 'watchface-hd.png';
                         downloadLink.style.display = 'none';
                         document.body.appendChild(downloadLink);
                         
@@ -1661,7 +1680,7 @@
                             notification.style.borderRadius = '6px';
                             notification.style.boxShadow = 'var(--shadow-md)';
                             notification.style.zIndex = '1000';
-                            notification.textContent = "Watch face saved successfully!";
+                            notification.textContent = "HD watch face saved successfully!";
                             
                             document.body.appendChild(notification);
                             
