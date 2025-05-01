@@ -477,6 +477,13 @@
             transition: all 0.3s ease;
         }
         
+        .clock-marker {
+            position: absolute;
+            transform-origin: bottom center;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+        
         @media (max-width: 768px) {
             body {
                 padding: var(--spacing-4);
@@ -634,6 +641,63 @@
                     <div class="form-control">
                         <label for="bg-image">Upload Image</label>
                         <input type="file" id="bg-image" accept="image/*" onchange="handleImageUpload(event)">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Clock Markers Options -->
+            <div class="option-group">
+                <h2>Clock Markers</h2>
+                <div class="toggle-container">
+                    <span class="toggle-label">Show Hour Markers</span>
+                    <label class="toggle">
+                        <input type="checkbox" id="show-hour-markers" checked onchange="updateWatchFace()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="toggle-container">
+                    <span class="toggle-label">Show Minute Markers</span>
+                    <label class="toggle">
+                        <input type="checkbox" id="show-minute-markers" checked onchange="updateWatchFace()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="color-picker-group">
+                    <label for="markers-color">Markers Color</label>
+                    <input type="color" id="markers-color" value="#000000" oninput="updateWatchFace()">
+                </div>
+                
+                <div class="form-control">
+                    <label for="hour-markers-length">Hour Markers Length</label>
+                    <div class="range-container">
+                        <input type="range" id="hour-markers-length" min="2" max="15" value="8" oninput="updateWatchFace()">
+                        <span id="hour-markers-length-value" class="slider-value">8px</span>
+                    </div>
+                </div>
+                
+                <div class="form-control">
+                    <label for="hour-markers-width">Hour Markers Width</label>
+                    <div class="range-container">
+                        <input type="range" id="hour-markers-width" min="1" max="5" value="2" oninput="updateWatchFace()">
+                        <span id="hour-markers-width-value" class="slider-value">2px</span>
+                    </div>
+                </div>
+                
+                <div class="form-control">
+                    <label for="minute-markers-length">Minute Markers Length</label>
+                    <div class="range-container">
+                        <input type="range" id="minute-markers-length" min="1" max="10" value="4" oninput="updateWatchFace()">
+                        <span id="minute-markers-length-value" class="slider-value">4px</span>
+                    </div>
+                </div>
+                
+                <div class="form-control">
+                    <label for="minute-markers-width">Minute Markers Width</label>
+                    <div class="range-container">
+                        <input type="range" id="minute-markers-width" min="1" max="3" value="1" oninput="updateWatchFace()">
+                        <span id="minute-markers-width-value" class="slider-value">1px</span>
                     </div>
                 </div>
             </div>
@@ -915,12 +979,34 @@
             const logoPosition = document.getElementById('logo-position').value;
             document.getElementById('logo-position-value').textContent = logoPosition + '%';
             
+            // Hour markers length update
+            const hourMarkersLength = document.getElementById('hour-markers-length').value;
+            document.getElementById('hour-markers-length-value').textContent = hourMarkersLength + 'px';
+            
+            // Hour markers width update
+            const hourMarkersWidth = document.getElementById('hour-markers-width').value;
+            document.getElementById('hour-markers-width-value').textContent = hourMarkersWidth + 'px';
+            
+            // Minute markers length update
+            const minuteMarkersLength = document.getElementById('minute-markers-length').value;
+            document.getElementById('minute-markers-length-value').textContent = minuteMarkersLength + 'px';
+            
+            // Minute markers width update
+            const minuteMarkersWidth = document.getElementById('minute-markers-width').value;
+            document.getElementById('minute-markers-width-value').textContent = minuteMarkersWidth + 'px';
+            
             // Clear previous elements
             const oldNumbers = clock.querySelectorAll('.number');
             oldNumbers.forEach(num => num.remove());
             
             const oldBrandElements = clock.querySelectorAll('.brand-element');
             oldBrandElements.forEach(element => element.remove());
+            
+            const oldMarkers = clock.querySelectorAll('.clock-marker');
+            oldMarkers.forEach(marker => marker.remove());
+            
+            // Add clock markers if enabled
+            addClockMarkers();
             
             // Add numbers if enabled
             if (document.getElementById('show-numbers').checked) {
@@ -937,6 +1023,83 @@
             
             // Ensure center dot is positioned correctly
             updateCenterDot();
+        }
+        
+        // Add clock markers (hour and minute lines) to the clock face
+        function addClockMarkers() {
+            const markersColor = document.getElementById('markers-color').value;
+            const showHourMarkers = document.getElementById('show-hour-markers').checked;
+            const showMinuteMarkers = document.getElementById('show-minute-markers').checked;
+            
+            if (!showHourMarkers && !showMinuteMarkers) return;
+            
+            const hourMarkersLength = parseInt(document.getElementById('hour-markers-length').value);
+            const hourMarkersWidth = parseInt(document.getElementById('hour-markers-width').value);
+            const minuteMarkersLength = parseInt(document.getElementById('minute-markers-length').value);
+            const minuteMarkersWidth = parseInt(document.getElementById('minute-markers-width').value);
+            
+            const radius = clockSize / 2; // Clock radius
+            
+            // Add minute markers (60 markers)
+            if (showMinuteMarkers) {
+                for (let i = 0; i < 60; i++) {
+                    // Skip positions where hour markers will be placed
+                    if (i % 5 === 0 && showHourMarkers) continue;
+                    
+                    const marker = document.createElement('div');
+                    marker.className = 'clock-marker';
+                    
+                    // Position calculation
+                    const angle = (i * 6 - 90) * (Math.PI / 180); // -90 to start at 12 o'clock
+                    
+                    // Calculate position at the edge of the clock
+                    const x = radius * Math.cos(angle) + radius;
+                    const y = radius * Math.sin(angle) + radius;
+                    
+                    // Marker styling
+                    marker.style.width = minuteMarkersWidth + 'px';
+                    marker.style.height = minuteMarkersLength + 'px';
+                    marker.style.backgroundColor = markersColor;
+                    
+                    // Position the marker
+                    marker.style.left = (x - (minuteMarkersWidth / 2)) + 'px';
+                    marker.style.top = (y - (minuteMarkersLength / 2)) + 'px';
+                    
+                    // Rotate to point toward center
+                    marker.style.transform = `rotate(${i * 6 + 180}deg)`;
+                    
+                    clock.appendChild(marker);
+                }
+            }
+            
+            // Add hour markers (12 markers)
+            if (showHourMarkers) {
+                for (let i = 0; i < 12; i++) {
+                    const marker = document.createElement('div');
+                    marker.className = 'clock-marker';
+                    
+                    // Position calculation
+                    const angle = (i * 30 - 90) * (Math.PI / 180); // -90 to start at 12 o'clock
+                    
+                    // Calculate position at the edge of the clock
+                    const x = radius * Math.cos(angle) + radius;
+                    const y = radius * Math.sin(angle) + radius;
+                    
+                    // Marker styling
+                    marker.style.width = hourMarkersWidth + 'px';
+                    marker.style.height = hourMarkersLength + 'px';
+                    marker.style.backgroundColor = markersColor;
+                    
+                    // Position the marker
+                    marker.style.left = (x - (hourMarkersWidth / 2)) + 'px';
+                    marker.style.top = (y - (hourMarkersLength / 2)) + 'px';
+                    
+                    // Rotate to point toward center
+                    marker.style.transform = `rotate(${i * 30 + 180}deg)`;
+                    
+                    clock.appendChild(marker);
+                }
+            }
         }
         
         // Add brand elements (text and/or logo) to the clock
@@ -1211,6 +1374,65 @@
                         context.lineWidth = 2;
                         context.strokeStyle = '#000';
                         context.stroke();
+                        
+                        // Draw clock markers (hour and minute lines)
+                        const showHourMarkers = document.getElementById('show-hour-markers').checked;
+                        const showMinuteMarkers = document.getElementById('show-minute-markers').checked;
+                        
+                        if (showHourMarkers || showMinuteMarkers) {
+                            const markersColor = document.getElementById('markers-color').value;
+                            const hourMarkersLength = parseInt(document.getElementById('hour-markers-length').value);
+                            const hourMarkersWidth = parseInt(document.getElementById('hour-markers-width').value);
+                            const minuteMarkersLength = parseInt(document.getElementById('minute-markers-length').value);
+                            const minuteMarkersWidth = parseInt(document.getElementById('minute-markers-width').value);
+                            
+                            const radius = clockSize / 2;
+                            
+                            // Draw minute markers
+                            if (showMinuteMarkers) {
+                                context.strokeStyle = markersColor;
+                                context.lineWidth = minuteMarkersWidth;
+                                
+                                for (let i = 0; i < 60; i++) {
+                                    // Skip positions where hour markers will be placed
+                                    if (i % 5 === 0 && showHourMarkers) continue;
+                                    
+                                    const angle = (i * 6 - 90) * (Math.PI / 180);
+                                    
+                                    context.beginPath();
+                                    context.moveTo(
+                                        radius + (radius - 1) * Math.cos(angle),
+                                        radius + (radius - 1) * Math.sin(angle)
+                                    );
+                                    context.lineTo(
+                                        radius + (radius - minuteMarkersLength) * Math.cos(angle),
+                                        radius + (radius - minuteMarkersLength) * Math.sin(angle)
+                                    );
+                                    context.stroke();
+                                }
+                            }
+                            
+                            // Draw hour markers
+                            if (showHourMarkers) {
+                                context.strokeStyle = markersColor;
+                                context.lineWidth = hourMarkersWidth;
+                                
+                                for (let i = 0; i < 12; i++) {
+                                    const angle = (i * 30 - 90) * (Math.PI / 180);
+                                    
+                                    context.beginPath();
+                                    context.moveTo(
+                                        radius + (radius - 1) * Math.cos(angle),
+                                        radius + (radius - 1) * Math.sin(angle)
+                                    );
+                                    context.lineTo(
+                                        radius + (radius - hourMarkersLength) * Math.cos(angle),
+                                        radius + (radius - hourMarkersLength) * Math.sin(angle)
+                                    );
+                                    context.stroke();
+                                }
+                            }
+                        }
                         
                         // Draw numbers if enabled
                         if (document.getElementById('show-numbers').checked) {
