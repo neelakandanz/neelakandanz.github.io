@@ -7,20 +7,630 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;A600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- CSS -->
-  <link rel="stylesheet" href="styles.css">
-  
-  <!-- Import Map -->
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://unpkg.com/three@0.163.0/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.163.0/examples/jsm/"
+  <style>
+    :root {
+      --primary: #000000;
+      --secondary: #6366f1;
+      --accent: #f59e0b;
+      --text: #1f2937;
+      --text-light: #6b7280;
+      --bg: #ffffff;
+      --surface: #f8fafc;
+      --border: #e5e7eb;
+      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      z-index: 1000;
+      transition: all 0.3s ease;
+    }
+
+    .header-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-decoration: none;
+      letter-spacing: -0.025em;
+    }
+
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.5rem;
+    }
+
+    .nav-toggle span {
+      width: 25px;
+      height: 3px;
+      background: var(--primary);
+      margin: 3px 0;
+      transition: 0.3s;
+      border-radius: 2px;
+    }
+
+    nav ul {
+      display: flex;
+      list-style: none;
+      gap: 2rem;
+    }
+
+    .nav-link {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+      position: relative;
+    }
+
+    .nav-link:hover {
+      color: var(--secondary);
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--secondary);
+      transition: width 0.3s ease;
+    }
+
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    /* Main Content */
+    main {
+      padding-top: 80px;
+    }
+
+    section {
+      padding: 5rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: 90vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+    }
+
+    .hero-content {
+      max-width: 800px;
+      z-index: 2;
+    }
+
+    .hero h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--text-light);
+      margin-bottom: 2rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--primary);
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .cta-button:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    }
+
+    /* Floating Elements */
+    .floating-element {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--secondary), var(--accent));
+      opacity: 0.1;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .floating-element:nth-child(1) {
+      top: 20%;
+      left: 10%;
+      animation-delay: 0s;
+    }
+
+    .floating-element:nth-child(2) {
+      top: 60%;
+      right: 10%;
+      animation-delay: 2s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg);
+      border-radius: 20px;
+      padding: 3rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
+      margin-bottom: 2rem;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .card h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      text-align: center;
+      color: var(--primary);
+    }
+
+    /* About Section */
+    .about-content {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    .about-text p {
+      font-size: 1.1rem;
+      color: var(--text-light);
+      margin-bottom: 1.5rem;
+    }
+
+    .about-image {
+      text-align: center;
+    }
+
+    .about-image img {
+      width: 250px;
+      height: 250px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 5px solid var(--surface);
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* Skills Grid */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .skill-item {
+      background: var(--surface);
+      padding: 2rem;
+      border-radius: 15px;
+      text-align: center;
+      transition: all 0.3s ease;
+      border: 1px solid var(--border);
+    }
+
+    .skill-item:hover {
+      transform: translateY(-5px);
+      background: white;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .skill-item h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+
+    .skill-item p {
+      color: var(--text-light);
+    }
+
+    /* Projects Grid */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 2rem;
+    }
+
+    .project-card {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
+    }
+
+    .project-card:hover {
+      transform: translateY(-10px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .project-image {
+      height: 200px;
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .project-image img {
+      width: 160px;
+      height: 160px;
+      border-radius: 15px;
+      object-fit: cover;
+    }
+
+    .project-content {
+      padding: 2rem;
+    }
+
+    .project-content h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+
+    .project-content p {
+      color: var(--text-light);
+      margin-bottom: 1.5rem;
+    }
+
+    .project-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--secondary);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .project-btn:hover {
+      background: var(--primary);
+      transform: translateX(5px);
+    }
+
+    /* Tools Section */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 2rem;
+    }
+
+    .tool-card {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .tool-image {
+      height: 250px;
+      background: linear-gradient(135deg, var(--surface) 0%, #f1f5f9 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tool-image img {
+      max-width: 150px;
+      max-height: 150px;
+      border-radius: 15px;
+    }
+
+    .tool-content {
+      padding: 2rem;
+    }
+
+    .tool-content h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+
+    /* YouTube Section */
+    .youtube-card {
+      background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+      color: white;
+      text-align: center;
+      padding: 4rem 2rem;
+      border-radius: 20px;
+      margin: 2rem 0;
+    }
+
+    .youtube-card h2 {
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .youtube-card p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      margin-bottom: 2rem;
+    }
+
+    .youtube-btn {
+      background: white;
+      color: #cc0000;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .youtube-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    /* Contact Form */
+    .contact-form {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .form-group {
+      margin-bottom: 2rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 1rem;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: var(--surface);
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--secondary);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .form-group textarea {
+      height: 120px;
+      resize: vertical;
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .submit-btn:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
+    }
+
+    /* Footer */
+    footer {
+      background: var(--primary);
+      color: white;
+      text-align: center;
+      padding: 3rem 2rem;
+    }
+
+    .footer-content h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-content p {
+      margin-bottom: 2rem;
+      opacity: 0.8;
+    }
+
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .social-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 50px;
+      height: 50px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      color: white;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .social-link:hover {
+      background: var(--secondary);
+      transform: translateY(-3px);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .nav-toggle {
+        display: flex;
+      }
+
+      nav {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border-top: 1px solid var(--border);
+        display: none;
+      }
+
+      nav.active {
+        display: block;
+      }
+
+      nav ul {
+        flex-direction: column;
+        padding: 1rem 2rem;
+        gap: 1rem;
+      }
+
+      .about-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .skills-grid,
+      .projects-grid,
+      .tools-grid {
+        grid-template-columns: 1fr;
+      }
+
+      section {
+        padding: 3rem 1rem;
+      }
+
+      .card {
+        padding: 2rem 1.5rem;
+      }
+
+      .hero {
+        min-height: 80vh;
+        padding: 2rem 1rem;
       }
     }
-  </script>
+
+    /* Loading Animation */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.6s ease;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Smooth Scrolling */
+    html {
+      scroll-behavior: smooth;
+    }
+  </style>
 </head>
 <body>
   <!-- Header -->
@@ -34,12 +644,12 @@
       </button>
       <nav>
         <ul class="nav-menu">
-          <li><a href="#intro" class="nav-link">Home</a></li>
+          <li><a href="#hero" class="nav-link">Home</a></li>
           <li><a href="#about" class="nav-link">About</a></li>
           <li><a href="#skills" class="nav-link">Skills</a></li>
           <li><a href="#projects" class="nav-link">Projects</a></li>
           <li><a href="#tools" class="nav-link">Tools</a></li>
-          <li><a href="#learning" class="nav-link">Learning</a></li>
+          <li><a href="#youtube" class="nav-link">YouTube</a></li>
           <li><a href="#contact" class="nav-link">Contact</a></li>
         </ul>
       </nav>
@@ -47,26 +657,35 @@
   </header>
 
   <!-- Main Content -->
-  <main class="content">
-    <!-- Intro Section -->
-    <section id="intro" class="intro">
-      <h1>Hi, I'm <span style="color: var(--primary);">Neelakandan</span></h1>
-      <p>I'm a Mobile Application Developer specializing in Flutter for cross-platform development and Kotlin for Android. I create innovative and user-friendly mobile experiences that solve real-world problems.</p>
-      <a href="#contact" class="btn">Get in Touch</a>
+  <main>
+    <!-- Hero Section -->
+    <section id="hero" class="hero">
+      <div class="floating-element"></div>
+      <div class="floating-element"></div>
+      <div class="hero-content fade-in">
+        <h1>Hi, I'm <span class="gradient-text">Neelakandan</span></h1>
+        <p>Crafting beautiful, innovative mobile experiences with Flutter and Kotlin. I specialize in creating cross-platform apps that solve real-world problems with elegant design and seamless performance.</p>
+        <a href="#contact" class="cta-button">
+          Let's Connect
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m9 18 6-6-6-6"/>
+          </svg>
+        </a>
+      </div>
     </section>
 
     <!-- About Section -->
     <section id="about">
-      <div class="card">
+      <div class="card fade-in">
         <h2>About Me</h2>
         <div class="about-content">
           <div class="about-text">
             <p>I'm a passionate mobile app developer with expertise in building high-quality cross-platform and native Android applications. With a strong foundation in Flutter and Kotlin, I specialize in creating performant, visually appealing, and user-friendly mobile experiences.</p>
             <p>My journey in mobile development started with Android using Java, but I quickly transitioned to Kotlin when it became the official language for Android. When Flutter emerged as a powerful cross-platform solution, I embraced it to build apps that work seamlessly across multiple platforms while maintaining native-like performance.</p>
-            <p>I have a keen eye for UI/UX design and believe that great mobile experiences come from the perfect balance of beautiful interfaces, intuitive interactions, and solid technical implementation. I'm constantly learning new technologies and staying updated with the latest trends in mobile development.</p>
+            <p>I have a keen eye for UI/UX design and believe that great mobile experiences come from the perfect balance of beautiful interfaces, intuitive interactions, and solid technical implementation.</p>
           </div>
           <div class="about-image">
-            <img src="https://raw.githubusercontent.com/neelakandanz/neelakandanz.github.io/refs/heads/main/images/profile%20pic.png" alt="Neelakandan">
+            <img src="https://raw.githubusercontent.com/neelakandanz/neelakandanz.github.io/refs/heads/main/images/profile_pic_1.jpg" alt="Neelakandan">
           </div>
         </div>
       </div>
@@ -74,7 +693,7 @@
 
     <!-- Skills Section -->
     <section id="skills">
-      <div class="card">
+      <div class="card fade-in">
         <h2>My Skills</h2>
         <div class="skills-grid">
           <div class="skill-item">
@@ -107,47 +726,70 @@
 
     <!-- Projects Section -->
     <section id="projects">
-      <div class="card">
-        <h2>My Projects</h2>
-        <div class="project-grid">
-          <div class="project-item">
+      <div class="card fade-in">
+        <h2>Featured Projects</h2>
+        <div class="projects-grid">
+          <div class="project-card">
             <div class="project-image">
               <img src="https://play-lh.googleusercontent.com/M0z9evLlrdgwPTXRBqODtX6FSM_NzATFftPXQPDeMH_UtACWAVLdk2gDQOOwXIR22g=s256-rw" alt="Kaala Launcher App">
             </div>
             <div class="project-content">
               <h3>Kaala Launcher</h3>
-              <p>A custom Android launcher application with Tamil-inspired design elements. Features a minimalist interface with a distinctive "K" logo, app drawer organization, customizable widgets, and unique Tamil aesthetics to enhance the Android experience.</p>
-              <a href="https://play.google.com/store/apps/details?id=com.kaandhaliyakkam.kaalauncher" class="btn" target="_blank">View on Play Store</a>
+              <p>A custom Android launcher application with Tamil-inspired design elements. Features a minimalist interface with distinctive aesthetics to enhance the Android experience.</p>
+              <a href="https://play.google.com/store/apps/details?id=com.kaandhaliyakkam.kaalauncher" class="project-btn" target="_blank">
+                View on Play Store
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M7 17L17 7M17 7H7M17 7V17"/>
+                </svg>
+              </a>
             </div>
           </div>
-          <div class="project-item">
+
+          <div class="project-card">
             <div class="project-image">
               <img src="https://play-lh.googleusercontent.com/msKu34XpsgQBIP7pxVJKuT8di1iIF4l3OsXWTKGdKXbXgv3sg40FXkU02V2JXNig_A=s256-rw" alt="Tamil Clock Widget App">
             </div>
             <div class="project-content">
               <h3>Tamil Clock Widget</h3>
-              <p>An elegant and functional clock widget with Tamil cultural design elements. This app provides customizable home screen widgets featuring an analog clock with Tamil script numerals, different styles and themes, and low battery consumption.</p>
-              <a href="https://play.google.com/store/apps/details?id=com.kandhaliyakkam.tamilclockwidget" class="btn" target="_blank">View on Play Store</a>
+              <p>An elegant clock widget with Tamil cultural design elements. Provides customizable home screen widgets with analog clock and Tamil script numerals.</p>
+              <a href="https://play.google.com/store/apps/details?id=com.kandhaliyakkam.tamilclockwidget" class="project-btn" target="_blank">
+                View on Play Store
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M7 17L17 7M17 7H7M17 7V17"/>
+                </svg>
+              </a>
             </div>
           </div>
-          <div class="project-item">
+
+          <div class="project-card">
             <div class="project-image">
               <img src="https://play-lh.googleusercontent.com/OLj7bkUnaX7a-xrdU-fW6x3aaziJLGssyLvPquibhqFFuPu7BLR0vqoqwTnIV_A-fHk=w240-h480-rw" alt="Hello API App">
             </div>
             <div class="project-content">
               <h3>Hello API</h3>
-              <p>A developer utility app that demonstrates API integration and data handling. With a clean white interface and vibrant blue accents, this app showcases RESTful API implementations, JSON parsing, and responsive UI design patterns for displaying API results in a user-friendly manner.</p>
-              <a href="https://play.google.com/store/apps/details?id=com.kaandhal.helloapi" class="btn" target="_blank">View on Play Store</a>
+              <p>A developer utility app demonstrating API integration and data handling. Showcases RESTful API implementations with clean, responsive UI design.</p>
+              <a href="https://play.google.com/store/apps/details?id=com.kaandhal.helloapi" class="project-btn" target="_blank">
+                View on Play Store
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M7 17L17 7M17 7H7M17 7V17"/>
+                </svg>
+              </a>
             </div>
           </div>
-          <div class="project-item">
+
+          <div class="project-card">
             <div class="project-image">
               <img src="https://play-lh.googleusercontent.com/6Wp5tMdXju_Z2OHdBCt5snmfeVNeLt6jxS7DpdB8xrL4l8cKYJxa6cU4Ekujc3E_b8M=w240-h480-rw" alt="Psychedelic Wallpaper App">
             </div>
             <div class="project-content">
               <h3>Psychedelic Wallpaper</h3>
-              <p>A creative wallpaper application featuring dynamic, psychedelic art designs. With a distinctive purple spiral logo, this app offers unique, vibrant wallpapers with colorful patterns, customization options, live wallpaper capabilities, and an intuitive gallery interface for browsing and applying designs.</p>
-              <a href="https://play.google.com/store/apps/details?id=kandhaliyakkam.psychedelicwallpaper" class="btn" target="_blank">View on Play Store</a>
+              <p>A creative wallpaper application featuring dynamic, psychedelic art designs. Offers unique, vibrant wallpapers with colorful patterns and customization options.</p>
+              <a href="https://play.google.com/store/apps/details?id=kandhaliyakkam.psychedelicwallpaper" class="project-btn" target="_blank">
+                View on Play Store
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M7 17L17 7M17 7H7M17 7V17"/>
+                </svg>
+              </a>
             </div>
           </div>
         </div>
@@ -156,46 +798,41 @@
 
     <!-- Tools Section -->
     <section id="tools">
-      <div class="card">
-        <h2>My Tools</h2>
+      <div class="card fade-in">
+        <h2>Developer Tools</h2>
         <div class="tools-grid">
-          <div class="tool-item">
+          <div class="tool-card">
             <div class="tool-image">
               <img src="https://raw.githubusercontent.com/neelakandanz/neelakandanz.github.io/refs/heads/main/watchface_tool.png" alt="Custom Watch Face Tool">
             </div>
             <div class="tool-content">
               <h3>Custom Watch Face Tool</h3>
-              <p>Create beautiful, personalized watch faces with this interactive tool. Choose from various styles including traditional numerals, Roman numerals, and Tamil numerals. Customize colors, hands, and even add your own background images to design the perfect watch face.</p>
-              <a href="tools/watch-face-tool.html" class="btn">Try It Now</a>
+              <p>Create beautiful, personalized watch faces with this interactive tool. Choose from various styles including traditional numerals, Roman numerals, and Tamil numerals. Customize colors, hands, and backgrounds to design the perfect watch face.</p>
+              <a href="tools/watch-face-tool.html" class="project-btn">
+                Try It Now
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M7 17L17 7M17 7H7M17 7V17"/>
+                </svg>
+              </a>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Learning Section -->
-    <section id="learning">
-      <div class="card">
-        <h2>Learning Resources</h2>
-        <div class="learning-grid">
-          <div class="learning-item">
-            <div class="learning-image">
-              <img src="/api/placeholder/400/320" alt="Tamil Alphabet Training Game">
-            </div>
-            <div class="learning-content">
-              <h3>Tamil Alphabet Training Game</h3>
-              <p>An interactive educational game designed to help you learn the Tamil alphabet through engaging activities. Practice identifying letters and tracing them to improve your recognition and writing skills in a fun, gamified environment.</p>
-              <a href="learning/tamil-alphabet-game.html" class="btn">Start Learning</a>
-            </div>
-          </div>
-        </div>
+    <!-- YouTube Section -->
+    <section id="youtube">
+      <div class="youtube-card fade-in">
+        <h2>Flutter in Tamil</h2>
+        <p>Subscribe to my YouTube channel where I share Flutter tutorials in Tamil, app development tips, and hands-on coding videos to help you master mobile development.</p>
+        <a href="https://www.youtube.com/@flutterintamil" class="youtube-btn" target="_blank">Visit Channel</a>
       </div>
     </section>
-    
+
     <!-- Contact Section -->
     <section id="contact">
-      <div class="card">
-        <h2>Get In Touch</h2>
+      <div class="card fade-in">
+        <h2>Let's Build Something Amazing</h2>
         <form class="contact-form">
           <div class="form-group">
             <label for="name">Name</label>
@@ -254,278 +891,188 @@
     </div>
   </footer>
 
-  <!-- JavaScript for TextTerrain Effect -->
-  <script type="module">
-    import * as THREE from "three";
-    import {
-      OrbitControls
-    } from "three/addons/controls/OrbitControls.js";
-    import * as TWEEN from "three/addons/libs/tween.module.js";
-    import {
-      SimplexNoise
-    } from "three/addons/math/SimplexNoise.js";
-
-    let simplex = new SimplexNoise();
-
-    class TextTerrain extends THREE.Object3D {
-      constructor(anisotropy) {
-        super();
-        // atlas
-        let alphabet = [..."அஆஇஈஉஊஎஏஐஒஓஔகஙசஞடணதநபமயரலவழளறன"];
-        let textTexture = (() => {
-          let c = document.createElement("canvas");
-          let ctx = c.getContext("2d");
-          let texSize = 2048;
-          c.width = texSize;
-          c.height = texSize;
-          ctx.clearRect(0, 0, texSize, texSize);
-          let dim = 8;
-          let dimStep = texSize / dim;
-          for (let i = 0; i < alphabet.length; i++) {
-            let tileX = i % 8;
-            let tileY = Math.floor(i / 8);
-            let x = (tileX + 0.5) * dimStep;
-            let y = texSize - (tileY + 0.5) * dimStep;
-            ctx.fillStyle = `rgba(0, 0, 0, 1)`;
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.font = `bold ${dimStep * 0.9}px Arial`;
-            ctx.fillText(alphabet[i], x, y);
-          }
-          let tex = new THREE.CanvasTexture(c);
-          tex.colorSpace = "srgb";
-          tex.anisotropy = anisotropy;
-          return tex;
-        })(); // atlas
-
-        let tileDim = 200;
-
-        let g = new THREE.PlaneGeometry();
-        g.setAttribute("letterIdx", new THREE.InstancedBufferAttribute(new Float32Array(Array.from({
-          length: tileDim * tileDim
-        }, () => {
-          return THREE.MathUtils.randInt(0, alphabet.length - 1)
-        })), 1));
-        
-        let m = new THREE.MeshBasicMaterial({
-          map: textTexture,
-          transparent: true,
-          alphaTest: 0.01,
-          side: THREE.DoubleSide,
-          //forceSinglePass: true,
-          onBeforeCompile: shader => {
-            shader.vertexShader = `
-              attribute float letterIdx;
-              varying float vLetterIdx;
-              ${shader.vertexShader}
-            `.replace(
-              `#include <uv_vertex>`,
-              `#include <uv_vertex>
-              vLetterIdx = letterIdx;
-              `
-            );
-            //console.log(shader.vertexShader);
-
-            shader.fragmentShader = `
-              varying float vLetterIdx;
-              ${shader.fragmentShader}
-            `.replace(
-              `#include <map_fragment>`,
-              `
-              float letterIdx = floor(vLetterIdx + 0.1);
-              float tileStep = 1. / 8.;
-              float u = mod(letterIdx, 8.);
-              float v = floor(letterIdx / 8.);
-              vec2 iUv = (vec2(u, v) + vMapUv) * tileStep;
-              vec4 sampledDiffuseColor = texture2D( map, iUv );
-              diffuseColor *= sampledDiffuseColor;
-              `
-            );
-            //console.log(shader.fragmentShader);
-          }
-        });
-        let io = new THREE.InstancedMesh(g, m, tileDim * tileDim);
-        this.instancedMesh = io;
-
-        this.dummy = new THREE.Object3D();
-
-        this.finals = [];
-
-        let tri = new THREE.Triangle();
-        let n = new THREE.Vector3();
-        let la = new THREE.Vector3();
-
-        function getY(x, z) {
-          return simplex.noise(x * 0.01, z * 0.01) * 7.5;
-        }
-
-        let setFinals = () => {
-          let y0 = getY(this.dummy.position.x, this.dummy.position.z);
-          let y1 = getY(this.dummy.position.x, this.dummy.position.z - 1);
-          let y2 = getY(this.dummy.position.x + 1, this.dummy.position.z);
-          this.dummy.position.y = y0;
-
-          tri.a.set(this.dummy.position.x, y1, this.dummy.position.z - 1);
-          tri.b.set(this.dummy.position.x, y0, this.dummy.position.z);
-          tri.c.set(this.dummy.position.x + 1, y2, this.dummy.position.z);
-          tri.getNormal(n);
-
-          la.copy(this.dummy.position).add(n);
-          this.dummy.lookAt(la);
-          this.dummy.rotation.z = 0; // align along Z-axis of the terrain
-          this.dummy.updateMatrix();
-
-          this.finals.push({
-            y: y0,
-            pos: this.dummy.position.clone(),
-            rot: this.dummy.rotation.clone(),
-            dummy: new THREE.Object3D(),
-            inAction: false,
-            mediators: {
-              v: new THREE.Vector3(),
-              v2: new THREE.Vector3()
-            }
-          })
-        }
-        
-        // make it grid
-        for (let z = 0; z < tileDim; z++) {
-          for (let x = 0; x < tileDim; x++) {
-            this.dummy.position.x = -(tileDim - 1) * 0.5 + x;
-            this.dummy.position.z = -(tileDim - 1) * 0.5 + z;
-            setFinals(this.dummy.position);
-            this.instancedMesh.setMatrixAt(z * tileDim + x, this.dummy.matrix);
-          }
-        } // make it grid
-
-        this.add(io);
-        
-        // actions section
-        this.actions = Array.from({
-          length: 5000
-        }, () => {
-          let action = (delay) => {
-            //console.log("action started");
-            let getFreeLetterIndex = () => {
-              let letterIndex = Math.floor(Math.random() * this.finals.length);;
-              if (!this.finals[letterIndex].inAction) {
-                return letterIndex;
-              } else {
-                return getFreeLetterIndex();
-              }
-            }
-
-            let freeLetterIndex = getFreeLetterIndex();
-            let freeLetter = this.finals[freeLetterIndex];
-            let height = 30;
-            let m = freeLetter.mediators;
-            let v = m.v;
-            let v2 = m.v2;
-
-            v2.random().multiplyScalar(0.5).addScalar(0.5).multiplyScalar(Math.PI * 3 * Math.sign(Math.random() - 0.5));
-
-            let tween = new TWEEN.Tween({
-                val: 0
-              }).to({
-                val: 1
-              }, 10000)
-              .delay(delay)
-              .onStart(() => {freeLetter.inAction = true;})
-              .onUpdate(val => {
-                v.lerpVectors(v2, freeLetter.rot, val.val);
-                freeLetter.dummy.rotation.set(v.x, v.y, v.z);
-                freeLetter.dummy.position.copy(freeLetter.pos);
-                freeLetter.dummy.position.y = THREE.MathUtils.lerp(height, freeLetter.y, val.val);
-                freeLetter.dummy.updateMatrix();
-                io.setMatrixAt(freeLetterIndex, freeLetter.dummy.matrix);
-              })
-              .onComplete(() => {
-                freeLetter.inAction = false;
-                action(Math.random() * 10000);
-              });
-              tween.start();
-          }
-          return action;
-        }) // actions section
-      }
-    }
-
-    let scene = new THREE.Scene();
-    scene.fog = new THREE.Fog("#fff", 100, 150);
-    scene.background = new THREE.Color("#fff");
-    let camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 1, 500);
-    camera.position.set(0, 3, 8).setLength(50);
-    let renderer = new THREE.WebGLRenderer({
-      antialias: true
-    });
-    renderer.setSize(innerWidth, innerHeight);
-    document.body.appendChild(renderer.domElement);
-
-    window.addEventListener("resize", event => {
-      camera.aspect = innerWidth / innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(innerWidth, innerHeight);
-    })
-
-    let controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.enableZoom = false;
-    controls.enablePan = false;
-    controls.autoRotate = true;
-    controls.autoRotateSpeed = 0.5;
-
-    let textTerrain = new TextTerrain(renderer.capabilities.getMaxAnisotropy());
-    scene.add(textTerrain);
-    textTerrain.actions.forEach(action => {
-      action((Math.random() * 0.9 + 0.1) * 10000);
-    }); // start the actions
-
-    let clock = new THREE.Clock();
-    let t = 0;
-
-    renderer.setAnimationLoop(() => {
-      let dt = clock.getDelta();
-      t += dt;
-      TWEEN.update();
-      controls.update();
-      textTerrain.instancedMesh.instanceMatrix.needsUpdate = true;
-      renderer.render(scene, camera);
-    });
-
-    // Header scroll effect
-    const header = document.querySelector('header');
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 100) {
-        header.classList.add('scrolled');
-      } else {
-        header.classList.remove('scrolled');
-      }
-    });
-
-    // Mobile menu
+  <script>
+    // Mobile Navigation Toggle
     const navToggle = document.querySelector('.nav-toggle');
-    const navMenu = document.querySelector('.nav-menu');
-    
+    const nav = document.querySelector('nav');
+
     navToggle.addEventListener('click', () => {
+      nav.classList.toggle('active');
       navToggle.classList.toggle('active');
-      navMenu.classList.toggle('active');
     });
 
-    // Smooth scroll for navigation links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        if (navMenu.classList.contains('active')) {
-          navToggle.classList.remove('active');
-          navMenu.classList.remove('active');
-        }
-        
-        document.querySelector(this.getAttribute('href')).scrollIntoView({
-          behavior: 'smooth'
-        });
+    // Close mobile nav when clicking on a link
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        nav.classList.remove('active');
+        navToggle.classList.remove('active');
       });
     });
+
+    // Smooth scrolling for navigation links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      });
+    });
+
+    // Fade in animation on scroll
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, observerOptions);
+
+    // Observe all fade-in elements
+    document.querySelectorAll('.fade-in').forEach(el => {
+      observer.observe(el);
+    });
+
+    // Header background on scroll
+    window.addEventListener('scroll', () => {
+      const header = document.querySelector('header');
+      if (window.scrollY > 100) {
+        header.style.background = 'rgba(255, 255, 255, 0.95)';
+        header.style.backdropFilter = 'blur(20px)';
+      } else {
+        header.style.background = 'rgba(255, 255, 255, 0.8)';
+        header.style.backdropFilter = 'blur(10px)';
+      }
+    });
+
+    // Contact form submission
+    document.querySelector('.contact-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Get form data
+      const formData = new FormData(this);
+      const name = formData.get('name');
+      const email = formData.get('email');
+      const subject = formData.get('subject');
+      const message = formData.get('message');
+      
+      // Create mailto link
+      const mailtoLink = `mailto:your-email@example.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`)}`;
+      
+      // Open email client
+      window.location.href = mailtoLink;
+      
+      // Show success message
+      const submitBtn = this.querySelector('.submit-btn');
+      const originalText = submitBtn.textContent;
+      submitBtn.textContent = 'Message Sent!';
+      submitBtn.style.background = '#10b981';
+      
+      setTimeout(() => {
+        submitBtn.textContent = originalText;
+        submitBtn.style.background = '';
+        this.reset();
+      }, 3000);
+    });
+
+    // Particle animation for hero section
+    function createParticle() {
+      const particle = document.createElement('div');
+      particle.style.position = 'absolute';
+      particle.style.width = '4px';
+      particle.style.height = '4px';
+      particle.style.background = 'linear-gradient(135deg, #6366f1, #f59e0b)';
+      particle.style.borderRadius = '50%';
+      particle.style.opacity = '0.6';
+      particle.style.pointerEvents = 'none';
+      particle.style.left = Math.random() * 100 + '%';
+      particle.style.top = '100%';
+      particle.style.animation = 'floatUp 8s linear infinite';
+      
+      document.querySelector('.hero').appendChild(particle);
+      
+      setTimeout(() => {
+        particle.remove();
+      }, 8000);
+    }
+
+    // Add CSS for particle animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes floatUp {
+        0% {
+          transform: translateY(0) rotate(0deg);
+          opacity: 0;
+        }
+        10% {
+          opacity: 0.6;
+        }
+        90% {
+          opacity: 0.6;
+        }
+        100% {
+          transform: translateY(-100vh) rotate(360deg);
+          opacity: 0;
+        }
+      }
+      
+      .nav-toggle.active span:nth-child(1) {
+        transform: rotate(45deg) translate(5px, 5px);
+      }
+      
+      .nav-toggle.active span:nth-child(2) {
+        opacity: 0;
+      }
+      
+      .nav-toggle.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(7px, -6px);
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Create particles periodically
+    setInterval(createParticle, 2000);
+
+    // Enhanced hover effects for project cards
+    document.querySelectorAll('.project-card, .tool-card, .skill-item').forEach(card => {
+      card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-10px) scale(1.02)';
+      });
+      
+      card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0) scale(1)';
+      });
+    });
+
+    // Typing effect for hero text (optional enhancement)
+    function typeWriter(element, text, speed = 100) {
+      let i = 0;
+      element.textContent = '';
+      
+      function type() {
+        if (i < text.length) {
+          element.textContent += text.charAt(i);
+          i++;
+          setTimeout(type, speed);
+        }
+      }
+      
+      type();
+    }
+
+    // Initialize typing effect on page load
+    window.addEventListener('load', () => {
+      const heroP = document.querySelector('.hero p');
+      const originalText = heroP.textContent;
+      typeWriter(heroP, originalText, 30);
+    });
   </script>
-</body>
-</html>
