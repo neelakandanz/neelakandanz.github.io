@@ -630,6 +630,84 @@
     html {
       scroll-behavior: smooth;
     }
+
+
+
+
+
+     .form-container {
+            padding: 1px;
+        }
+        
+        .form-wrapper {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e0e7ff;
+            transition: all 0.3s ease;
+        }
+        
+        .form-wrapper:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+            display: block;
+        }
+        
+        .contact-info {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            color: white;
+            text-align: center;
+        }
+        
+        .contact-info h3 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .contact-info p {
+            margin: 8px 0;
+            font-size: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            iframe {
+                height: 500px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            iframe {
+                height: 450px;
+            }
+        }
+    
+
   </style>
 </head>
 <body>
@@ -858,6 +936,7 @@
       <div class="card fade-in">
         <h2>Let's Build Something Amazing</h2>
         <form class="contact-form">
+          <!--
           <div class="form-group">
             <label for="name">Name</label>
             <input type="text" id="name" name="name" required>
@@ -875,10 +954,26 @@
             <textarea id="message" name="message" required></textarea>
           </div>
           <button type="submit" class="submit-btn">Send Message</button>
+        -->
+         <div class="form-container">
+            <div class="form-wrapper">
+                <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScN0gaVRPNt6z7n7rNYsM0b5wnnT0qgjbOV3SYrzlAreqyTLA/viewform?embedded=true" 
+                        loading="lazy"
+                        title="Contact Form">
+                    Loading contact form...
+                </iframe>
+            </div>
         </form>
       </div>
     </section>
+
+
+
+
+
+
   </main>
+
 
   <!-- Footer -->
   <footer>
