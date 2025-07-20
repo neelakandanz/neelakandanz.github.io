@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Neelakandan - Mobile App Developer</title>
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -122,6 +121,8 @@
     /* Main Content */
     main {
       padding-top: 80px;
+      position: relative; 
+      z-index: 1; 
     }
 
     section {
@@ -137,13 +138,33 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      position: relative;
-      background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+      position: relative; /* Needed for absolute positioning of overlay and content */
+      overflow: hidden; /* Ensures the image doesn't bleed outside the section */
+
+      /* Set the background image directly on the hero section */
+      background-image: url('https://images6.alphacoders.com/135/1354202.jpeg'); /* Updated to the new image URL */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: scroll; 
+    }
+
+    /* Overlay for the hero section - Adjusted for better brightness and text contrast */
+    .hero-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.3); /* Black overlay, 30% opacity. Adjust 0.3 for more/less darkness */
+      z-index: 1; /* Place it above the background image */
     }
 
     .hero-content {
       max-width: 800px;
-      z-index: 2;
+      z-index: 2; /* Ensure content is above the overlay */
+      position: relative; /* To make sure z-index works correctly for content */
+      color: white; /* Make primary text white for contrast */
     }
 
     .hero h1 {
@@ -164,7 +185,7 @@
 
     .hero p {
       font-size: 1.25rem;
-      color: var(--text-light);
+      color: #e0e0e0; /* Use a very light gray for better readability over the image */
       margin-bottom: 2rem;
       max-width: 600px;
       margin-left: auto;
@@ -631,87 +652,81 @@
       scroll-behavior: smooth;
     }
 
-
-
-
-
-     .form-container {
-            padding: 1px;
-        }
-        
-        .form-wrapper {
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            border: 2px solid #e0e7ff;
-            transition: all 0.3s ease;
-        }
-        
-        .form-wrapper:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-        }
-        
-        iframe {
-            width: 100%;
-            height: 600px;
-            border: none;
-            display: block;
-        }
-        
-        .contact-info {
-            margin-top: 30px;
-            padding: 25px;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            border-radius: 15px;
-            color: white;
-            text-align: center;
-        }
-        
-        .contact-info h3 {
-            margin-bottom: 15px;
-            font-size: 1.5rem;
-        }
-        
-        .contact-info p {
-            margin: 8px 0;
-            font-size: 1rem;
-        }
-        
-        @media (max-width: 768px) {
-            .container {
-                margin: 10px;
-                border-radius: 15px;
-            }
-            
-            .header {
-                padding: 30px 20px;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .form-container {
-                padding: 20px;
-            }
-            
-            iframe {
-                height: 500px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            iframe {
-                height: 450px;
-            }
-        }
+    .form-container {
+      padding: 1px;
+    }
     
-
+    .form-wrapper {
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      border: 2px solid #e0e7ff;
+      transition: all 0.3s ease;
+    }
+    
+    .form-wrapper:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+      display: block;
+    }
+    
+    .contact-info {
+      margin-top: 30px;
+      padding: 25px;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      border-radius: 15px;
+      color: white;
+      text-align: center;
+    }
+    
+    .contact-info h3 {
+      margin-bottom: 15px;
+      font-size: 1.5rem;
+    }
+    
+    .contact-info p {
+      margin: 8px 0;
+      font-size: 1rem;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        margin: 10px;
+        border-radius: 15px;
+      }
+      
+      .header {
+        padding: 30px 20px;
+      }
+      
+      .header h1 {
+        font-size: 2rem;
+      }
+      
+      .form-container {
+        padding: 20px;
+      }
+      
+      iframe {
+        height: 500px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      iframe {
+        height: 450px;
+      }
+    }
+    
   </style>
 </head>
 <body>
-  <!-- Header -->
   <header>
     <div class="header-container">
       <a href="#" class="logo">Neelakandan</a>
@@ -736,11 +751,9 @@
     </div>
   </header>
 
-  <!-- Main Content -->
   <main>
-    <!-- Hero Section -->
     <section id="hero" class="hero">
-      <div class="floating-element"></div>
+      <div class="hero-overlay"></div> <div class="floating-element"></div>
       <div class="floating-element"></div>
       <div class="hero-content fade-in">
         <h1>Hi, I'm <span class="gradient-text">Neelakandan</span></h1>
@@ -754,7 +767,6 @@
       </div>
     </section>
 
-    <!-- About Section -->
     <section id="about">
       <div class="card fade-in">
         <h2>About Me</h2>
@@ -771,7 +783,6 @@
       </div>
     </section>
 
-    <!-- Skills Section -->
     <section id="skills">
       <div class="card fade-in">
         <h2>My Skills</h2>
@@ -804,7 +815,6 @@
       </div>
     </section>
 
-    <!-- Projects Section -->
     <section id="projects">
       <div class="card fade-in">
         <h2>Featured Projects</h2>
@@ -876,7 +886,6 @@
       </div>
     </section>
 
-    <!-- Tools Section -->
     <section id="tools">
       <div class="card fade-in">
         <h2>Developer Tools</h2>
@@ -900,9 +909,6 @@
       </div>
     </section>
 
-
-    
-    <!-- Learning Section -->
     <section id="learning">
       <div class="card">
         <h2>Learning Resources</h2>
@@ -921,8 +927,6 @@
       </div>
     </section>
 
-
-    <!-- YouTube Section -->
     <section id="youtube">
       <div class="youtube-card fade-in">
         <h2>Flutter in Tamil</h2>
@@ -931,51 +935,24 @@
       </div>
     </section>
 
-    <!-- Contact Section -->
     <section id="contact">
       <div class="card fade-in">
         <h2>Let's Build Something Amazing</h2>
         <form class="contact-form">
-          <!--
-          <div class="form-group">
-            <label for="name">Name</label>
-            <input type="text" id="name" name="name" required>
-          </div>
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" required>
-          </div>
-          <div class="form-group">
-            <label for="subject">Subject</label>
-            <input type="text" id="subject" name="subject" required>
-          </div>
-          <div class="form-group">
-            <label for="message">Message</label>
-            <textarea id="message" name="message" required></textarea>
-          </div>
-          <button type="submit" class="submit-btn">Send Message</button>
-        -->
-         <div class="form-container">
+          <div class="form-container">
             <div class="form-wrapper">
-                <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScN0gaVRPNt6z7n7rNYsM0b5wnnT0qgjbOV3SYrzlAreqyTLA/viewform?embedded=true" 
-                        loading="lazy"
-                        title="Contact Form">
-                    Loading contact form...
-                </iframe>
+              <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScN0gaVRPNt6z7n7rNYsM0b5wnnT0qgjbOV3SYrzlAreqyTLA/viewform?embedded=true" 
+                      loading="lazy"
+                      title="Contact Form">
+                      Loading contact form...
+              </iframe>
             </div>
+          </div>
         </form>
       </div>
     </section>
-
-
-
-
-
-
   </main>
 
-
-  <!-- Footer -->
   <footer>
     <div class="footer-content">
       <h3>Neelakandan</h3>
@@ -1006,7 +983,7 @@
           </svg>
         </a>
       </div>
-      <p>&copy; 2025 Neelakandan. All Rights Reserved.</p>
+      <p>© 2025 Neelakandan. All Rights Reserved.</p>
     </div>
   </footer>
 
@@ -1103,7 +1080,8 @@
       }, 3000);
     });
 
-    // Particle animation for hero section
+    // Particle animation for hero section - still commented out as it might conflict visually with the new background image
+    /*
     function createParticle() {
       const particle = document.createElement('div');
       particle.style.position = 'absolute';
@@ -1123,8 +1101,9 @@
         particle.remove();
       }, 8000);
     }
+    */
 
-    // Add CSS for particle animation
+    // Add CSS for particle animation (still needed if you uncomment createParticle)
     const style = document.createElement('style');
     style.textContent = `
       @keyframes floatUp {
@@ -1158,8 +1137,8 @@
     `;
     document.head.appendChild(style);
 
-    // Create particles periodically
-    setInterval(createParticle, 2000);
+    // Create particles periodically - Commented out for now
+    // setInterval(createParticle, 2000);
 
     // Enhanced hover effects for project cards
     document.querySelectorAll('.project-card, .tool-card, .skill-item').forEach(card => {
@@ -1195,3 +1174,5 @@
       typeWriter(heroP, originalText, 30);
     });
   </script>
+</body>
+</html>
