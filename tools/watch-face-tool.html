@@ -1114,7 +1114,7 @@
                 logo.src = logoImage;
                 logo.style.position = 'absolute';
                 logo.style.maxWidth = (clockSize * (logoSize / 100)) + 'px';
-                logo.style.maxHeight = (clockSize * 0.15) + 'px';
+                //logo.style.maxHeight = (clockSize * 0.15) + 'px';
                 logo.style.left = '50%';
                 logo.style.transform = 'translateX(-50%)';
                 logo.style.top = (clockSize * (logoPosition / 100)) + 'px';
@@ -1511,10 +1511,10 @@
                                             let logoWidth = maxWidth;
                                             let logoHeight = logoWidth * ratio;
                                             
-                                            if (logoHeight > clockSize * 0.15) {
-                                                logoHeight = clockSize * 0.15;
-                                                logoWidth = logoHeight / ratio;
-                                            }
+                                         //   if (logoHeight > clockSize * 0.15) {
+                                           //     logoHeight = clockSize * 0.15;
+                                           //     logoWidth = logoHeight / ratio;
+                                           // }
                                             
                                             // Position at specified position from top
                                             const logoX = clockSize/2 - logoWidth/2;
