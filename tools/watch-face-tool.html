@@ -61,10 +61,17 @@
             font-size: 1.25rem;
             color: #333;
             z-index: 1;
+            transition: text-shadow 0.3s ease;
         }
         .marker.line { width: 2px; height: 10px; background-color: #333; }
         .marker.line.thick { width: 4px; height: 15px; }
         
+        /* 3D Text Style Classes */
+        .text-style-inset { text-shadow: -1px -1px 1px rgba(255, 255, 255, 0.7), 1px 1px 1px rgba(0, 0, 0, 0.2); }
+        .text-style-raised { text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.7), -1px -1px 1px rgba(0, 0, 0, 0.2); }
+        .text-style-shadow { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4); }
+        .text-style-neon { text-shadow: 0 0 3px currentColor, 0 0 5px #fff; }
+
         /* Custom input styles */
         input[type="color"] {
             -webkit-appearance: none;
@@ -75,7 +82,7 @@
         input[type="color"]::-webkit-color-swatch { border: 2px solid #e2e8f0; border-radius: 50%; }
 
         /* Template Option Styles */
-        .frame-option, .dial-option {
+        .frame-option, .dial-option, .text-style-option {
             cursor: pointer;
             padding: 0.5rem;
             border: 2px solid transparent;
@@ -83,15 +90,20 @@
             transition: all 0.2s ease-in-out;
             text-align: center;
         }
-        .frame-option:hover, .dial-option:hover { background-color: #f3f4f6; }
-        .frame-option.active, .dial-option.active { border-color: #4f46e5; background-color: #eef2ff; }
+        .frame-option:hover, .dial-option:hover, .text-style-option:hover { background-color: #f3f4f6; }
+        .frame-option.active, .dial-option.active, .text-style-option.active { border-color: #4f46e5; background-color: #eef2ff; }
         
-        .frame-preview, .dial-preview {
-            width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 0.5rem;
+        .frame-preview, .dial-preview, .text-style-preview {
+            width: 40px; height: 40px; border-radius: 0.5rem; margin: 0 auto 0.5rem;
             display: flex; justify-content: center; align-items: center;
             background-size: cover;
             border: 1px solid #e2e8f0;
+            font-size: 1.2rem;
+            font-weight: bold;
         }
+        .dial-preview { border-radius: 50%; }
+        .frame-preview { border-radius: 50%; }
+
 
         /* Clock Frame CSS Classes */
         .frame-minimalist { border: 6px solid #2d3748; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
@@ -189,6 +201,12 @@
             </div>
 
             <div class="space-y-4">
+                <h2 class="text-xl font-semibold border-b pb-2">3D Text Styles</h2>
+                <div id="text-styles-grid" class="grid grid-cols-4 sm:grid-cols-5 gap-4">
+                    </div>
+            </div>
+
+            <div class="space-y-4">
                 <h2 class="text-xl font-semibold border-b pb-2">Hands Style</h2>
                 <div class="flex items-center justify-between">
                     <label for="hour-hand-color" class="text-gray-600">Hour Hand</label>
@@ -278,6 +296,7 @@
         const saveBtn = document.getElementById('save-btn');
         const frameOptions = document.querySelectorAll('.frame-option');
         const dialTemplatesGrid = document.getElementById('dial-templates-grid');
+        const textStylesGrid = document.getElementById('text-styles-grid');
 
         // Data
         const romanNumerals = ['XII', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI'];
@@ -295,27 +314,44 @@
             pastel: { name: 'Pastel', faceColor: '#d1fae5', markerStyle: 'numbers', textColor: '#064e3b', markerColor: '#064e3b' },
             tech: { name: 'Tech', backgroundImage: 'url("https://www.transparenttextures.com/patterns/low-contrast-linen.png")', faceColor: '#111827', markerStyle: 'lines', textColor: '#22d3ee', markerColor: '#22d3ee' },
         };
+        const textStyles = {
+            'none': { name: 'None', class: '' },
+            'inset': { name: 'Inset', class: 'text-style-inset' },
+            'raised': { name: 'Raised', class: 'text-style-raised' },
+            'shadow': { name: 'Shadow', class: 'text-style-shadow' },
+            'neon': { name: 'Neon', class: 'text-style-neon' }
+        };
         
         // --- Functions ---
         function updateMarkerControlVisibility() {
             const style = markerStyleInput.value;
-            if (style === 'lines') {
-                lineColorWrapper.style.display = 'flex';
-                textColorWrapper.style.display = 'none';
-                textSizeWrapper.style.display = 'none';
-            } else if (style === 'numbers' || style === 'roman' || style === 'tamil') {
-                lineColorWrapper.style.display = 'none';
-                textColorWrapper.style.display = 'flex';
-                textSizeWrapper.style.display = 'flex';
-            } else { // 'none' style
-                lineColorWrapper.style.display = 'none';
-                textColorWrapper.style.display = 'none';
-                textSizeWrapper.style.display = 'none';
-            }
+            const isText = (style === 'numbers' || style === 'roman' || style === 'tamil');
+            
+            lineColorWrapper.style.display = style === 'lines' ? 'flex' : 'none';
+            textColorWrapper.style.display = isText ? 'flex' : 'none';
+            textSizeWrapper.style.display = isText ? 'flex' : 'none';
+            textStylesGrid.parentElement.style.display = isText ? 'block' : 'none';
+        }
+
+        function applyTextStyle() {
+            const activeStyleEl = document.querySelector('.text-style-option.active');
+            if (!activeStyleEl) return;
+            const styleClass = textStyles[activeStyleEl.dataset.style].class;
+
+            const markers = clockFace.querySelectorAll('.marker');
+            markers.forEach(marker => {
+                // Clear existing styles first
+                Object.values(textStyles).forEach(s => {
+                    if (s.class) marker.classList.remove(s.class);
+                });
+                // Add the new one if it exists
+                if (styleClass) {
+                    marker.classList.add(styleClass);
+                }
+            });
         }
 
         function generateMarkers() {
-            // Clear existing markers but keep other potential children if any
             const existingMarkers = clockFace.querySelectorAll('.marker');
             existingMarkers.forEach(m => m.remove());
 
@@ -351,6 +387,7 @@
                 }
                 clockFace.appendChild(marker);
             }
+            applyTextStyle();
         }
 
         function setTime() {
@@ -358,33 +395,20 @@
             const seconds = now.getSeconds();
             const minutes = now.getMinutes();
             const hours = now.getHours();
-            const secondsDegrees = ((seconds / 60) * 360);
-            const minutesDegrees = ((minutes / 60) * 360) + ((seconds / 60) * 6);
-            const hoursDegrees = ((hours / 12) * 360) + ((minutes / 60) * 30);
             
-            // Offset by 90 degrees because of the initial CSS position, but then remove stutter on second hand reset
+            const secondsDegrees = (seconds / 60) * 360;
+            const minutesDegrees = (minutes / 60) * 360 + (seconds / 60) * 6;
+            const hoursDegrees = (hours / 12) * 360 + (minutes / 60) * 30;
+
             if (seconds === 0) {
-                 secondHand.style.transition = 'none';
+                secondHand.style.transition = 'none';
             } else {
-                 secondHand.style.transition = 'transform 0.05s linear';
+                secondHand.style.transition = 'transform 0.05s linear';
             }
-
-            secondHand.style.transform = `translateX(-50%) rotate(${secondsDegrees}deg)`;
-            minuteHand.style.transform = `translateX(-50%) rotate(${minutesDegrees}deg)`;
-            hourHand.style.transform = `translateX(-50%) rotate(${hoursDegrees}deg)`;
-
-            // Modernize hand rotation point
-            document.querySelectorAll('.hand').forEach(hand => {
-                hand.style.transformOrigin = '50% 100%';
-                hand.style.left = '50%';
-                const currentTransform = hand.style.transform || '';
-                if (!currentTransform.includes('translateX')) {
-                     const rotation = currentTransform.match(/rotate\(([^)]+)\)/);
-                     if (rotation) {
-                         hand.style.transform = `translateX(-50%) ${rotation[0]}`;
-                     }
-                }
-            });
+            
+            secondHand.style.transform = `rotate(${secondsDegrees}deg)`;
+            minuteHand.style.transform = `rotate(${minutesDegrees}deg)`;
+            hourHand.style.transform = `rotate(${hoursDegrees}deg)`;
         }
         
         function populateDialTemplates() {
@@ -399,7 +423,6 @@
                 if (template.backgroundImage) {
                     preview.style.backgroundImage = template.backgroundImage;
                 }
-                // Add a tiny marker representation in the preview
                 if (template.markerStyle === 'numbers') {
                     preview.innerHTML = `<span style="font-size: 8px; font-weight: bold; color: ${template.textColor}; opacity: 0.7;">12</span>`;
                 } else if (template.markerStyle === 'lines') {
@@ -413,6 +436,27 @@
                 option.appendChild(preview);
                 option.appendChild(name);
                 dialTemplatesGrid.appendChild(option);
+            }
+        }
+        
+        function populateTextStyles() {
+            for (const [key, style] of Object.entries(textStyles)) {
+                const option = document.createElement('div');
+                option.className = 'text-style-option';
+                option.dataset.style = key;
+
+                const preview = document.createElement('div');
+                preview.className = `text-style-preview ${style.class}`;
+                preview.innerText = '3D';
+                 if(key === 'neon') preview.style.color = '#3b82f6';
+
+                const name = document.createElement('span');
+                name.className = 'text-sm';
+                name.innerText = style.name;
+
+                option.appendChild(preview);
+                option.appendChild(name);
+                textStylesGrid.appendChild(option);
             }
         }
 
@@ -445,9 +489,7 @@
         
         function deselectActiveTemplate(templateType) {
             const activeEl = document.querySelector(`.${templateType}-option.active`);
-            if (activeEl) {
-                activeEl.classList.remove('active');
-            }
+            if (activeEl) activeEl.classList.remove('active');
         }
 
         // --- Event Listeners ---
@@ -458,11 +500,7 @@
         
         bgImageUrlInput.addEventListener('input', (e) => {
             const url = e.target.value.trim();
-            if (url) {
-                clockFace.style.backgroundImage = `url('${url}')`;
-            } else {
-                clockFace.style.backgroundImage = 'none';
-            }
+            clockFace.style.backgroundImage = url ? `url('${url}')` : 'none';
             clockFace.style.backgroundSize = 'cover';
             bgImageZoomInput.value = 100;
             bgImageZoomValue.textContent = 100;
@@ -487,9 +525,8 @@
         });
 
         bgImageZoomInput.addEventListener('input', (e) => {
-            const zoomValue = e.target.value;
-            clockFace.style.backgroundSize = `${zoomValue}%`;
-            bgImageZoomValue.textContent = zoomValue;
+            clockFace.style.backgroundSize = `${e.target.value}%`;
+            bgImageZoomValue.textContent = e.target.value;
         });
 
         markerStyleInput.addEventListener('change', () => {
@@ -499,8 +536,7 @@
         });
 
         textSizeInput.addEventListener('input', (e) => {
-            const sizeValue = e.target.value;
-            textSizeValue.textContent = sizeValue;
+            textSizeValue.textContent = e.target.value;
             generateMarkers();
             deselectActiveTemplate('dial');
         });
@@ -521,23 +557,15 @@
                     clock.classList.remove(opt.dataset.frame);
                     opt.classList.remove('active');
                 });
-                const frameClass = option.dataset.frame;
-                clock.classList.add(frameClass);
+                clock.classList.add(option.dataset.frame);
                 option.classList.add('active');
             });
         });
 
         saveBtn.addEventListener('click', () => {
-            const activeFrame = document.querySelector('.frame-option.active');
-            if(activeFrame) activeFrame.style.borderColor = 'transparent';
-            
-            const activeDial = document.querySelector('.dial-option.active');
-            if(activeDial) activeDial.style.borderColor = 'transparent';
-
+            document.querySelectorAll('.active').forEach(el => el.style.borderColor = 'transparent');
             html2canvas(clock, { scale: 4, backgroundColor: null, useCORS: true }).then(canvas => {
-                if(activeFrame) activeFrame.style.borderColor = '';
-                if(activeDial) activeDial.style.borderColor = '';
-                
+                document.querySelectorAll('.active').forEach(el => el.style.borderColor = '');
                 const link = document.createElement('a');
                 link.download = 'custom-clock.png';
                 link.href = canvas.toDataURL('image/png');
@@ -547,12 +575,23 @@
         
         // --- Initial Setup ---
         populateDialTemplates();
-        const dialOptions = document.querySelectorAll('.dial-option'); // Query after they are created
+        populateTextStyles();
+
+        const dialOptions = document.querySelectorAll('.dial-option');
         dialOptions.forEach(option => {
             option.addEventListener('click', () => {
                 dialOptions.forEach(opt => opt.classList.remove('active'));
                 option.classList.add('active');
                 applyDialTemplate(option.dataset.dial);
+            });
+        });
+
+        const textStyleOptions = document.querySelectorAll('.text-style-option');
+        textStyleOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                textStyleOptions.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+                applyTextStyle();
             });
         });
 
@@ -563,6 +602,7 @@
         // Set default styles
         document.querySelector('.dial-option[data-dial="classic"]').click();
         document.querySelector('.frame-option[data-frame="frame-minimalist"]').click();
+        document.querySelector('.text-style-option[data-style="none"]').click();
         
     </script>
 </body>
