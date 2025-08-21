@@ -174,6 +174,10 @@
                     <label for="marker-color" class="text-gray-600">Line Color</label>
                     <input type="color" id="marker-color" value="#333333">
                 </div>
+                <div id="text-size-wrapper" class="flex flex-col space-y-2 pt-2">
+                    <label for="marker-text-size" class="text-gray-600">Text Size: <span id="marker-text-size-value">1.25</span>rem</label>
+                    <input type="range" id="marker-text-size" min="0.8" max="2.5" value="1.25" step="0.05" class="w-full">
+                </div>
             </div>
 
             <div class="space-y-4">
@@ -252,8 +256,11 @@
         const markerStyleInput = document.getElementById('marker-style');
         const markerColorInput = document.getElementById('marker-color');
         const textColorInput = document.getElementById('text-color');
+        const textSizeInput = document.getElementById('marker-text-size');
+        const textSizeValue = document.getElementById('marker-text-size-value');
         const lineColorWrapper = document.getElementById('line-color-wrapper');
         const textColorWrapper = document.getElementById('text-color-wrapper');
+        const textSizeWrapper = document.getElementById('text-size-wrapper');
         const hourHandColorInput = document.getElementById('hour-hand-color');
         const minuteHandColorInput = document.getElementById('minute-hand-color');
         const secondHandColorInput = document.getElementById('second-hand-color');
@@ -268,17 +275,20 @@
         const numbers = ['12', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'];
         const tamilNumerals = ['௧௨', '௧', '௨', '௩', '௪', '௫', '௬', '௭', '௮', '௯', '௰', '௧௧'];
         
-        function updateMarkerColorVisibility() {
+        function updateMarkerControlVisibility() {
             const style = markerStyleInput.value;
             if (style === 'lines') {
                 lineColorWrapper.style.display = 'flex';
                 textColorWrapper.style.display = 'none';
+                textSizeWrapper.style.display = 'none';
             } else if (style === 'numbers' || style === 'roman' || style === 'tamil') {
                 lineColorWrapper.style.display = 'none';
                 textColorWrapper.style.display = 'flex';
+                textSizeWrapper.style.display = 'flex';
             } else { // 'none' style
                 lineColorWrapper.style.display = 'none';
                 textColorWrapper.style.display = 'none';
+                textSizeWrapper.style.display = 'none';
             }
         }
 
@@ -294,6 +304,7 @@
 
                 if (style === 'numbers' || style === 'roman' || style === 'tamil') {
                     marker.style.color = textColorInput.value;
+                    marker.style.fontSize = `${textSizeInput.value}rem`;
                     marker.classList.add('marker');
                     marker.style.transform = `translate(-50%, -50%)`;
                     const numX = 50 + 40 * Math.sin(angle * Math.PI / 180);
@@ -344,11 +355,10 @@
             } else {
                 clockFace.style.backgroundImage = 'none';
             }
-            // Reset zoom to default when a new image is loaded
             clockFace.style.backgroundSize = 'cover';
             bgImageZoomInput.value = 100;
             bgImageZoomValue.textContent = 100;
-            bgImageUploadInput.value = ''; // Reset file input
+            bgImageUploadInput.value = '';
         });
 
         bgImageUploadInput.addEventListener('change', (e) => {
@@ -357,8 +367,7 @@
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     clockFace.style.backgroundImage = `url('${event.target.result}')`;
-                    bgImageUrlInput.value = ''; // Clear the URL input
-                    // Reset zoom to default when a new image is loaded
+                    bgImageUrlInput.value = '';
                     clockFace.style.backgroundSize = 'cover';
                     bgImageZoomInput.value = 100;
                     bgImageZoomValue.textContent = 100;
@@ -375,8 +384,15 @@
 
         markerStyleInput.addEventListener('change', () => {
             generateMarkers();
-            updateMarkerColorVisibility();
+            updateMarkerControlVisibility();
         });
+
+        textSizeInput.addEventListener('input', (e) => {
+            const sizeValue = e.target.value;
+            textSizeValue.textContent = sizeValue;
+            generateMarkers();
+        });
+
         markerColorInput.addEventListener('input', generateMarkers);
         textColorInput.addEventListener('input', generateMarkers);
         hourHandColorInput.addEventListener('input', (e) => { hourHand.style.backgroundColor = e.target.value; });
@@ -388,12 +404,10 @@
         
         frameOptions.forEach(option => {
             option.addEventListener('click', () => {
-                // Remove all possible frame classes
                 frameOptions.forEach(opt => {
                     clock.classList.remove(opt.dataset.frame);
                     opt.classList.remove('active');
                 });
-                // Add the new class and active state
                 const frameClass = option.dataset.frame;
                 clock.classList.add(frameClass);
                 option.classList.add('active');
@@ -401,14 +415,11 @@
         });
 
         saveBtn.addEventListener('click', () => {
-            // Temporarily remove the active state border for a clean capture
             const activeFrame = document.querySelector('.frame-option.active');
             if(activeFrame) activeFrame.style.borderColor = 'transparent';
 
             html2canvas(clock, { scale: 4, backgroundColor: null, useCORS: true }).then(canvas => {
-                // Restore active state border
                 if(activeFrame) activeFrame.style.borderColor = '';
-
                 const link = document.createElement('a');
                 link.download = 'custom-clock.png';
                 link.href = canvas.toDataURL('image/png');
@@ -420,8 +431,7 @@
         setTime();
         setInterval(setTime, 1000);
         generateMarkers();
-        updateMarkerColorVisibility();
-        // Set a default frame on load
+        updateMarkerControlVisibility();
         document.querySelector('.frame-option[data-frame="frame-minimalist"]').click();
     </script>
 </body>
