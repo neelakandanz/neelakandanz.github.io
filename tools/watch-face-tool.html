@@ -20,6 +20,7 @@
             justify-content: center;
             align-items: center;
             transition: all 0.3s ease;
+            overflow: hidden; /* Ensures face content doesn't spill on some frame styles */
         }
         .clock-face {
             width: 100%;
@@ -151,6 +152,10 @@
                     </label>
                     <input type="file" id="bg-image-upload" class="hidden" accept="image/*">
                 </div>
+                <div class="flex flex-col space-y-2 pt-2">
+                    <label for="bg-image-zoom" class="text-gray-600">Image Size: <span id="bg-image-zoom-value">100</span>%</label>
+                    <input type="range" id="bg-image-zoom" min="50" max="250" value="100" class="w-full">
+                </div>
                 <div class="flex items-center justify-between pt-2">
                     <label for="marker-style" class="text-gray-600">Marker Style</label>
                     <select id="marker-style" class="rounded-lg border-gray-300 focus:ring-indigo-500 focus:border-indigo-500">
@@ -243,6 +248,8 @@
         const faceColorInput = document.getElementById('face-color');
         const bgImageUrlInput = document.getElementById('bg-image-url');
         const bgImageUploadInput = document.getElementById('bg-image-upload');
+        const bgImageZoomInput = document.getElementById('bg-image-zoom');
+        const bgImageZoomValue = document.getElementById('bg-image-zoom-value');
         const markerStyleInput = document.getElementById('marker-style');
         const markerColorInput = document.getElementById('marker-color');
         const hourHandColorInput = document.getElementById('hour-hand-color');
@@ -322,6 +329,10 @@
             } else {
                 clockFace.style.backgroundImage = 'none';
             }
+            // Reset zoom to default when a new image is loaded
+            clockFace.style.backgroundSize = 'cover';
+            bgImageZoomInput.value = 100;
+            bgImageZoomValue.textContent = 100;
             bgImageUploadInput.value = ''; // Reset file input
         });
 
@@ -332,9 +343,19 @@
                 reader.onload = (event) => {
                     clockFace.style.backgroundImage = `url('${event.target.result}')`;
                     bgImageUrlInput.value = ''; // Clear the URL input
+                    // Reset zoom to default when a new image is loaded
+                    clockFace.style.backgroundSize = 'cover';
+                    bgImageZoomInput.value = 100;
+                    bgImageZoomValue.textContent = 100;
                 };
                 reader.readAsDataURL(file);
             }
+        });
+
+        bgImageZoomInput.addEventListener('input', (e) => {
+            const zoomValue = e.target.value;
+            clockFace.style.backgroundSize = `${zoomValue}%`;
+            bgImageZoomValue.textContent = zoomValue;
         });
 
         markerStyleInput.addEventListener('change', generateMarkers);
