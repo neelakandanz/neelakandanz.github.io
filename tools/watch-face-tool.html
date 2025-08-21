@@ -145,7 +145,13 @@
                     <label for="bg-image-url" class="text-gray-600">Background Image URL</label>
                     <input type="text" id="bg-image-url" class="w-full rounded-lg border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 p-2" placeholder="e.g., https://placehold.co/300x300">
                 </div>
-                <div class="flex items-center justify-between">
+                <div class="mt-2">
+                    <label for="bg-image-upload" class="w-full text-center cursor-pointer bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors duration-300 block">
+                        Upload from Device
+                    </label>
+                    <input type="file" id="bg-image-upload" class="hidden" accept="image/*">
+                </div>
+                <div class="flex items-center justify-between pt-2">
                     <label for="marker-style" class="text-gray-600">Marker Style</label>
                     <select id="marker-style" class="rounded-lg border-gray-300 focus:ring-indigo-500 focus:border-indigo-500">
                         <option value="numbers">Numbers</option>
@@ -236,6 +242,7 @@
         // Control element references
         const faceColorInput = document.getElementById('face-color');
         const bgImageUrlInput = document.getElementById('bg-image-url');
+        const bgImageUploadInput = document.getElementById('bg-image-upload');
         const markerStyleInput = document.getElementById('marker-style');
         const markerColorInput = document.getElementById('marker-color');
         const hourHandColorInput = document.getElementById('hour-hand-color');
@@ -307,10 +314,29 @@
         
         // --- Event Listeners ---
         faceColorInput.addEventListener('input', (e) => { clockFace.style.backgroundColor = e.target.value; });
+        
         bgImageUrlInput.addEventListener('input', (e) => {
             const url = e.target.value.trim();
-            clockFace.style.backgroundImage = url ? `url('${url}')` : 'none';
+            if (url) {
+                clockFace.style.backgroundImage = `url('${url}')`;
+            } else {
+                clockFace.style.backgroundImage = 'none';
+            }
+            bgImageUploadInput.value = ''; // Reset file input
         });
+
+        bgImageUploadInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    clockFace.style.backgroundImage = `url('${event.target.result}')`;
+                    bgImageUrlInput.value = ''; // Clear the URL input
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
         markerStyleInput.addEventListener('change', generateMarkers);
         markerColorInput.addEventListener('input', generateMarkers);
         hourHandColorInput.addEventListener('input', (e) => { hourHand.style.backgroundColor = e.target.value; });
