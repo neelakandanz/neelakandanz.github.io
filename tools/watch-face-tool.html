@@ -351,44 +351,46 @@
             });
         }
 
-        function generateMarkers() {
-            const existingMarkers = clockFace.querySelectorAll('.marker');
-            existingMarkers.forEach(m => m.remove());
+function generateMarkers() {
+    const existingMarkers = clockFace.querySelectorAll('.marker');
+    existingMarkers.forEach(m => m.remove());
 
-            const style = markerStyleInput.value;
-            if (style === 'none') return;
+    const style = markerStyleInput.value;
+    if (style === 'none') return;
 
-            for (let i = 0; i < 12; i++) {
-                const marker = document.createElement('div');
-                const angle = i * 30;
-                marker.style.position = 'absolute';
+    const radius = clockFace.offsetWidth / 2;  // radius of the face
+    const markerRadius = radius * 0.8;         // distance from center
 
-                if (style === 'numbers' || style === 'roman' || style === 'tamil') {
-                    marker.style.color = textColorInput.value;
-                    marker.style.fontSize = `${textSizeInput.value}rem`;
-                    marker.classList.add('marker');
-                    marker.style.transform = `translate(-50%, -50%)`;
-                    const numX = 50 + 40 * Math.sin(angle * Math.PI / 180);
-                    const numY = 50 - 40 * Math.cos(angle * Math.PI / 180);
-                    marker.style.left = `${numX}%`;
-                    marker.style.top = `${numY}%`;
-                    if (style === 'numbers') marker.innerText = numbers[i];
-                    if (style === 'roman') marker.innerText = romanNumerals[i];
-                    if (style === 'tamil') marker.innerText = tamilNumerals[i];
-                } else if (style === 'lines') {
-                    const x = 50 + 42 * Math.sin(angle * Math.PI / 180);
-                    const y = 50 - 42 * Math.cos(angle * Math.PI / 180);
-                    marker.style.left = `${x}%`;
-                    marker.style.top = `${y}%`;
-                    marker.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
-                    marker.classList.add('marker', 'line');
-                    if (i % 3 === 0) marker.classList.add('thick');
-                    marker.style.backgroundColor = markerColorInput.value;
-                }
-                clockFace.appendChild(marker);
-            }
-            applyTextStyle();
+    for (let i = 0; i < 12; i++) {
+        const marker = document.createElement('div');
+        const angle = i * 30 * (Math.PI / 180); // radians
+        const x = radius + markerRadius * Math.sin(angle);
+        const y = radius - markerRadius * Math.cos(angle);
+
+        marker.style.position = 'absolute';
+        marker.style.left = `${x}px`;
+        marker.style.top = `${y}px`;
+        marker.style.transform = `translate(-50%, -50%)`;
+
+        if (style === 'numbers' || style === 'roman' || style === 'tamil') {
+            marker.style.color = textColorInput.value;
+            marker.style.fontSize = `${textSizeInput.value}rem`;
+            marker.classList.add('marker');
+            if (style === 'numbers') marker.innerText = numbers[i];
+            if (style === 'roman') marker.innerText = romanNumerals[i];
+            if (style === 'tamil') marker.innerText = tamilNumerals[i];
+        } else if (style === 'lines') {
+            marker.classList.add('marker', 'line');
+            if (i % 3 === 0) marker.classList.add('thick');
+            marker.style.backgroundColor = markerColorInput.value;
+            marker.style.transform += ` rotate(${i * 30}deg)`;
         }
+
+        clockFace.appendChild(marker);
+    }
+    applyTextStyle();
+}
+
 
         function setTime() {
             const now = new Date();
