@@ -563,15 +563,25 @@
         });
 
         saveBtn.addEventListener('click', () => {
-            document.querySelectorAll('.active').forEach(el => el.style.borderColor = 'transparent');
-            html2canvas(clock, { scale: 4, backgroundColor: null, useCORS: true }).then(canvas => {
-                document.querySelectorAll('.active').forEach(el => el.style.borderColor = '');
-                const link = document.createElement('a');
-                link.download = 'custom-clock.png';
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-            });
-        });
+    // Temporarily hide the selection border for a cleaner screenshot
+    document.querySelectorAll('.active').forEach(el => el.style.borderColor = 'transparent');
+
+    // Use html2canvas to capture the 'clock' element
+    html2canvas(clock, { 
+        scale: 4, // for high-resolution output
+        backgroundColor: null, 
+        useCORS: true 
+    }).then(canvas => {
+        // Restore the selection border after capture
+        document.querySelectorAll('.active').forEach(el => el.style.borderColor = '');
+
+        // Create a link to download the image
+        const link = document.createElement('a');
+        link.download = 'custom-clock.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    });
+});
         
         // --- Initial Setup ---
         populateDialTemplates();
