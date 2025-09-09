@@ -6,7 +6,7 @@
     <title>Analog Clock Design Tool</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image-more/2.9.5/dom-to-image-more.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -72,7 +72,7 @@
             font-size: 1.25rem;
             color: #333;
             z-index: 1;
-            transition: text-shadow 0.3s ease;
+            transition: text-shadow 0.3s ease, font-weight 0.3s ease;
         }
         .marker.line { width: 2px; height: 10px; background-color: #333; }
         .marker.line.thick { width: 4px; height: 15px; }
@@ -148,7 +148,7 @@
                 <p class="text-gray-500 mt-1">Customize your analog clock in real-time.</p>
             </div>
 
-             <div class="border-b border-gray-200">
+            <div class="border-b border-gray-200">
                 <nav class="-mb-px flex space-x-8" aria-label="Tabs">
                     <a href="#" class="border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" aria-current="page">
                         Clock Designer
@@ -173,13 +173,17 @@
                 <div id="text-color-wrapper" class="flex items-center justify-between"><label for="text-color" class="text-gray-600">Text Color</label><input type="color" id="text-color" value="#333333"></div>
                 <div id="line-color-wrapper" class="flex items-center justify-between"><label for="marker-color" class="text-gray-600">Line Color</label><input type="color" id="marker-color" value="#333333"></div>
                 <div id="text-size-wrapper" class="flex flex-col space-y-2 pt-2"><label for="marker-text-size" class="text-gray-600">Text Size: <span id="marker-text-size-value">1.25</span>rem</label><input type="range" id="marker-text-size" min="0.8" max="2.5" value="1.25" step="0.05" class="w-full"></div>
+                <div id="text-bold-wrapper" class="flex items-center justify-between pt-2">
+                    <label for="marker-text-bold" class="text-gray-600">Bold Text</label>
+                    <input type="checkbox" id="marker-text-bold" class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500">
+                </div>
             </div>
             <div class="space-y-4">
                 <h2 class="text-xl font-semibold border-b pb-2">3D Text Styles</h2>
                 <div id="text-styles-grid" class="grid grid-cols-4 sm:grid-cols-5 gap-4"></div>
             </div>
             <div class="space-y-4">
-                <h2 class="text-xl font-semibold border-b pb-2">Hands Style</h2>
+                <h2 class="text-xl font-semibold border-b pb-2">Hands & Dot Style</h2>
                 <div class="flex items-center justify-between"><label for="hour-hand-color" class="text-gray-600">Hour Hand</label><div class="flex items-center space-x-3"><input type="checkbox" id="show-hour-hand" class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500" checked><input type="color" id="hour-hand-color" value="#2d3748"></div></div>
                 <div class="flex items-center justify-between"><label for="minute-hand-color" class="text-gray-600">Minute Hand</label><div class="flex items-center space-x-3"><input type="checkbox" id="show-minute-hand" class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500" checked><input type="color" id="minute-hand-color" value="#4a5568"></div></div>
                 <div class="flex items-center justify-between"><label for="second-hand-color" class="text-gray-600">Second Hand</label><div class="flex items-center space-x-3"><input type="checkbox" id="show-second-hand" class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500" checked><input type="color" id="second-hand-color" value="#ef4444"></div></div>
@@ -228,7 +232,7 @@
     <script>
         const clock = document.getElementById('clock');
         const clockFace = document.getElementById('clock-face');
-        const centerDot = document.querySelector('.center-dot'); // Get center dot element
+        const centerDot = document.querySelector('.center-dot');
         const hourHand = document.getElementById('hour-hand');
         const minuteHand = document.getElementById('minute-hand');
         const secondHand = document.getElementById('second-hand');
@@ -242,17 +246,19 @@
         const textColorInput = document.getElementById('text-color');
         const textSizeInput = document.getElementById('marker-text-size');
         const textSizeValue = document.getElementById('marker-text-size-value');
+        const markerTextBoldCheck = document.getElementById('marker-text-bold');
         const lineColorWrapper = document.getElementById('line-color-wrapper');
         const textColorWrapper = document.getElementById('text-color-wrapper');
         const textSizeWrapper = document.getElementById('text-size-wrapper');
+        const textBoldWrapper = document.getElementById('text-bold-wrapper');
         const hourHandColorInput = document.getElementById('hour-hand-color');
         const minuteHandColorInput = document.getElementById('minute-hand-color');
         const secondHandColorInput = document.getElementById('second-hand-color');
         const showHourHandCheck = document.getElementById('show-hour-hand');
         const showMinuteHandCheck = document.getElementById('show-minute-hand');
         const showSecondHandCheck = document.getElementById('show-second-hand');
-        const showCenterDotCheck = document.getElementById('show-center-dot'); // Get new checkbox
-        const centerDotColorInput = document.getElementById('center-dot-color'); // Get new color picker
+        const showCenterDotCheck = document.getElementById('show-center-dot');
+        const centerDotColorInput = document.getElementById('center-dot-color');
         const saveBtn = document.getElementById('save-btn');
         const frameOptions = document.querySelectorAll('.frame-option');
         const dialTemplatesGrid = document.getElementById('dial-templates-grid');
@@ -261,7 +267,6 @@
         const numbers = ['12', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'];
         const tamilNumerals = ['௧௨', '௧', '௨', '௩', '௪', '௫', '௬', '௭', '௮', '௯', '௰', '௧௧'];
         
-        // FULL LIST OF DIAL TEMPLATES RESTORED
         const dialTemplates = {
             classic: { name: 'Classic', faceColor: '#FFFFFF', markerStyle: 'numbers', textColor: '#333333', markerColor: '#333333' },
             midnight: { name: 'Midnight', faceColor: '#1a202c', markerStyle: 'numbers', textColor: '#FFFFFF', markerColor: '#FFFFFF' },
@@ -288,6 +293,7 @@
             lineColorWrapper.style.display = style === 'lines' ? 'flex' : 'none';
             textColorWrapper.style.display = isText ? 'flex' : 'none';
             textSizeWrapper.style.display = isText ? 'flex' : 'none';
+            textBoldWrapper.style.display = isText ? 'flex' : 'none';
             textStylesGrid.parentElement.style.display = isText ? 'block' : 'none';
         }
         function applyTextStyle() {
@@ -331,6 +337,7 @@
                     marker.style.transform = `translateX(-50%) rotate(-${angle}deg)`;
                     marker.style.color = textColorInput.value;
                     marker.style.fontSize = `${textSizeInput.value}rem`;
+                    marker.style.fontWeight = markerTextBoldCheck.checked ? '900' : '500';
                     if (style === 'numbers') marker.innerText = numbers[i];
                     if (style === 'roman') marker.innerText = romanNumerals[i];
                     if (style === 'tamil') marker.innerText = tamilNumerals[i];
@@ -412,6 +419,7 @@
         textSizeInput.addEventListener('input', (e) => { textSizeValue.textContent = e.target.value; generateMarkers(); deselectActiveTemplate('dial'); });
         markerColorInput.addEventListener('input', () => { generateMarkers(); deselectActiveTemplate('dial'); });
         textColorInput.addEventListener('input', () => { generateMarkers(); deselectActiveTemplate('dial'); });
+        markerTextBoldCheck.addEventListener('change', () => { generateMarkers(); deselectActiveTemplate('dial'); });
         hourHandColorInput.addEventListener('input', (e) => { hourHand.style.backgroundColor = e.target.value; });
         minuteHandColorInput.addEventListener('input', (e) => { minuteHand.style.backgroundColor = e.target.value; });
         secondHandColorInput.addEventListener('input', (e) => { secondHand.style.backgroundColor = e.target.value; });
@@ -419,7 +427,6 @@
         showMinuteHandCheck.addEventListener('input', (e) => { minuteHand.style.display = e.target.checked ? 'block' : 'none'; });
         showSecondHandCheck.addEventListener('input', (e) => { secondHand.style.display = e.target.checked ? 'block' : 'none'; });
         
-        // New Event Listeners for Center Dot
         showCenterDotCheck.addEventListener('input', (e) => { centerDot.style.display = e.target.checked ? 'block' : 'none'; });
         centerDotColorInput.addEventListener('input', (e) => { centerDot.style.backgroundColor = e.target.value; });
 
@@ -432,52 +439,43 @@
 
 
     saveBtn.addEventListener('click', () => {
-            // This new method creates a temporary, scaled "artboard" to ensure
-            // the capture is always centered, regardless of the clock's border or padding.
-            const scale = 4;
-            const originalElement = clock; // The element we want to capture
+        const scale = 4;
+        const originalElement = clock;
 
-            // 1. Create the artboard container. It will be invisible and off-screen.
-            const artboard = document.createElement('div');
-            artboard.style.width = originalElement.offsetWidth + 'px';
-            artboard.style.height = originalElement.offsetHeight + 'px';
-            artboard.style.position = 'absolute';
-            artboard.style.top = '-9999px';
-            artboard.style.left = '-9999px';
-            
-            // 2. Clone the clock element that we want to save
-            const clockClone = originalElement.cloneNode(true);
-            
-            // 3. Apply a CSS transform to scale the clone up
-            clockClone.style.transform = `scale(${scale})`;
-            clockClone.style.transformOrigin = 'top left';
+        const artboard = document.createElement('div');
+        artboard.style.width = originalElement.offsetWidth + 'px';
+        artboard.style.height = originalElement.offsetHeight + 'px';
+        artboard.style.position = 'absolute';
+        artboard.style.top = '-9999px';
+        artboard.style.left = '-9999px';
+        
+        const clockClone = originalElement.cloneNode(true);
+        
+        clockClone.style.transform = `scale(${scale})`;
+        clockClone.style.transformOrigin = 'top left';
 
-            // 4. Place the scaled clone inside the artboard
-            artboard.appendChild(clockClone);
-            document.body.appendChild(artboard);
+        artboard.appendChild(clockClone);
+        document.body.appendChild(artboard);
 
-            // 5. Set the capture options to match the final scaled dimensions
-            const options = {
-                width: originalElement.offsetWidth * scale,
-                height: originalElement.offsetHeight * scale,
-                quality: 1.0
-            };
+        const options = {
+            width: originalElement.offsetWidth * scale,
+            height: originalElement.offsetHeight * scale,
+            quality: 1.0
+        };
 
-            // 6. Capture the ARTBOARD, which contains the perfectly scaled clock
-            domtoimage.toPng(artboard, options)
-                .then(function (dataUrl) {
-                const link = document.createElement('a');
-                link.download = 'custom-clock-hd.png';
-                link.href = dataUrl;
-                link.click();
-            }).catch(function (error) {
-                console.error('Image generation failed!', error);
-                alert('Could not save the image. Please try again.');
-            }).finally(function () {
-                // 7. IMPORTANT: Clean up by removing the temporary artboard
-                document.body.removeChild(artboard);
-            });
+        domtoimage.toPng(artboard, options)
+            .then(function (dataUrl) {
+            const link = document.createElement('a');
+            link.download = 'custom-clock-hd.png';
+            link.href = dataUrl;
+            link.click();
+        }).catch(function (error) {
+            console.error('Image generation failed!', error);
+            alert('Could not save the image. Please try again.');
+        }).finally(function () {
+            document.body.removeChild(artboard);
         });
+    });
 
 
         populateDialTemplates();
