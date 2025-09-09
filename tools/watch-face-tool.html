@@ -56,23 +56,14 @@
             z-index: 10;
         }
         
-        .marker-wrapper {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-        }
         .marker {
             position: absolute;
-            top: 6%; 
-            left: 50%;
-            transform: translateX(-50%);
             font-weight: 500;
             font-size: 1.25rem;
             color: #333;
             z-index: 1;
             transition: text-shadow 0.3s ease, font-weight 0.3s ease;
+            transform: translate(-50%, -50%); /* Center the marker */
         }
         .marker.line { width: 2px; height: 10px; background-color: #333; }
         .marker.line.thick { width: 4px; height: 15px; }
@@ -172,10 +163,12 @@
                 <div class="flex items-center justify-between pt-2"><label for="marker-style" class="text-gray-600">Marker Style</label><select id="marker-style" class="rounded-lg border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"><option value="numbers">Numbers</option><option value="roman">Roman</option><option value="tamil">Tamil</option><option value="lines">Lines</option><option value="none">None</option></select></div>
                 <div id="text-color-wrapper" class="flex items-center justify-between"><label for="text-color" class="text-gray-600">Text Color</label><input type="color" id="text-color" value="#333333"></div>
                 <div id="line-color-wrapper" class="flex items-center justify-between"><label for="marker-color" class="text-gray-600">Line Color</label><input type="color" id="marker-color" value="#333333"></div>
-                <div id="text-size-wrapper" class="flex flex-col space-y-2 pt-2"><label for="marker-text-size" class="text-gray-600">Text Size: <span id="marker-text-size-value">1.25</span>rem</label><input type="range" id="marker-text-size" min="0.8" max="2.5" value="1.25" step="0.05" class="w-full"></div>
-                <div id="text-bold-wrapper" class="flex items-center justify-between pt-2">
-                    <label for="marker-text-bold" class="text-gray-600">Bold Text</label>
-                    <input type="checkbox" id="marker-text-bold" class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500">
+                <div id="text-style-controls">
+                    <div class="flex flex-col space-y-2 pt-2"><label for="marker-text-size" class="text-gray-600">Text Size: <span id="marker-text-size-value">1.25</span>rem</label><input type="range" id="marker-text-size" min="0.8" max="2.5" value="1.25" step="0.05" class="w-full"></div>
+                    <div class="flex items-center justify-between pt-2"><label for="marker-text-bold" class="text-gray-600">Bold Text</label><input type="checkbox" id="marker-text-bold" class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500"></div>
+                    <div class="flex flex-col space-y-2 pt-2"><label for="marker-radius" class="text-gray-600">Text Distance: <span id="marker-radius-value">42</span>%</label><input type="range" id="marker-radius" min="30" max="48" value="42" step="0.5" class="w-full"></div>
+                    <div class="flex flex-col space-y-2 pt-2"><label for="marker-offset-x" class="text-gray-600">Horizontal Offset: <span id="marker-offset-x-value">0</span>%</label><input type="range" id="marker-offset-x" min="-20" max="20" value="0" step="0.5" class="w-full"></div>
+                    <div class="flex flex-col space-y-2 pt-2"><label for="marker-offset-y" class="text-gray-600">Vertical Offset: <span id="marker-offset-y-value">0</span>%</label><input type="range" id="marker-offset-y" min="-20" max="20" value="0" step="0.5" class="w-full"></div>
                 </div>
             </div>
             <div class="space-y-4">
@@ -247,10 +240,15 @@
         const textSizeInput = document.getElementById('marker-text-size');
         const textSizeValue = document.getElementById('marker-text-size-value');
         const markerTextBoldCheck = document.getElementById('marker-text-bold');
+        const markerRadiusInput = document.getElementById('marker-radius');
+        const markerRadiusValue = document.getElementById('marker-radius-value');
+        const markerOffsetXInput = document.getElementById('marker-offset-x');
+        const markerOffsetXValue = document.getElementById('marker-offset-x-value');
+        const markerOffsetYInput = document.getElementById('marker-offset-y');
+        const markerOffsetYValue = document.getElementById('marker-offset-y-value');
         const lineColorWrapper = document.getElementById('line-color-wrapper');
         const textColorWrapper = document.getElementById('text-color-wrapper');
-        const textSizeWrapper = document.getElementById('text-size-wrapper');
-        const textBoldWrapper = document.getElementById('text-bold-wrapper');
+        const textStyleControlsWrapper = document.getElementById('text-style-controls');
         const hourHandColorInput = document.getElementById('hour-hand-color');
         const minuteHandColorInput = document.getElementById('minute-hand-color');
         const secondHandColorInput = document.getElementById('second-hand-color');
@@ -292,8 +290,7 @@
             const isText = (style === 'numbers' || style === 'roman' || style === 'tamil');
             lineColorWrapper.style.display = style === 'lines' ? 'flex' : 'none';
             textColorWrapper.style.display = isText ? 'flex' : 'none';
-            textSizeWrapper.style.display = isText ? 'flex' : 'none';
-            textBoldWrapper.style.display = isText ? 'flex' : 'none';
+            textStyleControlsWrapper.style.display = isText ? 'block' : 'none';
             textStylesGrid.parentElement.style.display = isText ? 'block' : 'none';
         }
         function applyTextStyle() {
@@ -307,15 +304,15 @@
             });
         }
         function generateMarkers() {
-            const existingMarkers = clockFace.querySelectorAll('.marker-wrapper, .marker.line');
+            const existingMarkers = clockFace.querySelectorAll('.marker');
             existingMarkers.forEach(m => m.remove());
             const style = markerStyleInput.value;
             if (style === 'none') return;
+            
             if (style === 'lines') {
                 for (let i = 0; i < 12; i++) {
                     const marker = document.createElement('div');
                     const angle = i * 30;
-                    marker.style.position = 'absolute';
                     const x = 50 + 42 * Math.sin(angle * Math.PI / 180);
                     const y = 50 - 42 * Math.cos(angle * Math.PI / 180);
                     marker.style.left = `${x}%`;
@@ -327,22 +324,30 @@
                     clockFace.appendChild(marker);
                 }
             } else {
+                const radius = parseFloat(markerRadiusInput.value);
+                const offsetX = parseFloat(markerOffsetXInput.value);
+                const offsetY = parseFloat(markerOffsetYInput.value);
+
                 for (let i = 0; i < 12; i++) {
                     const angle = i * 30;
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'marker-wrapper';
-                    wrapper.style.transform = `rotate(${angle}deg)`;
                     const marker = document.createElement('div');
+                    
+                    const x = 50 + radius * Math.sin(angle * Math.PI / 180);
+                    const y = 50 - radius * Math.cos(angle * Math.PI / 180);
+                    
+                    marker.style.left = `${x + offsetX}%`;
+                    marker.style.top = `${y + offsetY}%`;
+                    
                     marker.className = 'marker';
-                    marker.style.transform = `translateX(-50%) rotate(-${angle}deg)`;
                     marker.style.color = textColorInput.value;
                     marker.style.fontSize = `${textSizeInput.value}rem`;
                     marker.style.fontWeight = markerTextBoldCheck.checked ? '900' : '500';
+
                     if (style === 'numbers') marker.innerText = numbers[i];
                     if (style === 'roman') marker.innerText = romanNumerals[i];
                     if (style === 'tamil') marker.innerText = tamilNumerals[i];
-                    wrapper.appendChild(marker);
-                    clockFace.appendChild(wrapper);
+                    
+                    clockFace.appendChild(marker);
                 }
             }
             applyTextStyle();
@@ -357,9 +362,9 @@
             const hoursDegrees = (hours / 12) * 360 + (minutes / 60) * 30;
             if (seconds === 0) { secondHand.style.transition = 'none'; } 
             else { secondHand.style.transition = 'transform 0.05s linear'; }
-            secondHand.style.transform = `rotate(${secondsDegrees}deg)`;
-            minuteHand.style.transform = `rotate(${minutesDegrees}deg)`;
-            hourHand.style.transform = `rotate(${hoursDegrees}deg)`;
+            secondHand.style.transform = `translateX(-50%) rotate(${secondsDegrees}deg)`;
+            minuteHand.style.transform = `translateX(-50%) rotate(${minutesDegrees}deg)`;
+            hourHand.style.transform = `translateX(-50%) rotate(${hoursDegrees}deg)`;
         }
         function populateDialTemplates() {
             for (const [key, template] of Object.entries(dialTemplates)) {
@@ -420,6 +425,12 @@
         markerColorInput.addEventListener('input', () => { generateMarkers(); deselectActiveTemplate('dial'); });
         textColorInput.addEventListener('input', () => { generateMarkers(); deselectActiveTemplate('dial'); });
         markerTextBoldCheck.addEventListener('change', () => { generateMarkers(); deselectActiveTemplate('dial'); });
+        
+        const positionChangeHandler = () => { generateMarkers(); deselectActiveTemplate('dial'); };
+        markerRadiusInput.addEventListener('input', (e) => { markerRadiusValue.textContent = e.target.value; positionChangeHandler(); });
+        markerOffsetXInput.addEventListener('input', (e) => { markerOffsetXValue.textContent = e.target.value; positionChangeHandler(); });
+        markerOffsetYInput.addEventListener('input', (e) => { markerOffsetYValue.textContent = e.target.value; positionChangeHandler(); });
+        
         hourHandColorInput.addEventListener('input', (e) => { hourHand.style.backgroundColor = e.target.value; });
         minuteHandColorInput.addEventListener('input', (e) => { minuteHand.style.backgroundColor = e.target.value; });
         secondHandColorInput.addEventListener('input', (e) => { secondHand.style.backgroundColor = e.target.value; });
@@ -438,44 +449,43 @@
         });
 
 
-    saveBtn.addEventListener('click', () => {
-        const scale = 4;
-        const originalElement = clock;
+        saveBtn.addEventListener('click', () => {
+            const scale = 4;
+            const originalElement = clock;
+            const artboard = document.createElement('div');
+            artboard.style.width = originalElement.offsetWidth + 'px';
+            artboard.style.height = originalElement.offsetHeight + 'px';
+            artboard.style.position = 'absolute';
+            artboard.style.top = '-9999px';
+            artboard.style.left = '-9999px';
+            
+            const clockClone = originalElement.cloneNode(true);
+            
+            clockClone.style.transform = `scale(${scale})`;
+            clockClone.style.transformOrigin = 'top left';
 
-        const artboard = document.createElement('div');
-        artboard.style.width = originalElement.offsetWidth + 'px';
-        artboard.style.height = originalElement.offsetHeight + 'px';
-        artboard.style.position = 'absolute';
-        artboard.style.top = '-9999px';
-        artboard.style.left = '-9999px';
-        
-        const clockClone = originalElement.cloneNode(true);
-        
-        clockClone.style.transform = `scale(${scale})`;
-        clockClone.style.transformOrigin = 'top left';
+            artboard.appendChild(clockClone);
+            document.body.appendChild(artboard);
 
-        artboard.appendChild(clockClone);
-        document.body.appendChild(artboard);
+            const options = {
+                width: originalElement.offsetWidth * scale,
+                height: originalElement.offsetHeight * scale,
+                quality: 1.0
+            };
 
-        const options = {
-            width: originalElement.offsetWidth * scale,
-            height: originalElement.offsetHeight * scale,
-            quality: 1.0
-        };
-
-        domtoimage.toPng(artboard, options)
-            .then(function (dataUrl) {
-            const link = document.createElement('a');
-            link.download = 'custom-clock-hd.png';
-            link.href = dataUrl;
-            link.click();
-        }).catch(function (error) {
-            console.error('Image generation failed!', error);
-            alert('Could not save the image. Please try again.');
-        }).finally(function () {
-            document.body.removeChild(artboard);
+            domtoimage.toPng(artboard, options)
+                .then(function (dataUrl) {
+                const link = document.createElement('a');
+                link.download = 'custom-clock-hd.png';
+                link.href = dataUrl;
+                link.click();
+            }).catch(function (error) {
+                console.error('Image generation failed!', error);
+                alert('Could not save the image. Please try again.');
+            }).finally(function () {
+                document.body.removeChild(artboard);
+            });
         });
-    });
 
 
         populateDialTemplates();
