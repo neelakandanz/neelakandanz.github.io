@@ -148,7 +148,7 @@
                 <p class="text-gray-500 mt-1">Customize your analog clock in real-time.</p>
             </div>
 
-            <div class="border-b border-gray-200">
+             <div class="border-b border-gray-200">
                 <nav class="-mb-px flex space-x-8" aria-label="Tabs">
                     <a href="#" class="border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" aria-current="page">
                         Clock Designer
@@ -158,6 +158,7 @@
                     </a>
                 </nav>
             </div>
+
             <div class="space-y-4">
                 <h2 class="text-xl font-semibold border-b pb-2">Dial Templates</h2>
                 <div id="dial-templates-grid" class="grid grid-cols-4 sm:grid-cols-5 gap-4"></div>
@@ -182,6 +183,13 @@
                 <div class="flex items-center justify-between"><label for="hour-hand-color" class="text-gray-600">Hour Hand</label><div class="flex items-center space-x-3"><input type="checkbox" id="show-hour-hand" class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500" checked><input type="color" id="hour-hand-color" value="#2d3748"></div></div>
                 <div class="flex items-center justify-between"><label for="minute-hand-color" class="text-gray-600">Minute Hand</label><div class="flex items-center space-x-3"><input type="checkbox" id="show-minute-hand" class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500" checked><input type="color" id="minute-hand-color" value="#4a5568"></div></div>
                 <div class="flex items-center justify-between"><label for="second-hand-color" class="text-gray-600">Second Hand</label><div class="flex items-center space-x-3"><input type="checkbox" id="show-second-hand" class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500" checked><input type="color" id="second-hand-color" value="#ef4444"></div></div>
+                <div class="flex items-center justify-between">
+                    <label for="center-dot-color" class="text-gray-600">Center Dot</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="checkbox" id="show-center-dot" class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500" checked>
+                        <input type="color" id="center-dot-color" value="#333333">
+                    </div>
+                </div>
             </div>
             <div class="space-y-4">
                 <h2 class="text-xl font-semibold border-b pb-2">Frame Templates</h2>
@@ -211,7 +219,7 @@
             
             <div class="pt-4">
                  <button id="save-btn" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300">
-                     Save as HD Image
+                      Save as HD Image
                  </button>
             </div>
         </div>
@@ -220,6 +228,7 @@
     <script>
         const clock = document.getElementById('clock');
         const clockFace = document.getElementById('clock-face');
+        const centerDot = document.querySelector('.center-dot'); // Get center dot element
         const hourHand = document.getElementById('hour-hand');
         const minuteHand = document.getElementById('minute-hand');
         const secondHand = document.getElementById('second-hand');
@@ -242,6 +251,8 @@
         const showHourHandCheck = document.getElementById('show-hour-hand');
         const showMinuteHandCheck = document.getElementById('show-minute-hand');
         const showSecondHandCheck = document.getElementById('show-second-hand');
+        const showCenterDotCheck = document.getElementById('show-center-dot'); // Get new checkbox
+        const centerDotColorInput = document.getElementById('center-dot-color'); // Get new color picker
         const saveBtn = document.getElementById('save-btn');
         const frameOptions = document.querySelectorAll('.frame-option');
         const dialTemplatesGrid = document.getElementById('dial-templates-grid');
@@ -407,6 +418,11 @@
         showHourHandCheck.addEventListener('input', (e) => { hourHand.style.display = e.target.checked ? 'block' : 'none'; });
         showMinuteHandCheck.addEventListener('input', (e) => { minuteHand.style.display = e.target.checked ? 'block' : 'none'; });
         showSecondHandCheck.addEventListener('input', (e) => { secondHand.style.display = e.target.checked ? 'block' : 'none'; });
+        
+        // New Event Listeners for Center Dot
+        showCenterDotCheck.addEventListener('input', (e) => { centerDot.style.display = e.target.checked ? 'block' : 'none'; });
+        centerDotColorInput.addEventListener('input', (e) => { centerDot.style.backgroundColor = e.target.value; });
+
         frameOptions.forEach(option => {
             option.addEventListener('click', () => {
                 frameOptions.forEach(opt => { clock.classList.remove(opt.dataset.frame); opt.classList.remove('active'); });
