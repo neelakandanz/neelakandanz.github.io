@@ -85,11 +85,11 @@
                     <div class="space-y-4">
                         <div>
                             <label for="width-slider" class="flex justify-between items-center text-sm"><span>Width</span><span id="width-value" class="font-mono bg-gray-700 px-2 py-0.5 rounded"></span></label>
-                            <input id="width-slider" type="range" min="1" max="50" class="mt-1">
+                            <input id="width-slider" type="range" min="1" max="100" class="mt-1">
                         </div>
                         <div>
                             <label for="height-slider" class="flex justify-between items-center text-sm"><span>Length</span><span id="height-value" class="font-mono bg-gray-700 px-2 py-0.5 rounded"></span></label>
-                            <input id="height-slider" type="range" min="10" max="1200" class="mt-1">
+                            <input id="height-slider" type="range" min="10" max="600" class="mt-1">
                         </div>
                         <div>
                             <label for="color-picker" class="flex justify-between items-center text-sm"><span>Color</span><span id="color-value" class="font-mono bg-gray-700 px-2 py-0.5 rounded"></span></label>
@@ -101,15 +101,15 @@
                 <div class="pt-4">
                      <button id="download-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
-                           <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                             <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
                          </svg>
                          Download Hands
                      </button>
                 </div>
             </div>
 
-            <div class="lg:col-span-1 bg-gray-800 p-4 rounded-xl flex items-center justify-center">
-                <div class="w-full h-full overflow-auto border border-gray-700 rounded-lg">
+            <div class="lg:col-span-1 bg-gray-800 p-4 rounded-xl flex items-center justify-center min-h-[500px]">
+                <div class="w-full h-full overflow-auto border border-gray-700 rounded-lg bg-gray-900">
                      <canvas id="clock-canvas"></canvas>
                 </div>
             </div>
@@ -144,18 +144,20 @@
                 simple: (ctx, w, h, c) => {
                     ctx.fillStyle = c;
                     ctx.beginPath();
-                    ctx.roundRect(-w / 2, -h + (w*2), w, h - (w*2), w / 2);
+                    // Adjusted to prevent the hand from becoming too short with large widths
+                    const tail = Math.min(h / 4, 40); 
+                    ctx.roundRect(-w / 2, -h + tail, w, h - tail, w / 2);
                     ctx.fill();
                 },
                 elegant: (ctx, w, h, c) => {
                     ctx.fillStyle = c;
                     ctx.beginPath();
-                    ctx.moveTo(0, 0);
-                    ctx.lineTo(-w / 2, -15);
+                    ctx.moveTo(0, h * 0.1); // Small tail
+                    ctx.lineTo(-w, -h * 0.1);
                     ctx.lineTo(-w / 3, -h + 20);
                     ctx.lineTo(0, -h);
                     ctx.lineTo(w / 3, -h + 20);
-                    ctx.lineTo(w / 2, -15);
+                    ctx.lineTo(w, -h * 0.1);
                     ctx.closePath();
                     ctx.fill();
                 },
@@ -164,7 +166,7 @@
                     ctx.lineWidth = w;
                     ctx.lineCap = 'round';
                     ctx.beginPath();
-                    ctx.moveTo(0, 15);
+                    ctx.moveTo(0, 20);
                     ctx.lineTo(0, -h);
                     ctx.stroke();
                 },
@@ -176,60 +178,46 @@
                     ctx.fill();
                     // Tail
                     ctx.beginPath();
-                    ctx.roundRect(-w/1.5, 0, w * 1.5, 25, w);
+                    ctx.roundRect(-w, 0, w * 2, 40, w);
                     ctx.fill();
                 }
             };
             
             // --- Drawing Functions ---
-            function drawClockFace() {
+            function drawClockFaceGuide() {
                 const radius = canvas.width / 2;
                 ctx.strokeStyle = '#4a5568';
                 ctx.lineWidth = 4;
 
-                // Outer circle
+                // Outer circle guide
                 ctx.beginPath();
                 ctx.arc(0, 0, radius * 0.95, 0, 2 * Math.PI);
                 ctx.stroke();
                 
-                // Center dot
+                // Center dot guide
                 ctx.fillStyle = '#cbd5e0';
                 ctx.beginPath();
                 ctx.arc(0, 0, 15, 0, 2 * Math.PI);
                 ctx.fill();
-                
-                // Hour markers
-                 ctx.lineWidth = 8;
-                for (let i = 0; i < 12; i++) {
-                    const angle = (i * 30) * Math.PI / 180;
-                    const x1 = Math.sin(angle) * (radius * 0.88);
-                    const y1 = -Math.cos(angle) * (radius * 0.88);
-                    const x2 = Math.sin(angle) * (radius * 0.94);
-                    const y2 = -Math.cos(angle) * (radius * 0.94);
-                    ctx.beginPath();
-                    ctx.moveTo(x1, y1);
-                    ctx.lineTo(x2, y2);
-                    ctx.stroke();
-                }
             }
 
-            function drawAllHands() {
+            // IMPROVEMENT: Renamed function and now it only draws the active hand for a clearer preview.
+            function drawPreview() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.save();
                 ctx.translate(canvas.width / 2, canvas.height / 2);
                 
-                drawClockFace();
+                drawClockFaceGuide();
 
-                // Draw hands in order: hour, minute, second
-                ['hour', 'minute', 'second'].forEach(handType => {
-                    const hand = hands[handType];
-                    const drawFunc = templates[hand.template];
-                    ctx.save();
-                    drawFunc(ctx, hand.width, hand.height, hand.color);
-                    ctx.restore();
-                });
+                // Draw only the currently active hand
+                const hand = hands[activeHand];
+                const drawFunc = templates[hand.template];
                 
-                ctx.restore(); // Reset transform
+                ctx.save();
+                drawFunc(ctx, hand.width, hand.height, hand.color);
+                ctx.restore();
+                
+                ctx.restore(); // Reset all transformations
             }
             
             // --- UI Update Functions ---
@@ -242,12 +230,10 @@
                 colorPicker.value = hand.color;
                 colorValue.textContent = hand.color.toUpperCase();
 
-                // Update active tab
                 handSelector.querySelectorAll('button').forEach(btn => {
                     btn.classList.toggle('tab-active', btn.dataset.hand === activeHand);
                 });
 
-                // Update active template button
                 templateSelector.querySelectorAll('button').forEach(btn => {
                     btn.classList.toggle('template-btn-active', btn.dataset.template === hand.template);
                 });
@@ -258,6 +244,7 @@
                 if (e.target.tagName === 'BUTTON') {
                     activeHand = e.target.dataset.hand;
                     updateControls();
+                    drawPreview(); // Redraw with the new active hand
                 }
             });
 
@@ -265,34 +252,30 @@
                 if (e.target.tagName === 'BUTTON') {
                     hands[activeHand].template = e.target.dataset.template;
                     updateControls();
-                    drawAllHands();
+                    drawPreview();
                 }
             });
 
-            widthSlider.addEventListener('input', (e) => {
-                hands[activeHand].width = parseInt(e.target.value, 10);
+            const handleDimensionChange = () => {
+                hands[activeHand].width = parseInt(widthSlider.value, 10);
+                hands[activeHand].height = parseInt(heightSlider.value, 10);
+                hands[activeHand].color = colorPicker.value;
                 updateControls();
-                drawAllHands();
-            });
+                drawPreview();
+            };
 
-            heightSlider.addEventListener('input', (e) => {
-                hands[activeHand].height = parseInt(e.target.value, 10);
-                updateControls();
-                drawAllHands();
-            });
-            
-            colorPicker.addEventListener('input', (e) => {
-                hands[activeHand].color = e.target.value;
-                updateControls();
-                drawAllHands();
-            });
+            widthSlider.addEventListener('input', handleDimensionChange);
+            heightSlider.addEventListener('input', handleDimensionChange);
+            colorPicker.addEventListener('input', handleDimensionChange);
 
             downloadBtn.addEventListener('click', () => {
                 const tempCanvas = document.createElement('canvas');
                 const tempCtx = tempCanvas.getContext('2d');
-                // Adjust download size for potentially larger hands
-                const maxSize = Math.max(hands.hour.height, hands.minute.height, hands.second.height);
-                const size = Math.ceil((maxSize + 100)); 
+                
+                // *** THE MAIN FIX ***
+                // All hands are downloaded on a standard 1200x1200 canvas
+                // This ensures their pivot points are identical for easy alignment.
+                const size = 1200; 
                 tempCanvas.width = size;
                 tempCanvas.height = size;
                 
@@ -302,7 +285,8 @@
                     
                     tempCtx.clearRect(0, 0, size, size);
                     tempCtx.save();
-                    // CORRECTED LINE: Translate to the true center of the canvas
+                    
+                    // Translate to the exact center of the standard 1200x1200 canvas
                     tempCtx.translate(size / 2, size / 2); 
                     drawFunc(tempCtx, hand.width, hand.height, hand.color);
                     tempCtx.restore();
@@ -316,13 +300,13 @@
             
             // --- Initialization ---
             function init() {
-                // Set fixed canvas size
+                // Set a fixed, large canvas size for the preview area
                 const dialSize = 1200;
                 canvas.width = dialSize;
                 canvas.height = dialSize;
 
                 updateControls();
-                drawAllHands();
+                drawPreview();
             }
 
             init();
