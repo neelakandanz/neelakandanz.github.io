@@ -11,6 +11,9 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+        #qrcode canvas, #qrcode img {
+             margin: auto;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -26,7 +29,7 @@
                     <textarea id="text-input" rows="4" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., https://www.example.com"></textarea>
                 </div>
                 <button id="generate-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg">Generate QR Code</button>
-                <div id="qrcode" class="mt-8 flex justify-center"></div>
+                <div id="qrcode" class="mt-8 flex justify-center p-4 bg-white"></div>
                 <button id="download-btn" class="w-full mt-4 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg" style="display: none;">Download QR Code</button>
             </main>
         </div>
@@ -36,25 +39,45 @@
         const textInput = document.getElementById('text-input');
         const qrcodeContainer = document.getElementById('qrcode');
         const downloadBtn = document.getElementById('download-btn');
-        let qrcode = new QRCode(qrcodeContainer, {
-            width: 256,
-            height: 256,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
-        });
+        let qrcode = null;
 
-        generateBtn.addEventListener('click', () => {
+        function generateQRCode() {
             const text = textInput.value.trim();
             if (text) {
-                qrcode.makeCode(text);
-                downloadBtn.style.display = 'block';
+                // Clear previous QR code
+                qrcodeContainer.innerHTML = '';
+                
+                // Create new QR Code
+                qrcode = new QRCode(qrcodeContainer, {
+                    text: text,
+                    width: 256,
+                    height: 256,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+                
+                // Show the download button after a short delay to ensure rendering
+                setTimeout(() => {
+                    downloadBtn.style.display = 'block';
+                }, 100);
             }
-        });
+        }
+
+        generateBtn.addEventListener('click', generateQRCode);
 
         downloadBtn.addEventListener('click', () => {
+            // The library generates a <canvas> element. We need to get its data URL.
+            const canvas = qrcodeContainer.getElementsByTagName('canvas')[0];
             const qrCodeImg = qrcodeContainer.getElementsByTagName('img')[0];
-            if (qrCodeImg) {
+
+            if (canvas) {
+                const link = document.createElement('a');
+                link.download = 'qrcode.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } else if (qrCodeImg) {
+                // Fallback for older browsers that might use an img tag
                 const link = document.createElement('a');
                 link.download = 'qrcode.png';
                 link.href = qrCodeImg.src;
