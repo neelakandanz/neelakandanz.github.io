@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/dracula.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image-more/2.9.5/dom-to-image-more.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body { 
@@ -30,10 +30,18 @@
         
         #code-window code {
             display: block;
+            color: inherit;
+            background: transparent;
         }
         
         .hljs {
             background: transparent !important;
+            padding: 0 !important;
+        }
+        
+        /* Ensure text is visible during export */
+        #code-display * {
+            color: inherit !important;
         }
 
         .mock-controls { 
@@ -147,6 +155,12 @@
                                 <option value="nord">Nord</option>
                                 <option value="tokyo-night">Tokyo Night</option>
                                 <option value="atom-one-dark">Atom One Dark</option>
+                                <option value="gradient-sunset">🌅 Gradient Sunset</option>
+                                <option value="gradient-ocean">🌊 Gradient Ocean</option>
+                                <option value="gradient-purple">💜 Gradient Purple</option>
+                                <option value="gradient-fire">🔥 Gradient Fire</option>
+                                <option value="gradient-forest">🌲 Gradient Forest</option>
+                                <option value="gradient-candy">🍭 Gradient Candy</option>
                             </select>
                         </div>
                     </div>
@@ -226,12 +240,48 @@ class _SegmentExampleState extends State<SegmentExample> {
 }`;
 
         const themes = {
-            'dracula': { css: 'dracula', bg: '#282a36' },
-            'monokai': { css: 'monokai', bg: '#272822' },
-            'github-dark': { css: 'github-dark', bg: '#0d1117' },
-            'nord': { css: 'nord', bg: '#2e3440' },
-            'tokyo-night': { css: 'tokyo-night-dark', bg: '#1a1b26' },
-            'atom-one-dark': { css: 'atom-one-dark', bg: '#282c34' }
+            'dracula': { css: 'dracula', bg: '#282a36', gradient: false },
+            'monokai': { css: 'monokai', bg: '#272822', gradient: false },
+            'github-dark': { css: 'github-dark', bg: '#0d1117', gradient: false },
+            'nord': { css: 'nord', bg: '#2e3440', gradient: false },
+            'tokyo-night': { css: 'tokyo-night-dark', bg: '#1a1b26', gradient: false },
+            'atom-one-dark': { css: 'atom-one-dark', bg: '#282c34', gradient: false },
+            'gradient-sunset': { 
+                css: 'monokai', 
+                bg: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', 
+                gradient: true,
+                color: '#2d1b00'
+            },
+            'gradient-ocean': { 
+                css: 'github-dark', 
+                bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+                gradient: true,
+                color: '#ffffff'
+            },
+            'gradient-purple': { 
+                css: 'dracula', 
+                bg: 'linear-gradient(135deg, #c471f5 0%, #fa71cd 100%)', 
+                gradient: true,
+                color: '#1a0a1f'
+            },
+            'gradient-fire': { 
+                css: 'monokai', 
+                bg: 'linear-gradient(135deg, #ff6b6b 0%, #ffd93d 100%)', 
+                gradient: true,
+                color: '#2d0000'
+            },
+            'gradient-forest': { 
+                css: 'github-dark', 
+                bg: 'linear-gradient(135deg, #0ba360 0%, #3cba92 100%)', 
+                gradient: true,
+                color: '#ffffff'
+            },
+            'gradient-candy': { 
+                css: 'atom-one-dark', 
+                bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)', 
+                gradient: true,
+                color: '#4a2c1f'
+            }
         };
 
         function updateCode() {
@@ -251,7 +301,18 @@ class _SegmentExampleState extends State<SegmentExample> {
             const themeLink = document.querySelector('link[href*="highlight.js/"]');
             themeLink.href = `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/${themeData.css}.min.css`;
             
-            codeWindow.style.backgroundColor = themeData.bg;
+            if (themeData.gradient) {
+                codeWindow.style.background = themeData.bg;
+                codeWindow.style.backgroundColor = 'transparent';
+                // Apply text color for gradient themes
+                if (themeData.color) {
+                    codeDisplay.style.color = themeData.color;
+                }
+            } else {
+                codeWindow.style.backgroundColor = themeData.bg;
+                codeWindow.style.background = 'none';
+                codeDisplay.style.color = '';
+            }
         }
 
         function updateStyles() {
@@ -280,40 +341,26 @@ class _SegmentExampleState extends State<SegmentExample> {
             downloadBtn.disabled = true;
 
             try {
-                const scale = 2;
+                const canvas = await html2canvas(captureArea, {
+                    scale: 2,
+                    backgroundColor: bgColorPicker.value,
+                    logging: false,
+                    useCORS: true,
+                    allowTaint: true
+                });
                 
-                // Get computed styles
-                const captureStyles = window.getComputedStyle(captureArea);
-                const windowStyles = window.getComputedStyle(codeWindow);
-                
-                const options = {
-                    width: captureArea.offsetWidth * scale,
-                    height: captureArea.offsetHeight * scale,
-                    style: {
-                        transform: `scale(${scale})`,
-                        transformOrigin: 'top left',
-                        width: captureArea.offsetWidth + 'px',
-                        height: captureArea.offsetHeight + 'px'
-                    },
-                    quality: 1,
-                    cacheBust: true,
-                    // Force inline styles
-                    filter: (node) => {
-                        // Include all elements
-                        return true;
-                    }
-                };
-
-                const dataUrl = await domtoimage.toPng(captureArea, options);
-                
-                const link = document.createElement('a');
-                link.download = `code-snap-${Date.now()}.png`;
-                link.href = dataUrl;
-                link.click();
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.download = `code-snap-${Date.now()}.png`;
+                    link.href = url;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                });
                 
             } catch (error) {
                 console.error('Export failed:', error);
-                alert('Export failed. Please try again or try a different browser.');
+                alert('Export failed. Please try again.');
             } finally {
                 downloadBtn.textContent = originalText;
                 downloadBtn.disabled = false;
