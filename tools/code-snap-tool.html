@@ -274,36 +274,50 @@ class _SegmentExampleState extends State<SegmentExample> {
             captureArea.style.backgroundColor = bgColorPicker.value;
         }
 
-        function downloadImage() {
+        async function downloadImage() {
             const originalText = downloadBtn.textContent;
             downloadBtn.textContent = '⏳ Exporting...';
             downloadBtn.disabled = true;
 
-            const scale = 3;
-            const options = {
-                width: captureArea.offsetWidth * scale,
-                height: captureArea.offsetHeight * scale,
-                style: {
-                    transform: `scale(${scale})`,
-                    transformOrigin: 'top left'
-                }
-            };
+            try {
+                const scale = 2;
+                
+                // Get computed styles
+                const captureStyles = window.getComputedStyle(captureArea);
+                const windowStyles = window.getComputedStyle(codeWindow);
+                
+                const options = {
+                    width: captureArea.offsetWidth * scale,
+                    height: captureArea.offsetHeight * scale,
+                    style: {
+                        transform: `scale(${scale})`,
+                        transformOrigin: 'top left',
+                        width: captureArea.offsetWidth + 'px',
+                        height: captureArea.offsetHeight + 'px'
+                    },
+                    quality: 1,
+                    cacheBust: true,
+                    // Force inline styles
+                    filter: (node) => {
+                        // Include all elements
+                        return true;
+                    }
+                };
 
-            domtoimage.toPng(captureArea, options)
-                .then(dataUrl => {
-                    const link = document.createElement('a');
-                    link.download = `code-snap-${Date.now()}.png`;
-                    link.href = dataUrl;
-                    link.click();
-                })
-                .catch(error => {
-                    console.error('Export failed:', error);
-                    alert('Export failed. Please try again.');
-                })
-                .finally(() => {
-                    downloadBtn.textContent = originalText;
-                    downloadBtn.disabled = false;
-                });
+                const dataUrl = await domtoimage.toPng(captureArea, options);
+                
+                const link = document.createElement('a');
+                link.download = `code-snap-${Date.now()}.png`;
+                link.href = dataUrl;
+                link.click();
+                
+            } catch (error) {
+                console.error('Export failed:', error);
+                alert('Export failed. Please try again or try a different browser.');
+            } finally {
+                downloadBtn.textContent = originalText;
+                downloadBtn.disabled = false;
+            }
         }
 
         // Event listeners
