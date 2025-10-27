@@ -83,6 +83,53 @@
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
+
+        /* Mobile optimizations */
+        @media (max-width: 1024px) {
+            body {
+                padding: 1rem !important;
+            }
+            
+            #capture-area {
+                padding: 2rem !important;
+            }
+            
+            #code-window {
+                font-size: 12px !important;
+                max-width: 100%;
+            }
+            
+            .code-content {
+                padding: 16px !important;
+            }
+            
+            h1 {
+                font-size: 2rem !important;
+            }
+        }
+
+        @media (max-width: 640px) {
+            #capture-area {
+                padding: 1.5rem !important;
+            }
+            
+            #code-window {
+                font-size: 11px !important;
+            }
+            
+            .code-content {
+                padding: 12px !important;
+            }
+            
+            .mock-controls {
+                padding: 12px;
+            }
+            
+            .dot {
+                width: 10px;
+                height: 10px;
+            }
+        }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -90,49 +137,27 @@
         <div class="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl p-6 lg:p-8 border border-white/20">
             
             <!-- Header -->
-            <div class="text-center mb-8">
-                <h1 class="text-4xl font-bold text-white mb-2">✨ Code Snap</h1>
-                <p class="text-white/70">Create beautiful code screenshots in seconds</p>
+            <div class="text-center mb-6 lg:mb-8">
+                <h1 class="text-3xl lg:text-4xl font-bold text-white mb-2">✨ Code Snap</h1>
+                <p class="text-white/70 text-sm lg:text-base">Create beautiful code screenshots in seconds</p>
             </div>
 
-            <div class="grid lg:grid-cols-[1fr_360px] gap-8">
+            <div class="flex flex-col lg:grid lg:grid-cols-[1fr_360px] gap-6 lg:gap-8">
                 
-                <!-- Preview Section -->
-                <div class="flex flex-col items-center space-y-6">
-                    <div class="w-full flex justify-center p-8 rounded-2xl bg-white/5">
-                        <div id="capture-area">
-                            <div id="code-window" class="w-full">
-                                <div class="mock-controls">
-                                    <div class="dot"></div>
-                                    <div class="dot"></div>
-                                    <div class="dot"></div>
-                                </div>
-                                <div class="code-content">
-                                    <pre><code id="code-display" class="language-dart"></code></pre>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <button id="download-btn" class="px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg text-lg">
-                        📥 Export PNG
-                    </button>
-                </div>
-
-                <!-- Controls Section -->
-                <div class="space-y-6">
+                <!-- Controls Section - Now appears FIRST on mobile -->
+                <div class="space-y-4 lg:space-y-6 order-1 lg:order-2">
                     
                     <!-- Code Input -->
                     <div class="control-group">
-                        <label class="block text-white font-semibold mb-3 text-sm uppercase tracking-wide">Code</label>
-                        <textarea id="code-input" rows="10" class="w-full p-4 border-0 rounded-xl bg-gray-900/50 text-white text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none font-mono resize-none" placeholder="Paste your code here..."></textarea>
+                        <label class="block text-white font-semibold mb-2 lg:mb-3 text-xs lg:text-sm uppercase tracking-wide">Your Code</label>
+                        <textarea id="code-input" rows="8" class="w-full p-3 lg:p-4 border-0 rounded-xl bg-gray-900/50 text-white text-xs lg:text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none font-mono resize-y" placeholder="Paste or type your code here..."></textarea>
                     </div>
                     
                     <!-- Language & Theme -->
-                    <div class="control-group space-y-4">
+                    <div class="control-group space-y-3 lg:space-y-4">
                         <div>
-                            <label class="block text-white font-semibold mb-2 text-sm">Language</label>
-                            <select id="language-select" class="w-full p-3 rounded-lg bg-gray-900/50 text-white border-0 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <label class="block text-white font-semibold mb-2 text-xs lg:text-sm">Language</label>
+                            <select id="language-select" class="w-full p-2.5 lg:p-3 rounded-lg bg-gray-900/50 text-white text-sm border-0 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                                 <option value="dart">Dart</option>
                                 <option value="javascript">JavaScript</option>
                                 <option value="python">Python</option>
@@ -147,8 +172,8 @@
                         </div>
 
                         <div>
-                            <label class="block text-white font-semibold mb-2 text-sm">Theme</label>
-                            <select id="theme-select" class="w-full p-3 rounded-lg bg-gray-900/50 text-white border-0 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <label class="block text-white font-semibold mb-2 text-xs lg:text-sm">Theme</label>
+                            <select id="theme-select" class="w-full p-2.5 lg:p-3 rounded-lg bg-gray-900/50 text-white text-sm border-0 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                                 <option value="dracula">Dracula</option>
                                 <option value="monokai">Monokai</option>
                                 <option value="github-dark">GitHub Dark</option>
@@ -166,33 +191,55 @@
                     </div>
 
                     <!-- Styling Controls -->
-                    <div class="control-group space-y-5">
+                    <div class="control-group space-y-4 lg:space-y-5">
                         <div>
-                            <label class="block text-white font-semibold mb-2 text-sm">Font Size: <span id="font-size-value" class="text-indigo-300">14</span>px</label>
+                            <label class="block text-white font-semibold mb-2 text-xs lg:text-sm">Font Size: <span id="font-size-value" class="text-indigo-300">14</span>px</label>
                             <input type="range" id="font-size-slider" min="10" max="20" value="14" step="1" class="w-full h-2 rounded-lg cursor-pointer">
                         </div>
 
                         <div>
-                            <label class="block text-white font-semibold mb-2 text-sm">Padding: <span id="padding-value" class="text-indigo-300">32</span>px</label>
+                            <label class="block text-white font-semibold mb-2 text-xs lg:text-sm">Code Padding: <span id="padding-value" class="text-indigo-300">32</span>px</label>
                             <input type="range" id="padding-slider" min="16" max="64" value="32" step="4" class="w-full h-2 rounded-lg cursor-pointer">
                         </div>
 
                         <div>
-                            <label class="block text-white font-semibold mb-2 text-sm">Background Padding: <span id="bg-padding-value" class="text-indigo-300">64</span>px</label>
+                            <label class="block text-white font-semibold mb-2 text-xs lg:text-sm">Background Padding: <span id="bg-padding-value" class="text-indigo-300">64</span>px</label>
                             <input type="range" id="bg-padding-slider" min="32" max="128" value="64" step="8" class="w-full h-2 rounded-lg cursor-pointer">
                         </div>
 
                         <div>
-                            <label class="block text-white font-semibold mb-3 text-sm">Background Color</label>
+                            <label class="block text-white font-semibold mb-2 lg:mb-3 text-xs lg:text-sm">Background Color</label>
                             <div class="flex gap-3">
-                                <input type="color" id="bg-color-picker" value="#1a1a2e" class="h-12 w-16 rounded-lg cursor-pointer border-2 border-white/20">
-                                <button id="reset-bg-btn" class="flex-1 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-sm font-medium">
+                                <input type="color" id="bg-color-picker" value="#1a1a2e" class="h-10 w-14 lg:h-12 lg:w-16 rounded-lg cursor-pointer border-2 border-white/20">
+                                <button id="reset-bg-btn" class="flex-1 px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-xs lg:text-sm font-medium">
                                     Reset
                                 </button>
                             </div>
                         </div>
                     </div>
 
+                </div>
+                
+                <!-- Preview Section - Now appears SECOND on mobile -->
+                <div class="flex flex-col items-center space-y-4 lg:space-y-6 order-2 lg:order-1">
+                    <div class="w-full flex justify-center p-4 lg:p-8 rounded-2xl bg-white/5 overflow-x-auto">
+                        <div id="capture-area">
+                            <div id="code-window" class="w-full min-w-[280px]">
+                                <div class="mock-controls">
+                                    <div class="dot"></div>
+                                    <div class="dot"></div>
+                                    <div class="dot"></div>
+                                </div>
+                                <div class="code-content">
+                                    <pre><code id="code-display" class="language-dart"></code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button id="download-btn" class="w-full lg:w-auto px-6 lg:px-8 py-3 lg:py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg text-base lg:text-lg">
+                        📥 Export PNG
+                    </button>
                 </div>
             </div>
         </div>
