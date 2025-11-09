@@ -47,6 +47,8 @@
                 <div class="output-card">
                     <h3>Feature Graphic</h3>
                     <p>Required Size: 1024px x 500px</p>
+                    <label for="scaleFeature" style="display: block; text-align: left; margin: 10px 0 5px; font-size: 0.9rem;">Scale: <span id="scaleValueFeature">100%</span></label>
+                    <input type="range" id="scaleFeature" min="50" max="200" value="100" oninput="updateScale('Feature');" style="width: 100%; margin-bottom: 15px;">
                     <canvas id="canvasFeature" width="1024" height="500"></canvas>
                     <button class="btn btn-download" onclick="downloadCanvas('canvasFeature', 'feature-graphic', 'jpeg')" disabled>
                         ⬇️ Download JPG
@@ -56,6 +58,8 @@
                 <div class="output-card">
                     <h3>Screenshot (Landscape)</h3>
                     <p>Aspect Ratio: 16:9 (e.g., 1280px x 720px)</p>
+                    <label for="scaleScreenshotL" style="display: block; text-align: left; margin: 10px 0 5px; font-size: 0.9rem;">Scale: <span id="scaleValueScreenshotL">100%</span></label>
+                    <input type="range" id="scaleScreenshotL" min="50" max="200" value="100" oninput="updateScale('ScreenshotL');" style="width: 100%; margin-bottom: 15px;">
                     <canvas id="canvasScreenshotL" width="1280" height="720"></canvas>
                     <button class="btn btn-download" onclick="downloadCanvas('canvasScreenshotL', 'screenshot-landscape', 'jpeg')" disabled>
                         ⬇️ Download JPG
@@ -70,6 +74,11 @@
         const outputSection = document.getElementById('output-section');
         const previewImage = document.getElementById('source-image-preview');
         const downloadButtons = document.querySelectorAll('.btn-download');
+
+        // NEW STATE VARIABLES
+        let scaleFeature = 1.0;
+        let scaleScreenshotL = 1.0;
+        // END NEW STATE VARIABLES
 
         function handleImageUpload(event) {
             const file = event.target.files[0];
@@ -91,24 +100,41 @@
             reader.readAsDataURL(file);
         }
 
+        // NEW FUNCTION TO UPDATE SCALE
+        function updateScale(assetType) {
+            const slider = document.getElementById('scale' + assetType);
+            const valueSpan = document.getElementById('scaleValue' + assetType);
+            const newScale = parseInt(slider.value) / 100;
+
+            if (assetType === 'Feature') {
+                scaleFeature = newScale;
+            } else if (assetType === 'ScreenshotL') {
+                scaleScreenshotL = newScale;
+            }
+
+            valueSpan.textContent = slider.value + '%';
+            redrawAllCanvases();
+        }
+        // END NEW FUNCTION
+
         function redrawAllCanvases() {
             if (!sourceImage) return;
 
-            // 1. App Icon (512x512)
-            resizeAndDraw('canvasIcon', 512, 512, sourceImage);
+            // 1. App Icon (512x512) - Uses 'cover' logic
+            resizeAndDrawCover('canvasIcon', 512, 512, sourceImage);
 
-            // 2. Feature Graphic (1024x500)
-            resizeAndDraw('canvasFeature', 1024, 500, sourceImage);
+            // 2. Feature Graphic (1024x500) - Uses 'scaled' logic
+            resizeAndDrawScaled('canvasFeature', 1024, 500, sourceImage, scaleFeature);
 
-            // 3. Phone Screenshot (16:9 Landscape - 1280x720)
-            resizeAndDraw('canvasScreenshotL', 1280, 720, sourceImage);
+            // 3. Phone Screenshot (16:9 Landscape - 1280x720) - Uses 'scaled' logic
+            resizeAndDrawScaled('canvasScreenshotL', 1280, 720, sourceImage, scaleScreenshotL);
         }
 
         /**
          * Resizes and draws the source image onto a target canvas using a "cover" fit.
-         * The image is centered and scaled to cover the entire canvas area without stretching.
+         * Used for App Icon where image must fill the entire canvas.
          */
-        function resizeAndDraw(canvasId, targetWidth, targetHeight, img) {
+        function resizeAndDrawCover(canvasId, targetWidth, targetHeight, img) {
             const canvas = document.getElementById(canvasId);
             const ctx = canvas.getContext('2d');
             
@@ -139,6 +165,45 @@
             ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
         }
 
+        /**
+         * Resizes and draws the source image onto a target canvas using a "contain" fit
+         * then applies a user-defined scale factor for zoom.
+         */
+        function resizeAndDrawScaled(canvasId, targetWidth, targetHeight, img, scaleFactor) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas and fill with white background
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, targetWidth, targetHeight);
+
+            // 1. Calculate max size for "contain" fit (base size)
+            const imgRatio = img.width / img.height;
+            
+            let maxDrawWidth, maxDrawHeight;
+
+            if (img.width / targetWidth > img.height / targetHeight) {
+                // Image is constrained by canvas width
+                maxDrawWidth = targetWidth;
+                maxDrawHeight = targetWidth / imgRatio;
+            } else {
+                // Image is constrained by canvas height
+                maxDrawHeight = targetHeight;
+                maxDrawWidth = targetHeight * imgRatio;
+            }
+            
+            // 2. Apply user scale factor
+            const drawWidth = maxDrawWidth * scaleFactor;
+            const drawHeight = maxDrawHeight * scaleFactor;
+
+            // 3. Calculate centering offsets
+            const offsetX = (targetWidth - drawWidth) / 2;
+            const offsetY = (targetHeight - drawHeight) / 2;
+
+            // 4. Draw the image
+            ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+        }
+
         function downloadCanvas(canvasId, filename, format) {
             const canvas = document.getElementById(canvasId);
             let mimeType = format === 'png' ? 'image/png' : 'image/jpeg';
@@ -152,7 +217,9 @@
 
         window.onload = function() {
             // Initial call to ensure canvases are ready
-            redrawAllCanvases();
+            // The original logic here was in resizeAndDraw, which is now split.
+            // The canvas attributes handle initial setup, but we keep this empty 
+            // as it will only draw after an image upload.
         }
     </script>
 </body>
