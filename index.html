@@ -819,19 +819,9 @@
       scroll-behavior: smooth;
     }
 
-    .contact-form-wrapper {
-      border-radius: 24px;
-      overflow: hidden;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-      border: 1px solid var(--border);
-    }
-
-    iframe {
-      width: 100%;
-      height: 650px;
-      border: none;
-      display: block;
-    }
+    /* The following styles for the old contact form have been removed for cleanliness: */
+    /* .contact-form-wrapper */
+    /* iframe */
   </style>
 </head>
 <body>
@@ -1155,12 +1145,9 @@
           <h2>Let's Build Something Amazing</h2>
           <p>Have a project in mind? Let's discuss how we can work together</p>
         </div>
-        <div class="contact-form-wrapper">
-          <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScN0gaVRPNt6z7n7rNYsM0b5wnnT0qgjbOV3SYrzlAreqyTLA/viewform?embedded=true" 
-                  loading="lazy"
-                  title="Contact Form">
-                  Loading contact form...
-          </iframe>
+        <div style="text-align: center; padding: 3rem 0;">
+          <p style="font-size: 1.25rem; color: var(--text-light); margin-bottom: 1rem;">You can reach me directly at:</p>
+          <a href="mailto:neelakan25@gmail.com" style="font-size: 2rem; font-weight: 700; color: var(--secondary); text-decoration: none; transition: color 0.3s ease;">neelakan25@gmail.com</a>
         </div>
       </div>
     </section>
