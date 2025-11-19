@@ -14,6 +14,8 @@
             font-family: 'Inter', sans-serif; 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            /* Fix for mobile capture scrolling issues */
+            overflow-x: hidden;
         }
         
         #code-window {
@@ -67,6 +69,8 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            /* IMPORTANT: Ensures html2canvas captures the full background */
+            min-width: min-content; 
         }
 
         .code-content {
@@ -136,7 +140,6 @@
     <div class="container mx-auto max-w-7xl">
         <div class="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl p-6 lg:p-8 border border-white/20">
             
-            <!-- Header -->
             <div class="text-center mb-6 lg:mb-8">
                 <h1 class="text-3xl lg:text-4xl font-bold text-white mb-2">✨ Code Snap</h1>
                 <p class="text-white/70 text-sm lg:text-base">Create beautiful code screenshots in seconds</p>
@@ -144,16 +147,13 @@
 
             <div class="flex flex-col lg:grid lg:grid-cols-[1fr_360px] gap-6 lg:gap-8">
                 
-                <!-- Controls Section - Now appears FIRST on mobile -->
                 <div class="space-y-4 lg:space-y-6 order-1 lg:order-2">
                     
-                    <!-- Code Input -->
                     <div class="control-group">
                         <label class="block text-white font-semibold mb-2 lg:mb-3 text-xs lg:text-sm uppercase tracking-wide">Your Code</label>
                         <textarea id="code-input" rows="8" class="w-full p-3 lg:p-4 border-0 rounded-xl bg-gray-900/50 text-white text-xs lg:text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none font-mono resize-y" placeholder="Paste or type your code here..."></textarea>
                     </div>
                     
-                    <!-- Language & Theme -->
                     <div class="control-group space-y-3 lg:space-y-4">
                         <div>
                             <label class="block text-white font-semibold mb-2 text-xs lg:text-sm">Language</label>
@@ -190,7 +190,6 @@
                         </div>
                     </div>
 
-                    <!-- Styling Controls -->
                     <div class="control-group space-y-4 lg:space-y-5">
                         <div>
                             <label class="block text-white font-semibold mb-2 text-xs lg:text-sm">Font Size: <span id="font-size-value" class="text-indigo-300">14</span>px</label>
@@ -220,7 +219,6 @@
 
                 </div>
                 
-                <!-- Preview Section - Now appears SECOND on mobile -->
                 <div class="flex flex-col items-center space-y-4 lg:space-y-6 order-2 lg:order-1">
                     <div class="w-full flex justify-center p-4 lg:p-8 rounded-2xl bg-white/5 overflow-x-auto">
                         <div id="capture-area">
@@ -237,8 +235,8 @@
                         </div>
                     </div>
                     
-                    <button id="download-btn" class="w-full lg:w-auto px-6 lg:px-8 py-3 lg:py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg text-base lg:text-lg">
-                        📥 Export PNG
+                    <button id="download-btn" class="w-full lg:w-auto px-6 lg:px-8 py-3 lg:py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg text-base lg:text-lg flex items-center justify-center gap-2">
+                        <span>📥</span> Export Image
                     </button>
                 </div>
             </div>
@@ -382,9 +380,10 @@ class _SegmentExampleState extends State<SegmentExample> {
             captureArea.style.backgroundColor = bgColorPicker.value;
         }
 
+        // --- MOBILE DOWNLOAD FIX APPLIED HERE ---
         async function downloadImage() {
-            const originalText = downloadBtn.textContent;
-            downloadBtn.textContent = '⏳ Exporting...';
+            const originalText = downloadBtn.innerHTML;
+            downloadBtn.innerHTML = '<span>⏳</span> Exporting...';
             downloadBtn.disabled = true;
 
             try {
@@ -396,20 +395,50 @@ class _SegmentExampleState extends State<SegmentExample> {
                     allowTaint: true
                 });
                 
-                canvas.toBlob((blob) => {
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.download = `code-snap-${Date.now()}.png`;
-                    link.href = url;
-                    link.click();
-                    URL.revokeObjectURL(url);
-                });
+                canvas.toBlob(async (blob) => {
+                    if (!blob) {
+                        alert('Capture failed');
+                        downloadBtn.innerHTML = originalText;
+                        downloadBtn.disabled = false;
+                        return;
+                    }
+
+                    // Create file for sharing
+                    const fileName = `code-snap-${Date.now()}.png`;
+                    const file = new File([blob], fileName, { type: 'image/png' });
+
+                    // Check if Web Share API is supported and can share files (Mobile)
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                        try {
+                            await navigator.share({
+                                files: [file],
+                                title: 'Code Snap',
+                                text: 'Check out my code snippet!'
+                            });
+                        } catch (shareError) {
+                            console.log('Share was cancelled or failed', shareError);
+                        }
+                    } else {
+                        // Fallback for Desktop
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.download = fileName;
+                        link.href = url;
+                        document.body.appendChild(link); // Needed for Firefox
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                    }
+                    
+                    // Reset Button
+                    downloadBtn.innerHTML = originalText;
+                    downloadBtn.disabled = false;
+                }, 'image/png');
                 
             } catch (error) {
                 console.error('Export failed:', error);
                 alert('Export failed. Please try again.');
-            } finally {
-                downloadBtn.textContent = originalText;
+                downloadBtn.innerHTML = originalText;
                 downloadBtn.disabled = false;
             }
         }
