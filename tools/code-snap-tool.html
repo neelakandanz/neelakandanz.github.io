@@ -9,12 +9,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
     <style>
         body { 
             font-family: 'Inter', sans-serif; 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            /* Fix for mobile capture scrolling issues */
+            /* Prevents scrollbars during html2canvas capture */
             overflow-x: hidden;
         }
         
@@ -69,7 +70,6 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            /* IMPORTANT: Ensures html2canvas captures the full background */
             min-width: min-content; 
         }
 
@@ -121,8 +121,9 @@
                 font-size: 11px !important;
             }
             
+            /* FIX: Increased code padding on small screens to prevent cropping */
             .code-content {
-                padding: 12px !important;
+                padding: 24px !important; /* Increased from 12px to 24px */
             }
             
             .mock-controls {
@@ -380,7 +381,6 @@ class _SegmentExampleState extends State<SegmentExample> {
             captureArea.style.backgroundColor = bgColorPicker.value;
         }
 
-        // --- MOBILE DOWNLOAD FIX APPLIED HERE ---
         async function downloadImage() {
             const originalText = downloadBtn.innerHTML;
             downloadBtn.innerHTML = '<span>⏳</span> Exporting...';
@@ -407,7 +407,7 @@ class _SegmentExampleState extends State<SegmentExample> {
                     const fileName = `code-snap-${Date.now()}.png`;
                     const file = new File([blob], fileName, { type: 'image/png' });
 
-                    // Check if Web Share API is supported and can share files (Mobile)
+                    // Use Web Share API for Mobile devices 📱
                     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
                         try {
                             await navigator.share({
@@ -416,15 +416,16 @@ class _SegmentExampleState extends State<SegmentExample> {
                                 text: 'Check out my code snippet!'
                             });
                         } catch (shareError) {
+                            // User cancelled share, or share failed
                             console.log('Share was cancelled or failed', shareError);
                         }
                     } else {
-                        // Fallback for Desktop
+                        // Fallback for Desktop 💻 (The a.click() method)
                         const url = URL.createObjectURL(blob);
                         const link = document.createElement('a');
                         link.download = fileName;
                         link.href = url;
-                        document.body.appendChild(link); // Needed for Firefox
+                        document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
                         URL.revokeObjectURL(url);
