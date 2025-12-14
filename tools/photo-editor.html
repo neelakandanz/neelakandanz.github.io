@@ -1,697 +1,1244 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online Image Editor</title>
+    <title>Photo Editor | Neelakandan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
-        * {
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-surface: #15151e;
+            --bg-elevated: #1e1e2d;
+            --bg-hover: #2a2a3d;
+            --accent: #6366f1;
+            --accent-hover: #818cf8;
+            --accent-glow: rgba(99, 102, 241, 0.3);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.4);
+            --border: rgba(255, 255, 255, 0.08);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --transition: all 0.2s ease;
+        }
+
+        html,
+        body {
+            height: 100%;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
             overflow: hidden;
         }
 
+        /* App Layout */
+        .app {
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            height: 100vh;
+        }
+
+        /* Header */
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 25px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 2em;
-            margin-bottom: 5px;
-        }
-
-        .header p {
-            opacity: 0.9;
-            font-size: 0.9em;
-        }
-
-        .editor-wrapper {
             display: flex;
-            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1.25rem;
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border);
+            gap: 1rem;
         }
 
-        .toolbar {
-            flex: 0 0 300px;
-            background: #f8f9fa;
-            padding: 20px;
-            border-right: 1px solid #dee2e6;
-            max-height: 700px;
-            overflow-y: auto;
-        }
-
-        .canvas-area {
-            flex: 1;
-            padding: 30px;
-            background: #e9ecef;
+        .logo {
             display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent), #a855f7);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
             justify-content: center;
-            align-items: center;
-            min-height: 600px;
-            position: relative;
+            font-size: 1rem;
         }
 
-        .tool-section {
-            margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #dee2e6;
+        .logo-text {
+            font-weight: 700;
+            font-size: 1rem;
         }
 
-        .tool-section:last-child {
-            border-bottom: none;
-        }
-
-        .tool-section h3 {
-            color: #495057;
-            margin-bottom: 15px;
-            font-size: 1.1em;
+        .header-actions {
             display: flex;
             align-items: center;
-        }
-
-        .tool-section h3::before {
-            content: '●';
-            color: #667eea;
-            margin-right: 8px;
-            font-size: 1.2em;
+            gap: 0.75rem;
         }
 
         .btn {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
             border: none;
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
+            font-size: 0.8125rem;
+            font-weight: 500;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-ghost:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--accent);
             color: white;
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #5a6268;
+            background: var(--accent-hover);
         }
 
         .btn-success {
-            background: #28a745;
+            background: var(--success);
             color: white;
         }
 
         .btn-success:hover {
-            background: #218838;
+            background: #059669;
         }
 
-        input[type="number"],
-        input[type="text"],
-        input[type="color"],
-        select {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            border: 2px solid #dee2e6;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s;
+        /* Main Content */
+        .main {
+            display: flex;
+            overflow: hidden;
         }
 
-        input:focus, select:focus {
-            outline: none;
-            border-color: #667eea;
+        /* Canvas Area */
+        .canvas-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background:
+                radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 50%),
+                repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(255, 255, 255, 0.02) 20px, rgba(255, 255, 255, 0.02) 21px),
+                repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(255, 255, 255, 0.02) 20px, rgba(255, 255, 255, 0.02) 21px),
+                var(--bg-dark);
+            overflow: auto;
+            position: relative;
         }
 
-        label {
-            display: block;
-            margin-top: 10px;
-            color: #495057;
-            font-weight: 600;
-            font-size: 13px;
+        .canvas-wrapper {
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
         }
 
         #canvas {
-            border: 3px solid #495057;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: block;
             background: white;
-            cursor: crosshair;
+            cursor: default;
         }
 
-        .input-group {
+        /* Drop Zone */
+        .drop-zone {
+            position: absolute;
+            inset: 20px;
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
             display: flex;
-            gap: 10px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            background: rgba(15, 15, 30, 0.8);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 10;
         }
 
-        .input-group input {
+        .drop-zone.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .drop-zone.dragging {
+            border-color: var(--accent);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .drop-zone-icon {
+            font-size: 3rem;
+            opacity: 0.5;
+        }
+
+        .drop-zone-text {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+        }
+
+        /* Side Panel */
+        .side-panel {
+            width: 280px;
+            background: var(--bg-surface);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            padding: 0.5rem;
+            gap: 0.25rem;
+        }
+
+        .panel-tab {
             flex: 1;
+            padding: 0.625rem;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
         }
 
+        .panel-tab:hover {
+            background: var(--bg-hover);
+            color: var(--text-secondary);
+        }
+
+        .panel-tab.active {
+            background: var(--bg-elevated);
+            color: var(--accent);
+        }
+
+        .panel-tab-icon {
+            font-size: 1.25rem;
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .panel-section {
+            display: none;
+        }
+
+        .panel-section.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .control-group {
+            margin-bottom: 1.25rem;
+        }
+
+        /* Controls */
+        .control-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .control-value {
+            color: var(--accent);
+            font-weight: 500;
+            font-size: 0.75rem;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            appearance: none;
+            background: var(--bg-elevated);
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 8px var(--accent-glow);
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        /* Filter Grid */
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+        }
+
+        .filter-btn {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 0.6875rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-btn:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        .filter-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .filter-icon {
+            font-size: 1.25rem;
+        }
+
+        /* Color Input */
+        .color-input-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .color-input {
+            width: 48px;
+            height: 36px;
+            padding: 2px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg-elevated);
+            cursor: pointer;
+        }
+
+        .color-hex {
+            flex: 1;
+            padding: 0.5rem 0.75rem;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 0.8125rem;
+            font-family: monospace;
+        }
+
+        .color-hex:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* Text Input */
+        .text-input {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .text-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* Select */
+        .select-input {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+
+        .select-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* Tool Buttons Grid */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+        }
+
+        .tool-btn {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 0.625rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .tool-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .tool-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .tool-icon {
+            font-size: 1.25rem;
+        }
+
+        /* Footer / Status Bar */
+        .footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 1rem;
+            background: var(--bg-surface);
+            border-top: 1px solid var(--border);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .footer-left,
+        .footer-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .zoom-btn {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .zoom-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .zoom-value {
+            min-width: 45px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        /* File Input Hidden */
         #fileInput {
             display: none;
         }
 
-        .color-picker-group {
+        /* Empty State */
+        .empty-state {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 10px;
+            justify-content: center;
+            gap: 1.5rem;
+            padding: 3rem;
+            text-align: center;
         }
 
-        .color-preview {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            border: 2px solid #dee2e6;
+        .empty-icon {
+            font-size: 4rem;
+            opacity: 0.3;
         }
 
-        .range-group {
-            margin: 15px 0;
+        .empty-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-secondary);
         }
 
-        .range-group input[type="range"] {
-            width: 100%;
-            margin-top: 5px;
+        .empty-description {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            max-width: 300px;
         }
 
-        .range-value {
-            display: inline-block;
-            background: #667eea;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            margin-left: 5px;
-        }
-
+        /* Responsive */
         @media (max-width: 768px) {
-            .toolbar {
-                flex: 0 0 100%;
-                border-right: none;
-                border-bottom: 1px solid #dee2e6;
+            .side-panel {
+                position: fixed;
+                right: 0;
+                top: 0;
+                bottom: 0;
+                z-index: 100;
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
             }
-            
-            .canvas-area {
-                flex: 0 0 100%;
+
+            .side-panel.open {
+                transform: translateX(0);
             }
-        }
 
-        .filter-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-
-        .filter-btn {
-            padding: 8px;
-            font-size: 12px;
+            .header-actions .btn span {
+                display: none;
+            }
         }
     </style>
 </head>
+
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🎨 Online Image Editor</h1>
-            <p>Create, Edit, and Transform Your Images</p>
-        </div>
-        
-        <div class="editor-wrapper">
-            <div class="toolbar">
-                <div class="tool-section">
-                    <h3>Canvas Setup</h3>
-                    <div class="input-group">
-                        <div>
-                            <label>Width (px)</label>
-                            <input type="number" id="canvasWidth" value="800" min="100" max="2000">
-                        </div>
-                        <div>
-                            <label>Height (px)</label>
-                            <input type="number" id="canvasHeight" value="600" min="100" max="2000">
-                        </div>
-                    </div>
-                    <button class="btn btn-primary" onclick="createCanvas()">Create New Canvas</button>
-                    
-                    <label>Background Color</label>
-                    <div class="color-picker-group">
-                        <input type="color" id="bgColor" value="#ffffff">
-                        <div class="color-preview" id="bgColorPreview" style="background: #ffffff;"></div>
-                    </div>
-                    <button class="btn btn-secondary" onclick="changeBgColor()">Apply Background</button>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <a href="../index.html#tools" class="logo">
+                <div class="logo-icon">🎨</div>
+                <span class="logo-text">Photo Editor</span>
+            </a>
+
+            <div class="header-actions">
+                <input type="file" id="fileInput" accept="image/*">
+                <button class="btn btn-ghost" onclick="document.getElementById('fileInput').click()">
+                    <span>📁</span> Open
+                </button>
+                <button class="btn btn-ghost" onclick="newCanvas()">
+                    <span>📄</span> New
+                </button>
+                <button class="btn btn-ghost" onclick="undo()">
+                    <span>↩️</span> Undo
+                </button>
+                <button class="btn btn-success" onclick="exportImage()">
+                    <span>💾</span> Export
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Canvas Area -->
+            <div class="canvas-container" id="canvasContainer">
+                <div class="drop-zone" id="dropZone">
+                    <div class="drop-zone-icon">📷</div>
+                    <div class="drop-zone-text">Drop image here or click to upload</div>
                 </div>
 
-                <div class="tool-section">
-                    <h3>Image Upload</h3>
-                    <input type="file" id="fileInput" accept="image/*" onchange="loadImage(event)">
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">🖼️</div>
+                    <div class="empty-title">No Image Loaded</div>
+                    <div class="empty-description">Upload an image or create a new canvas to start editing</div>
                     <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
-                        📁 Upload Image
+                        <span>📁</span> Upload Image
                     </button>
-                    
-                    <div class="range-group">
-                        <label>Image Scale: <span class="range-value" id="scaleValue">100%</span></label>
-                        <input type="range" id="imageScale" min="10" max="200" value="100" oninput="updateImageScale()">
-                    </div>
                 </div>
 
-                <div class="tool-section">
-                    <h3>Add Text</h3>
-                    <input type="text" id="textInput" placeholder="Enter your text">
-                    <label>Font Size</label>
-                    <input type="number" id="fontSize" value="30" min="10" max="200">
-                    
-                    <label>Font Family</label>
-                    <select id="fontFamily">
-                        <option value="Arial">Arial</option>
-                        <option value="Verdana">Verdana</option>
-                        <option value="Times New Roman">Times New Roman</option>
-                        <option value="Courier New">Courier New</option>
-                        <option value="Georgia">Georgia</option>
-                        <option value="Comic Sans MS">Comic Sans MS</option>
-                    </select>
-                    
-                    <label>Text Color</label>
-                    <input type="color" id="textColor" value="#000000">
-                    
-                    <button class="btn btn-primary" onclick="addText()">Add Text to Canvas</button>
-                </div>
-
-                <div class="tool-section">
-                    <h3>Drawing Tools</h3>
-                    <label>Brush Size: <span class="range-value" id="brushValue">5px</span></label>
-                    <input type="range" id="brushSize" min="1" max="50" value="5" oninput="updateBrushSize()">
-                    
-                    <label>Brush Color</label>
-                    <input type="color" id="brushColor" value="#000000">
-                    
-                    <button class="btn btn-secondary" onclick="enableDrawing()">✏️ Enable Drawing</button>
-                    <button class="btn btn-secondary" onclick="disableDrawing()">🚫 Disable Drawing</button>
-                    <button class="btn btn-secondary" onclick="clearCanvas()">🗑️ Clear Canvas</button>
-                </div>
-
-                <div class="tool-section">
-                    <h3>Filters</h3>
-                    <div class="filter-buttons">
-                        <button class="btn btn-secondary filter-btn" onclick="applyFilter('grayscale')">Grayscale</button>
-                        <button class="btn btn-secondary filter-btn" onclick="applyFilter('sepia')">Sepia</button>
-                        <button class="btn btn-secondary filter-btn" onclick="applyFilter('invert')">Invert</button>
-                        <button class="btn btn-secondary filter-btn" onclick="applyFilter('blur')">Blur</button>
-                        <button class="btn btn-secondary filter-btn" onclick="applyFilter('brightness')">Brighten</button>
-                        <button class="btn btn-secondary filter-btn" onclick="applyFilter('contrast')">Contrast</button>
-                    </div>
-                    <button class="btn btn-secondary" onclick="resetFilters()">Reset Filters</button>
-                </div>
-
-                <div class="tool-section">
-                    <h3>Export</h3>
-                    <button class="btn btn-success" onclick="downloadImage('png')">⬇️ Download PNG</button>
-                    <button class="btn btn-success" onclick="downloadImage('jpg')">⬇️ Download JPG</button>
+                <div class="canvas-wrapper" id="canvasWrapper" style="display: none;">
+                    <canvas id="canvas"></canvas>
                 </div>
             </div>
 
-            <div class="canvas-area">
-                <canvas id="canvas"></canvas>
+            <!-- Side Panel -->
+            <aside class="side-panel" id="sidePanel">
+                <div class="panel-tabs">
+                    <button class="panel-tab active" data-tab="adjust" onclick="switchTab('adjust')">
+                        <span class="panel-tab-icon">🎚️</span>
+                        Adjust
+                    </button>
+                    <button class="panel-tab" data-tab="filters" onclick="switchTab('filters')">
+                        <span class="panel-tab-icon">✨</span>
+                        Filters
+                    </button>
+                    <button class="panel-tab" data-tab="draw" onclick="switchTab('draw')">
+                        <span class="panel-tab-icon">🖌️</span>
+                        Draw
+                    </button>
+                    <button class="panel-tab" data-tab="text" onclick="switchTab('text')">
+                        <span class="panel-tab-icon">📝</span>
+                        Text
+                    </button>
+                </div>
+
+                <div class="panel-content">
+                    <!-- Adjust Panel -->
+                    <div class="panel-section active" id="panel-adjust">
+                        <div class="section-title">Basic Adjustments</div>
+
+                        <div class="control-group">
+                            <div class="control-label">
+                                <span>Brightness</span>
+                                <span class="control-value" id="brightness-value">0</span>
+                            </div>
+                            <input type="range" class="slider" id="brightness" min="-100" max="100" value="0"
+                                oninput="updateAdjustment('brightness')">
+                        </div>
+
+                        <div class="control-group">
+                            <div class="control-label">
+                                <span>Contrast</span>
+                                <span class="control-value" id="contrast-value">0</span>
+                            </div>
+                            <input type="range" class="slider" id="contrast" min="-100" max="100" value="0"
+                                oninput="updateAdjustment('contrast')">
+                        </div>
+
+                        <div class="control-group">
+                            <div class="control-label">
+                                <span>Saturation</span>
+                                <span class="control-value" id="saturation-value">0</span>
+                            </div>
+                            <input type="range" class="slider" id="saturation" min="-100" max="100" value="0"
+                                oninput="updateAdjustment('saturation')">
+                        </div>
+
+                        <div class="control-group">
+                            <div class="control-label">
+                                <span>Blur</span>
+                                <span class="control-value" id="blur-value">0</span>
+                            </div>
+                            <input type="range" class="slider" id="blur" min="0" max="20" value="0"
+                                oninput="updateAdjustment('blur')">
+                        </div>
+
+                        <button class="btn btn-ghost" style="width: 100%; margin-top: 1rem;"
+                            onclick="resetAdjustments()">
+                            Reset All
+                        </button>
+                    </div>
+
+                    <!-- Filters Panel -->
+                    <div class="panel-section" id="panel-filters">
+                        <div class="section-title">Photo Filters</div>
+                        <div class="filter-grid">
+                            <button class="filter-btn" onclick="applyFilter('none')">
+                                <span class="filter-icon">🚫</span>
+                                None
+                            </button>
+                            <button class="filter-btn" onclick="applyFilter('grayscale')">
+                                <span class="filter-icon">⬛</span>
+                                B&W
+                            </button>
+                            <button class="filter-btn" onclick="applyFilter('sepia')">
+                                <span class="filter-icon">🟤</span>
+                                Sepia
+                            </button>
+                            <button class="filter-btn" onclick="applyFilter('vintage')">
+                                <span class="filter-icon">📼</span>
+                                Vintage
+                            </button>
+                            <button class="filter-btn" onclick="applyFilter('cold')">
+                                <span class="filter-icon">❄️</span>
+                                Cold
+                            </button>
+                            <button class="filter-btn" onclick="applyFilter('warm')">
+                                <span class="filter-icon">🔥</span>
+                                Warm
+                            </button>
+                            <button class="filter-btn" onclick="applyFilter('dramatic')">
+                                <span class="filter-icon">🎭</span>
+                                Drama
+                            </button>
+                            <button class="filter-btn" onclick="applyFilter('invert')">
+                                <span class="filter-icon">🔄</span>
+                                Invert
+                            </button>
+                            <button class="filter-btn" onclick="applyFilter('vignette')">
+                                <span class="filter-icon">🔲</span>
+                                Vignette
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Draw Panel -->
+                    <div class="panel-section" id="panel-draw">
+                        <div class="section-title">Tools</div>
+                        <div class="tools-grid">
+                            <button class="tool-btn" id="tool-brush" onclick="selectTool('brush')">
+                                <span class="tool-icon">🖌️</span>
+                                Brush
+                            </button>
+                            <button class="tool-btn" id="tool-eraser" onclick="selectTool('eraser')">
+                                <span class="tool-icon">🧽</span>
+                                Eraser
+                            </button>
+                            <button class="tool-btn" id="tool-line" onclick="selectTool('line')">
+                                <span class="tool-icon">📏</span>
+                                Line
+                            </button>
+                            <button class="tool-btn" id="tool-rect" onclick="selectTool('rect')">
+                                <span class="tool-icon">⬜</span>
+                                Rect
+                            </button>
+                        </div>
+
+                        <div class="section-title" style="margin-top: 1.5rem;">Brush Settings</div>
+
+                        <div class="control-group">
+                            <div class="control-label">
+                                <span>Size</span>
+                                <span class="control-value" id="brush-size-value">5</span>
+                            </div>
+                            <input type="range" class="slider" id="brush-size" min="1" max="50" value="5"
+                                oninput="updateBrushSize()">
+                        </div>
+
+                        <div class="control-group">
+                            <div class="control-label">Color</div>
+                            <div class="color-input-group">
+                                <input type="color" class="color-input" id="brush-color" value="#ffffff">
+                                <input type="text" class="color-hex" id="brush-color-hex" value="#ffffff" maxlength="7">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Text Panel -->
+                    <div class="panel-section" id="panel-text">
+                        <div class="section-title">Add Text</div>
+
+                        <div class="control-group">
+                            <input type="text" class="text-input" id="text-input" placeholder="Enter your text...">
+                        </div>
+
+                        <div class="control-group">
+                            <div class="control-label">Font</div>
+                            <select class="select-input" id="font-family">
+                                <option value="Inter">Inter</option>
+                                <option value="Arial">Arial</option>
+                                <option value="Georgia">Georgia</option>
+                                <option value="Times New Roman">Times New Roman</option>
+                                <option value="Courier New">Courier New</option>
+                            </select>
+                        </div>
+
+                        <div class="control-group">
+                            <div class="control-label">
+                                <span>Size</span>
+                                <span class="control-value" id="font-size-value">32</span>
+                            </div>
+                            <input type="range" class="slider" id="font-size" min="12" max="120" value="32"
+                                oninput="updateFontSize()">
+                        </div>
+
+                        <div class="control-group">
+                            <div class="control-label">Color</div>
+                            <div class="color-input-group">
+                                <input type="color" class="color-input" id="text-color" value="#ffffff">
+                                <input type="text" class="color-hex" id="text-color-hex" value="#ffffff" maxlength="7">
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" style="width: 100%;" onclick="addText()">
+                            Add Text to Canvas
+                        </button>
+                    </div>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-left">
+                <span id="imageInfo">No image</span>
             </div>
-        </div>
+            <div class="footer-right">
+                <div class="zoom-controls">
+                    <button class="zoom-btn" onclick="zoomOut()">−</button>
+                    <span class="zoom-value" id="zoomValue">100%</span>
+                    <button class="zoom-btn" onclick="zoomIn()">+</button>
+                </div>
+            </div>
+        </footer>
     </div>
 
     <script>
+        // Canvas and context
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
+        const canvasWrapper = document.getElementById('canvasWrapper');
+        const emptyState = document.getElementById('emptyState');
+        const fileInput = document.getElementById('fileInput');
+
+        // State
+        let originalImage = null;
+        let currentImage = null;
+        let history = [];
+        let historyIndex = -1;
+        let zoom = 1;
+        let currentTool = null;
         let isDrawing = false;
-        let uploadedImage = null;
-        let imageScale = 1;
-        let imageX = 0;
-        let imageY = 0;
-        let isDraggingImage = false;
-        let isDraggingText = false;
-        let dragOffsetX = 0;
-        let dragOffsetY = 0;
-        let textObjects = [];
-        let selectedTextIndex = -1;
+        let lastX = 0;
+        let lastY = 0;
+        let currentFilter = 'none';
 
-        // Initialize canvas
-        function createCanvas() {
-            const width = parseInt(document.getElementById('canvasWidth').value);
-            const height = parseInt(document.getElementById('canvasHeight').value);
-            canvas.width = width;
-            canvas.height = height;
-            ctx.fillStyle = document.getElementById('bgColor').value;
-            ctx.fillRect(0, 0, width, height);
-            redrawCanvas();
+        // Adjustments
+        let adjustments = {
+            brightness: 0,
+            contrast: 0,
+            saturation: 0,
+            blur: 0
+        };
+
+        // Initialize
+        function init() {
+            // File input handler
+            fileInput.addEventListener('change', handleFileSelect);
+
+            // Drag and drop
+            const container = document.getElementById('canvasContainer');
+            container.addEventListener('dragover', handleDragOver);
+            container.addEventListener('dragleave', handleDragLeave);
+            container.addEventListener('drop', handleDrop);
+
+            // Canvas drawing
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+
+            // Color sync
+            document.getElementById('brush-color').addEventListener('input', syncBrushColor);
+            document.getElementById('brush-color-hex').addEventListener('input', syncBrushColorHex);
+            document.getElementById('text-color').addEventListener('input', syncTextColor);
+            document.getElementById('text-color-hex').addEventListener('input', syncTextColorHex);
         }
 
-        // Update background color preview
-        document.getElementById('bgColor').addEventListener('input', function() {
-            document.getElementById('bgColorPreview').style.background = this.value;
-        });
+        // Tab switching
+        function switchTab(tabId) {
+            document.querySelectorAll('.panel-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.panel-section').forEach(section => section.classList.remove('active'));
 
-        // Change background color
-        function changeBgColor() {
-            const color = document.getElementById('bgColor').value;
-            ctx.fillStyle = color;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            redrawCanvas();
+            document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+            document.getElementById(`panel-${tabId}`).classList.add('active');
         }
 
-        // Load image
-        function loadImage(e) {
+        // File handling
+        function handleFileSelect(e) {
             const file = e.target.files[0];
-            const reader = new FileReader();
-            
-            reader.onload = function(event) {
-                const img = new Image();
-                img.onload = function() {
-                    uploadedImage = img;
-                    imageX = (canvas.width - img.width) / 2;
-                    imageY = (canvas.height - img.height) / 2;
-                    redrawCanvas();
-                }
-                img.src = event.target.result;
+            if (file) loadImage(file);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            document.getElementById('dropZone').classList.add('active', 'dragging');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            document.getElementById('dropZone').classList.remove('active', 'dragging');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            document.getElementById('dropZone').classList.remove('active', 'dragging');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                loadImage(file);
             }
+        }
+
+        function loadImage(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    originalImage = img;
+                    currentImage = img;
+
+                    // Set canvas size
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+
+                    // Draw image
+                    ctx.drawImage(img, 0, 0);
+
+                    // Show canvas
+                    emptyState.style.display = 'none';
+                    canvasWrapper.style.display = 'block';
+
+                    // Update info
+                    document.getElementById('imageInfo').textContent = `${img.width} × ${img.height}px`;
+
+                    // Save to history
+                    saveState();
+
+                    // Reset adjustments
+                    resetAdjustments();
+                };
+                img.src = e.target.result;
+            };
             reader.readAsDataURL(file);
         }
 
-        // Update image scale
-        function updateImageScale() {
-            if (!uploadedImage) return;
-            
-            const oldScale = imageScale;
-            const newScale = document.getElementById('imageScale').value / 100;
-            document.getElementById('scaleValue').textContent = Math.round(newScale * 100) + '%';
-            
-            // Calculate center point of current image
-            const oldWidth = uploadedImage.width * oldScale;
-            const oldHeight = uploadedImage.height * oldScale;
-            const centerX = imageX + oldWidth / 2;
-            const centerY = imageY + oldHeight / 2;
-            
-            // Update scale
-            imageScale = newScale;
-            
-            // Calculate new position to keep center point the same
-            const newWidth = uploadedImage.width * imageScale;
-            const newHeight = uploadedImage.height * imageScale;
-            imageX = centerX - newWidth / 2;
-            imageY = centerY - newHeight / 2;
-            
-            redrawCanvas();
+        // Create new canvas
+        function newCanvas() {
+            const width = prompt('Canvas width:', '800');
+            const height = prompt('Canvas height:', '600');
+
+            if (width && height) {
+                canvas.width = parseInt(width);
+                canvas.height = parseInt(height);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                emptyState.style.display = 'none';
+                canvasWrapper.style.display = 'block';
+
+                document.getElementById('imageInfo').textContent = `${width} × ${height}px`;
+                originalImage = null;
+                saveState();
+            }
         }
 
-        // Redraw canvas with image
-        function redrawCanvas() {
-            ctx.fillStyle = document.getElementById('bgColor').value;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            if (uploadedImage) {
-                const scaledWidth = uploadedImage.width * imageScale;
-                const scaledHeight = uploadedImage.height * imageScale;
-                ctx.drawImage(uploadedImage, imageX, imageY, scaledWidth, scaledHeight);
+        // Apply adjustments using CSS filters on canvas
+        function applyAdjustments() {
+            if (!originalImage && !currentImage) return;
+
+            // Build filter string
+            let filters = [];
+            filters.push(`brightness(${100 + adjustments.brightness}%)`);
+            filters.push(`contrast(${100 + adjustments.contrast}%)`);
+            filters.push(`saturate(${100 + adjustments.saturation}%)`);
+            if (adjustments.blur > 0) filters.push(`blur(${adjustments.blur}px)`);
+
+            // Apply filter
+            ctx.filter = filters.join(' ');
+
+            // Redraw
+            if (originalImage) {
+                ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
             }
-            
-            // Redraw all text objects
-            textObjects.forEach((textObj, index) => {
-                ctx.font = `${textObj.fontSize}px ${textObj.fontFamily}`;
-                ctx.fillStyle = textObj.color;
-                ctx.fillText(textObj.text, textObj.x, textObj.y);
-                
-                // Highlight selected text
-                if (index === selectedTextIndex) {
-                    ctx.strokeStyle = '#667eea';
-                    ctx.lineWidth = 2;
-                    const metrics = ctx.measureText(textObj.text);
-                    ctx.strokeRect(textObj.x - 5, textObj.y - textObj.fontSize, metrics.width + 10, textObj.fontSize + 10);
-                }
+
+            ctx.filter = 'none';
+        }
+
+        function updateAdjustment(type) {
+            const value = document.getElementById(type).value;
+            document.getElementById(`${type}-value`).textContent = value;
+            adjustments[type] = parseInt(value);
+            applyAdjustments();
+        }
+
+        function resetAdjustments() {
+            adjustments = { brightness: 0, contrast: 0, saturation: 0, blur: 0 };
+            ['brightness', 'contrast', 'saturation', 'blur'].forEach(type => {
+                document.getElementById(type).value = 0;
+                document.getElementById(`${type}-value`).textContent = '0';
             });
+            applyAdjustments();
         }
 
-        // Add text
-        function addText() {
-            const text = document.getElementById('textInput').value;
-            const fontSize = parseInt(document.getElementById('fontSize').value);
-            const fontFamily = document.getElementById('fontFamily').value;
-            const color = document.getElementById('textColor').value;
-            
-            if (text) {
-                const textObj = {
-                    text: text,
-                    x: 50,
-                    y: canvas.height / 2,
-                    fontSize: fontSize,
-                    fontFamily: fontFamily,
-                    color: color
-                };
-                textObjects.push(textObj);
-                redrawCanvas();
-                document.getElementById('textInput').value = '';
-            }
-        }
+        // Filters
+        function applyFilter(filterName) {
+            if (!originalImage) return;
+            currentFilter = filterName;
 
-        // Drawing functionality
-        let drawing = false;
+            // Reset to original
+            ctx.filter = 'none';
+            ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
 
-        function enableDrawing() {
-            drawing = true;
-            canvas.style.cursor = 'crosshair';
-        }
-
-        function disableDrawing() {
-            drawing = false;
-            canvas.style.cursor = 'default';
-        }
-
-        function updateBrushSize() {
-            const size = document.getElementById('brushSize').value;
-            document.getElementById('brushValue').textContent = size + 'px';
-        }
-
-        canvas.addEventListener('mousedown', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            // Check if clicking on text
-            selectedTextIndex = -1;
-            for (let i = textObjects.length - 1; i >= 0; i--) {
-                const textObj = textObjects[i];
-                ctx.font = `${textObj.fontSize}px ${textObj.fontFamily}`;
-                const metrics = ctx.measureText(textObj.text);
-                
-                if (x >= textObj.x - 5 && x <= textObj.x + metrics.width + 5 &&
-                    y >= textObj.y - textObj.fontSize && y <= textObj.y + 10) {
-                    isDraggingText = true;
-                    selectedTextIndex = i;
-                    dragOffsetX = x - textObj.x;
-                    dragOffsetY = y - textObj.y;
-                    canvas.style.cursor = 'move';
-                    redrawCanvas();
-                    return;
-                }
-            }
-            
-            // Check if clicking on image
-            if (uploadedImage) {
-                const scaledWidth = uploadedImage.width * imageScale;
-                const scaledHeight = uploadedImage.height * imageScale;
-                
-                if (x >= imageX && x <= imageX + scaledWidth &&
-                    y >= imageY && y <= imageY + scaledHeight) {
-                    isDraggingImage = true;
-                    dragOffsetX = x - imageX;
-                    dragOffsetY = y - imageY;
-                    canvas.style.cursor = 'move';
-                    return;
-                }
-            }
-            
-            // Drawing mode
-            if (drawing) {
-                isDrawing = true;
-                ctx.beginPath();
-                ctx.moveTo(x, y);
-            }
-        });
-
-        canvas.addEventListener('mousemove', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            // Drag image
-            if (isDraggingImage) {
-                imageX = x - dragOffsetX;
-                imageY = y - dragOffsetY;
-                redrawCanvas();
-                return;
-            }
-            
-            // Drag text
-            if (isDraggingText && selectedTextIndex !== -1) {
-                textObjects[selectedTextIndex].x = x - dragOffsetX;
-                textObjects[selectedTextIndex].y = y - dragOffsetY;
-                redrawCanvas();
-                return;
-            }
-            
-            // Drawing
-            if (isDrawing && drawing) {
-                const size = document.getElementById('brushSize').value;
-                const color = document.getElementById('brushColor').value;
-                
-                ctx.lineWidth = size;
-                ctx.lineCap = 'round';
-                ctx.strokeStyle = color;
-                ctx.lineTo(x, y);
-                ctx.stroke();
-            }
-            
-            // Update cursor
-            if (!drawing) {
-                let overObject = false;
-                
-                // Check text hover
-                for (let i = textObjects.length - 1; i >= 0; i--) {
-                    const textObj = textObjects[i];
-                    ctx.font = `${textObj.fontSize}px ${textObj.fontFamily}`;
-                    const metrics = ctx.measureText(textObj.text);
-                    
-                    if (x >= textObj.x - 5 && x <= textObj.x + metrics.width + 5 &&
-                        y >= textObj.y - textObj.fontSize && y <= textObj.y + 10) {
-                        overObject = true;
-                        break;
-                    }
-                }
-                
-                // Check image hover
-                if (!overObject && uploadedImage) {
-                    const scaledWidth = uploadedImage.width * imageScale;
-                    const scaledHeight = uploadedImage.height * imageScale;
-                    
-                    if (x >= imageX && x <= imageX + scaledWidth &&
-                        y >= imageY && y <= imageY + scaledHeight) {
-                        overObject = true;
-                    }
-                }
-                
-                canvas.style.cursor = overObject ? 'move' : 'default';
-            }
-        });
-
-        canvas.addEventListener('mouseup', () => {
-            isDrawing = false;
-            isDraggingImage = false;
-            isDraggingText = false;
-            if (!drawing) {
-                canvas.style.cursor = 'default';
-            }
-        });
-
-        canvas.addEventListener('mouseout', () => {
-            isDrawing = false;
-            isDraggingImage = false;
-            isDraggingText = false;
-        });
-
-        // Clear canvas
-        function clearCanvas() {
-            ctx.fillStyle = document.getElementById('bgColor').value;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            uploadedImage = null;
-            textObjects = [];
-            selectedTextIndex = -1;
-        }
-
-        // Apply filters
-        function applyFilter(filterType) {
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const data = imageData.data;
 
-            for (let i = 0; i < data.length; i += 4) {
-                switch(filterType) {
-                    case 'grayscale':
+            switch (filterName) {
+                case 'grayscale':
+                    for (let i = 0; i < data.length; i += 4) {
                         const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
                         data[i] = data[i + 1] = data[i + 2] = gray;
-                        break;
-                    case 'sepia':
+                    }
+                    break;
+                case 'sepia':
+                    for (let i = 0; i < data.length; i += 4) {
                         const r = data[i], g = data[i + 1], b = data[i + 2];
                         data[i] = Math.min(255, r * 0.393 + g * 0.769 + b * 0.189);
                         data[i + 1] = Math.min(255, r * 0.349 + g * 0.686 + b * 0.168);
                         data[i + 2] = Math.min(255, r * 0.272 + g * 0.534 + b * 0.131);
-                        break;
-                    case 'invert':
+                    }
+                    break;
+                case 'invert':
+                    for (let i = 0; i < data.length; i += 4) {
                         data[i] = 255 - data[i];
                         data[i + 1] = 255 - data[i + 1];
                         data[i + 2] = 255 - data[i + 2];
-                        break;
-                    case 'brightness':
-                        data[i] = Math.min(255, data[i] + 30);
-                        data[i + 1] = Math.min(255, data[i + 1] + 30);
+                    }
+                    break;
+                case 'vintage':
+                    for (let i = 0; i < data.length; i += 4) {
+                        data[i] = Math.min(255, data[i] * 1.1 + 20);
+                        data[i + 1] = Math.min(255, data[i + 1] * 0.9 + 10);
+                        data[i + 2] = Math.min(255, data[i + 2] * 0.8);
+                    }
+                    break;
+                case 'cold':
+                    for (let i = 0; i < data.length; i += 4) {
+                        data[i] = Math.max(0, data[i] - 20);
                         data[i + 2] = Math.min(255, data[i + 2] + 30);
-                        break;
-                    case 'contrast':
-                        const factor = 1.5;
-                        data[i] = Math.min(255, ((data[i] - 128) * factor) + 128);
-                        data[i + 1] = Math.min(255, ((data[i + 1] - 128) * factor) + 128);
-                        data[i + 2] = Math.min(255, ((data[i + 2] - 128) * factor) + 128);
-                        break;
-                    case 'blur':
-                        // Simple blur effect
-                        if (i > 0 && i < data.length - 4) {
-                            data[i] = (data[i] + data[i - 4] + data[i + 4]) / 3;
-                            data[i + 1] = (data[i + 1] + data[i - 3] + data[i + 5]) / 3;
-                            data[i + 2] = (data[i + 2] + data[i - 2] + data[i + 6]) / 3;
-                        }
-                        break;
-                }
+                    }
+                    break;
+                case 'warm':
+                    for (let i = 0; i < data.length; i += 4) {
+                        data[i] = Math.min(255, data[i] + 30);
+                        data[i + 2] = Math.max(0, data[i + 2] - 20);
+                    }
+                    break;
+                case 'dramatic':
+                    for (let i = 0; i < data.length; i += 4) {
+                        data[i] = Math.min(255, ((data[i] - 128) * 1.5) + 128);
+                        data[i + 1] = Math.min(255, ((data[i + 1] - 128) * 1.5) + 128);
+                        data[i + 2] = Math.min(255, ((data[i + 2] - 128) * 1.5) + 128);
+                    }
+                    break;
             }
-            ctx.putImageData(imageData, 0, 0);
+
+            if (filterName !== 'none') {
+                ctx.putImageData(imageData, 0, 0);
+            }
         }
 
-        function resetFilters() {
-            redrawCanvas();
+        // Drawing tools
+        function selectTool(tool) {
+            currentTool = tool;
+            document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tool-${tool}`).classList.add('active');
+            canvas.style.cursor = tool === 'brush' || tool === 'eraser' ? 'crosshair' : 'default';
         }
 
-        // Download image
-        function downloadImage(format) {
+        function startDrawing(e) {
+            if (!currentTool) return;
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            lastX = (e.clientX - rect.left) / zoom;
+            lastY = (e.clientY - rect.top) / zoom;
+
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+        }
+
+        function draw(e) {
+            if (!isDrawing || !currentTool) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / zoom;
+            const y = (e.clientY - rect.top) / zoom;
+
+            const size = document.getElementById('brush-size').value;
+            const color = document.getElementById('brush-color').value;
+
+            ctx.lineWidth = size;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            if (currentTool === 'brush') {
+                ctx.strokeStyle = color;
+                ctx.globalCompositeOperation = 'source-over';
+            } else if (currentTool === 'eraser') {
+                ctx.strokeStyle = '#ffffff';
+                ctx.globalCompositeOperation = 'source-over';
+            }
+
+            ctx.lineTo(x, y);
+            ctx.stroke();
+
+            lastX = x;
+            lastY = y;
+        }
+
+        function stopDrawing() {
+            if (isDrawing) {
+                isDrawing = false;
+                saveState();
+            }
+        }
+
+        function updateBrushSize() {
+            const value = document.getElementById('brush-size').value;
+            document.getElementById('brush-size-value').textContent = value;
+        }
+
+        function updateFontSize() {
+            const value = document.getElementById('font-size').value;
+            document.getElementById('font-size-value').textContent = value;
+        }
+
+        // Color sync
+        function syncBrushColor() {
+            document.getElementById('brush-color-hex').value = document.getElementById('brush-color').value;
+        }
+        function syncBrushColorHex() {
+            const val = document.getElementById('brush-color-hex').value;
+            if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+                document.getElementById('brush-color').value = val;
+            }
+        }
+        function syncTextColor() {
+            document.getElementById('text-color-hex').value = document.getElementById('text-color').value;
+        }
+        function syncTextColorHex() {
+            const val = document.getElementById('text-color-hex').value;
+            if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+                document.getElementById('text-color').value = val;
+            }
+        }
+
+        // Add text
+        function addText() {
+            const text = document.getElementById('text-input').value;
+            if (!text) return;
+
+            const font = document.getElementById('font-family').value;
+            const size = document.getElementById('font-size').value;
+            const color = document.getElementById('text-color').value;
+
+            ctx.font = `${size}px ${font}`;
+            ctx.fillStyle = color;
+            ctx.fillText(text, canvas.width / 2 - ctx.measureText(text).width / 2, canvas.height / 2);
+
+            saveState();
+            document.getElementById('text-input').value = '';
+        }
+
+        // Zoom
+        function zoomIn() {
+            if (zoom < 3) {
+                zoom += 0.25;
+                updateZoom();
+            }
+        }
+
+        function zoomOut() {
+            if (zoom > 0.25) {
+                zoom -= 0.25;
+                updateZoom();
+            }
+        }
+
+        function updateZoom() {
+            canvas.style.transform = `scale(${zoom})`;
+            canvas.style.transformOrigin = 'center center';
+            document.getElementById('zoomValue').textContent = Math.round(zoom * 100) + '%';
+        }
+
+        // History
+        function saveState() {
+            const imageData = canvas.toDataURL();
+            historyIndex++;
+            history = history.slice(0, historyIndex);
+            history.push(imageData);
+        }
+
+        function undo() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                const img = new Image();
+                img.onload = () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0);
+                };
+                img.src = history[historyIndex];
+            }
+        }
+
+        // Export
+        function exportImage() {
             const link = document.createElement('a');
-            const mimeType = format === 'png' ? 'image/png' : 'image/jpeg';
-            link.download = `edited-image.${format}`;
-            link.href = canvas.toDataURL(mimeType);
+            link.download = `edited-image-${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png');
             link.click();
         }
 
-        // Initialize on load
-        window.onload = function() {
-            createCanvas();
-        }
+        // Initialize app
+        init();
     </script>
 </body>
+
 </html>
