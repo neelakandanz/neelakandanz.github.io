@@ -1,20 +1,28 @@
 :root {
-  /* Color Palette - Modern Dark Theme Base */
-  --color-bg: #0f172a;       /* Slate 900 */
-  --color-surface: #1e293b;  /* Slate 800 */
-  --color-surface-2: #334155;/* Slate 700 */
-  --color-text: #f8fafc;     /* Slate 50 */
-  --color-text-muted: #94a3b8; /* Slate 400 */
+  /* Color Palette - Professional Light Theme */
+  --color-bg: #ffffff;
+  /* Pure White */
+  --color-surface: #f8fafc;
+  /* Slate 50 - Light gray */
+  --color-surface-2: #e2e8f0;
+  /* Slate 200 */
+  --color-text: #1e293b;
+  /* Slate 800 - Dark text */
+  --color-text-muted: #64748b;
+  /* Slate 500 */
 
-  /* Brand Colors */
-  --color-primary: #6366f1;  /* Indigo 500 */
-  --color-primary-glow: rgba(99, 102, 241, 0.5);
-  --color-accent: #f59e0b;   /* Amber 500 */
-  --color-secondary: #ec4899; /* Pink 500 */
+  /* Brand Colors - Professional Blue */
+  --color-primary: #2563eb;
+  /* Blue 600 */
+  --color-primary-glow: rgba(37, 99, 235, 0.3);
+  --color-accent: #f59e0b;
+  /* Amber 500 */
+  --color-secondary: #7c3aed;
+  /* Violet 600 */
 
   /* Gradients */
   --gradient-main: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  --gradient-text: linear-gradient(to right, #c7d2fe, #818cf8, #f472b6);
+  --gradient-text: linear-gradient(to right, #2563eb, #7c3aed, #db2777);
 
   /* Typography */
   --font-display: 'Playfair Display', serif;
