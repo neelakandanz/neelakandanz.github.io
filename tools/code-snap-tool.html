@@ -1,471 +1,819 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Code Snap Generator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/dracula.min.css">
+    <title>Code Snap Generator | Neelakandan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    
+
     <style>
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            /* Prevents scrollbars during html2canvas capture */
-            overflow-x: hidden;
-        }
-        
-        #code-window {
-            font-family: 'Fira Code', monospace;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-            border-radius: 16px;
-            overflow: hidden;
-        }
-        
-        #code-window pre {
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
             margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-dark: #1e3a3a;
+            --bg-container: #a8b5b2;
+            --bg-code: #282c34;
+            --accent: #61afef;
+            --text-light: #ffffff;
+            --text-dark: #1a1a1a;
+            --text-muted: rgba(255, 255, 255, 0.7);
+            --border-light: rgba(255, 255, 255, 0.15);
+            --radius: 12px;
+            --radius-lg: 20px;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: var(--text-light);
+        }
+
+        .logo-icon {
+            font-size: 1.5rem;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: -0.02em;
+        }
+
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.875rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.2s;
+            border: 1px solid var(--border-light);
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+        }
+
+        /* Tagline */
+        .tagline {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            margin-bottom: 2rem;
+            color: var(--text-light);
+        }
+
+        /* Main Layout */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 2rem 2rem;
             overflow: auto;
         }
-        
-        #code-window code {
-            display: block;
-            color: inherit;
-            background: transparent;
+
+        /* Preview Container - The outer grey box */
+        #capture-area {
+            background: var(--bg-container);
+            border-radius: var(--radius-lg);
+            padding: 48px;
+            box-shadow:
+                0 0 0 1px rgba(255, 255, 255, 0.1),
+                0 25px 50px -12px rgba(0, 0, 0, 0.3);
+            transition: padding 0.3s ease, background 0.3s ease;
+            margin-bottom: 2rem;
         }
-        
+
+        /* Code Window */
+        #code-window {
+            background: var(--bg-code);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            min-width: 500px;
+            max-width: 800px;
+        }
+
+        /* Title Bar */
+        .title-bar {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .window-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot.red {
+            background: #ff5f56;
+        }
+
+        .dot.yellow {
+            background: #ffbd2e;
+        }
+
+        .dot.green {
+            background: #27c93f;
+        }
+
+        .window-title {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8125rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 500;
+        }
+
+        /* Code Area */
+        .code-area {
+            padding: 20px 24px;
+            min-height: 120px;
+            max-height: 60vh;
+            overflow: auto;
+        }
+
+        #code-editor {
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #abb2bf;
+            background: transparent;
+            border: none;
+            outline: none;
+            resize: none;
+            width: 100%;
+            min-height: 100px;
+            white-space: pre;
+            tab-size: 2;
+        }
+
+        #code-editor::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        #code-display {
+            display: none;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            line-height: 1.6;
+        }
+
         .hljs {
             background: transparent !important;
             padding: 0 !important;
         }
-        
-        /* Ensure text is visible during export */
-        #code-display * {
-            color: inherit !important;
-        }
 
-        .mock-controls { 
-            display: flex; 
-            align-items: center; 
-            gap: 8px;
-            padding: 16px;
-            background: rgba(0, 0, 0, 0.2);
-        }
-        
-        .dot { 
-            width: 12px; 
-            height: 12px; 
-            border-radius: 50%; 
-        }
-        
-        .dot:nth-child(1) { background-color: #ff5f56; }
-        .dot:nth-child(2) { background-color: #ffbd2e; }
-        .dot:nth-child(3) { background-color: #27c93f; }
-        
-        #capture-area {
-            transition: all 0.3s ease;
-            display: inline-flex;
+        /* Control Bar */
+        .control-bar {
+            display: flex;
             align-items: center;
             justify-content: center;
-            min-width: min-content; 
+            gap: 2rem;
+            padding: 1.5rem 2rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--radius);
+            flex-wrap: wrap;
+            max-width: 900px;
+            margin: 0 auto;
         }
 
-        .code-content {
-            transition: padding 0.2s ease;
+        .control-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
 
-        input[type="range"] {
-            accent-color: #667eea;
+        .control-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            white-space: nowrap;
         }
 
-        .control-group {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 16px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        /* Modern Select */
+        .modern-select {
+            appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 0.5rem 2rem 0.5rem 0.875rem;
+            color: var(--text-light);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            min-width: 120px;
+            transition: all 0.2s;
         }
 
-        /* Mobile optimizations */
-        @media (max-width: 1024px) {
-            body {
-                padding: 1rem !important;
+        .modern-select:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .modern-select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* Modern Slider */
+        .slider-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 0.375rem 0.875rem;
+        }
+
+        .modern-slider {
+            width: 80px;
+            height: 4px;
+            appearance: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            cursor: pointer;
+        }
+
+        .modern-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .modern-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        .slider-value {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--accent);
+            min-width: 24px;
+            text-align: center;
+        }
+
+        /* Color Picker */
+        .color-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 0.25rem;
+        }
+
+        .color-picker {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        /* Export Button */
+        .export-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .export-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Background Themes */
+        .bg-teal {
+            --bg-container: #a8b5b2;
+        }
+
+        .bg-purple {
+            --bg-container: #b8a8c8;
+        }
+
+        .bg-blue {
+            --bg-container: #a8c8d8;
+        }
+
+        .bg-pink {
+            --bg-container: #d8a8b8;
+        }
+
+        .bg-orange {
+            --bg-container: #d8c8a8;
+        }
+
+        .bg-dark {
+            --bg-container: #3a3a3a;
+        }
+
+        /* Responsive */
+        @media (min-width: 1200px) {
+            .tagline {
+                font-size: 1.75rem;
             }
-            
+
             #capture-area {
-                padding: 2rem !important;
+                padding: 64px;
             }
-            
+
             #code-window {
-                font-size: 12px !important;
+                min-width: 600px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .header {
+                padding: 1rem;
+            }
+
+            .tagline {
+                font-size: 1.25rem;
+                margin-bottom: 1.5rem;
+                padding: 0 1rem;
+            }
+
+            .main-content {
+                padding: 0 1rem 1.5rem;
+            }
+
+            #capture-area {
+                padding: 32px;
+            }
+
+            #code-window {
+                min-width: 100%;
                 max-width: 100%;
             }
-            
-            .code-content {
-                padding: 16px !important;
+
+            .control-bar {
+                gap: 1rem;
+                padding: 1rem;
             }
-            
-            h1 {
-                font-size: 2rem !important;
+
+            .control-label {
+                display: none;
+            }
+
+            .modern-select {
+                min-width: 100px;
+                font-size: 0.8125rem;
+            }
+
+            .modern-slider {
+                width: 60px;
             }
         }
 
-        @media (max-width: 640px) {
+        @media (max-width: 600px) {
+            .logo-text {
+                font-size: 1rem;
+            }
+
+            .tagline {
+                font-size: 1rem;
+            }
+
             #capture-area {
-                padding: 1.5rem !important;
+                padding: 20px;
+                border-radius: 12px;
             }
-            
+
             #code-window {
-                font-size: 11px !important;
+                border-radius: 8px;
             }
-            
-            /* FIX: Increased code padding on small screens to prevent cropping */
-            .code-content {
-                padding: 24px !important; /* Increased from 12px to 24px */
+
+            .code-area {
+                padding: 16px;
             }
-            
-            .mock-controls {
-                padding: 12px;
+
+            #code-editor {
+                font-size: 12px;
             }
-            
-            .dot {
-                width: 10px;
-                height: 10px;
+
+            .control-bar {
+                gap: 0.75rem;
+                padding: 0.875rem;
+            }
+
+            .slider-wrapper {
+                padding: 0.25rem 0.5rem;
+            }
+
+            .modern-slider {
+                width: 50px;
+            }
+
+            .export-btn {
+                padding: 0.625rem 1rem;
+                font-size: 0.875rem;
             }
         }
     </style>
 </head>
-<body class="p-4 md:p-8">
-    <div class="container mx-auto max-w-7xl">
-        <div class="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl p-6 lg:p-8 border border-white/20">
-            
-            <div class="text-center mb-6 lg:mb-8">
-                <h1 class="text-3xl lg:text-4xl font-bold text-white mb-2">✨ Code Snap</h1>
-                <p class="text-white/70 text-sm lg:text-base">Create beautiful code screenshots in seconds</p>
-            </div>
 
-            <div class="flex flex-col lg:grid lg:grid-cols-[1fr_360px] gap-6 lg:gap-8">
-                
-                <div class="space-y-4 lg:space-y-6 order-1 lg:order-2">
-                    
-                    <div class="control-group">
-                        <label class="block text-white font-semibold mb-2 lg:mb-3 text-xs lg:text-sm uppercase tracking-wide">Your Code</label>
-                        <textarea id="code-input" rows="8" class="w-full p-3 lg:p-4 border-0 rounded-xl bg-gray-900/50 text-white text-xs lg:text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none font-mono resize-y" placeholder="Paste or type your code here..."></textarea>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <a href="#" class="logo">
+            <span class="logo-icon">📸</span>
+            <span class="logo-text">CodeSnap</span>
+        </a>
+        <a href="../index.html#tools" class="back-link">← Back</a>
+    </header>
+
+    <!-- Tagline -->
+    <p class="tagline">Create and share beautiful images of your source code.</p>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Preview -->
+        <div id="capture-area" class="bg-teal">
+            <div id="code-window">
+                <div class="title-bar">
+                    <div class="window-dots">
+                        <div class="dot red"></div>
+                        <div class="dot yellow"></div>
+                        <div class="dot green"></div>
                     </div>
-                    
-                    <div class="control-group space-y-3 lg:space-y-4">
-                        <div>
-                            <label class="block text-white font-semibold mb-2 text-xs lg:text-sm">Language</label>
-                            <select id="language-select" class="w-full p-2.5 lg:p-3 rounded-lg bg-gray-900/50 text-white text-sm border-0 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                                <option value="dart">Dart</option>
-                                <option value="javascript">JavaScript</option>
-                                <option value="python">Python</option>
-                                <option value="java">Java</option>
-                                <option value="kotlin">Kotlin</option>
-                                <option value="ruby">Ruby</option>
-                                <option value="go">Go</option>
-                                <option value="rust">Rust</option>
-                                <option value="typescript">TypeScript</option>
-                                <option value="plaintext">Plain Text</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-white font-semibold mb-2 text-xs lg:text-sm">Theme</label>
-                            <select id="theme-select" class="w-full p-2.5 lg:p-3 rounded-lg bg-gray-900/50 text-white text-sm border-0 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                                <option value="dracula">Dracula</option>
-                                <option value="monokai">Monokai</option>
-                                <option value="github-dark">GitHub Dark</option>
-                                <option value="nord">Nord</option>
-                                <option value="tokyo-night">Tokyo Night</option>
-                                <option value="atom-one-dark">Atom One Dark</option>
-                                <option value="gradient-sunset">🌅 Gradient Sunset</option>
-                                <option value="gradient-ocean">🌊 Gradient Ocean</option>
-                                <option value="gradient-purple">💜 Gradient Purple</option>
-                                <option value="gradient-fire">🔥 Gradient Fire</option>
-                                <option value="gradient-forest">🌲 Gradient Forest</option>
-                                <option value="gradient-candy">🍭 Gradient Candy</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="control-group space-y-4 lg:space-y-5">
-                        <div>
-                            <label class="block text-white font-semibold mb-2 text-xs lg:text-sm">Font Size: <span id="font-size-value" class="text-indigo-300">14</span>px</label>
-                            <input type="range" id="font-size-slider" min="10" max="20" value="14" step="1" class="w-full h-2 rounded-lg cursor-pointer">
-                        </div>
-
-                        <div>
-                            <label class="block text-white font-semibold mb-2 text-xs lg:text-sm">Code Padding: <span id="padding-value" class="text-indigo-300">32</span>px</label>
-                            <input type="range" id="padding-slider" min="16" max="64" value="32" step="4" class="w-full h-2 rounded-lg cursor-pointer">
-                        </div>
-
-                        <div>
-                            <label class="block text-white font-semibold mb-2 text-xs lg:text-sm">Background Padding: <span id="bg-padding-value" class="text-indigo-300">64</span>px</label>
-                            <input type="range" id="bg-padding-slider" min="32" max="128" value="64" step="8" class="w-full h-2 rounded-lg cursor-pointer">
-                        </div>
-
-                        <div>
-                            <label class="block text-white font-semibold mb-2 lg:mb-3 text-xs lg:text-sm">Background Color</label>
-                            <div class="flex gap-3">
-                                <input type="color" id="bg-color-picker" value="#1a1a2e" class="h-10 w-14 lg:h-12 lg:w-16 rounded-lg cursor-pointer border-2 border-white/20">
-                                <button id="reset-bg-btn" class="flex-1 px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors text-xs lg:text-sm font-medium">
-                                    Reset
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
+                    <span class="window-title" id="window-title">Untitled</span>
                 </div>
-                
-                <div class="flex flex-col items-center space-y-4 lg:space-y-6 order-2 lg:order-1">
-                    <div class="w-full flex justify-center p-4 lg:p-8 rounded-2xl bg-white/5 overflow-x-auto">
-                        <div id="capture-area">
-                            <div id="code-window" class="w-full min-w-[280px]">
-                                <div class="mock-controls">
-                                    <div class="dot"></div>
-                                    <div class="dot"></div>
-                                    <div class="dot"></div>
-                                </div>
-                                <div class="code-content">
-                                    <pre><code id="code-display" class="language-dart"></code></pre>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <button id="download-btn" class="w-full lg:w-auto px-6 lg:px-8 py-3 lg:py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg text-base lg:text-lg flex items-center justify-center gap-2">
-                        <span>📥</span> Export Image
-                    </button>
+                <div class="code-area">
+                    <textarea id="code-editor" spellcheck="false" placeholder="Paste your code here..."></textarea>
+                    <pre><code id="code-display"></code></pre>
                 </div>
             </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="control-bar">
+            <div class="control-item">
+                <span class="control-label">Language</span>
+                <select id="language-select" class="modern-select">
+                    <option value="dart">Dart</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="typescript">TypeScript</option>
+                    <option value="python">Python</option>
+                    <option value="java">Java</option>
+                    <option value="kotlin">Kotlin</option>
+                    <option value="swift">Swift</option>
+                    <option value="go">Go</option>
+                    <option value="rust">Rust</option>
+                    <option value="cpp">C++</option>
+                    <option value="csharp">C#</option>
+                    <option value="ruby">Ruby</option>
+                    <option value="php">PHP</option>
+                    <option value="html">HTML</option>
+                    <option value="css">CSS</option>
+                    <option value="sql">SQL</option>
+                    <option value="json">JSON</option>
+                    <option value="yaml">YAML</option>
+                    <option value="plaintext">Plain Text</option>
+                </select>
+            </div>
+
+            <div class="control-item">
+                <span class="control-label">Theme</span>
+                <select id="theme-select" class="modern-select">
+                    <option value="atom-one-dark">One Dark</option>
+                    <option value="dracula">Dracula</option>
+                    <option value="monokai">Monokai</option>
+                    <option value="github-dark">GitHub Dark</option>
+                    <option value="nord">Nord</option>
+                    <option value="tokyo-night">Tokyo Night</option>
+                </select>
+            </div>
+
+            <div class="control-item">
+                <span class="control-label">Background</span>
+                <select id="bg-select" class="modern-select">
+                    <option value="teal">Teal</option>
+                    <option value="purple">Purple</option>
+                    <option value="blue">Blue</option>
+                    <option value="pink">Pink</option>
+                    <option value="orange">Orange</option>
+                    <option value="dark">Dark</option>
+                    <option value="custom">Custom</option>
+                </select>
+            </div>
+
+            <div class="control-item" id="custom-color-item" style="display: none;">
+                <div class="color-wrapper">
+                    <input type="color" id="bg-color-picker" class="color-picker" value="#a8b5b2">
+                </div>
+            </div>
+
+            <div class="control-item">
+                <span class="control-label">Size</span>
+                <div class="slider-wrapper">
+                    <input type="range" id="font-size-slider" class="modern-slider" min="10" max="20" value="14">
+                    <span id="font-size-value" class="slider-value">14</span>
+                </div>
+            </div>
+
+            <div class="control-item">
+                <span class="control-label">Padding</span>
+                <div class="slider-wrapper">
+                    <input type="range" id="padding-slider" class="modern-slider" min="20" max="80" value="48">
+                    <span id="padding-value" class="slider-value">48</span>
+                </div>
+            </div>
+
+            <button id="download-btn" class="export-btn">
+                <span>📥</span> Export
+            </button>
         </div>
     </div>
 
     <script>
-        const codeInput = document.getElementById('code-input');
+        // DOM Elements
+        const codeEditor = document.getElementById('code-editor');
         const codeDisplay = document.getElementById('code-display');
+        const windowTitle = document.getElementById('window-title');
         const downloadBtn = document.getElementById('download-btn');
         const captureArea = document.getElementById('capture-area');
         const codeWindow = document.getElementById('code-window');
-        const codeContent = document.querySelector('.code-content');
         const languageSelect = document.getElementById('language-select');
         const themeSelect = document.getElementById('theme-select');
+        const bgSelect = document.getElementById('bg-select');
+        const bgColorPicker = document.getElementById('bg-color-picker');
+        const customColorItem = document.getElementById('custom-color-item');
         const fontSizeSlider = document.getElementById('font-size-slider');
         const fontSizeValue = document.getElementById('font-size-value');
         const paddingSlider = document.getElementById('padding-slider');
         const paddingValue = document.getElementById('padding-value');
-        const bgPaddingSlider = document.getElementById('bg-padding-slider');
-        const bgPaddingValue = document.getElementById('bg-padding-value');
-        const bgColorPicker = document.getElementById('bg-color-picker');
-        const resetBgBtn = document.getElementById('reset-bg-btn');
 
-        const initialCode = `class SegmentExample extends StatefulWidget {
-  @override
-  _SegmentExampleState createState() => _SegmentExampleState();
-}
-
-class _SegmentExampleState extends State<SegmentExample> {
-  String selected = 'day';
-
-  @override
-  Widget build(BuildContext context) {
-    return SegmentedButton<String>(
-      segments: const [
-        ButtonSegment(value: 'day', label: Text('Day')),
-        ButtonSegment(value: 'night', label: Text('Night')),
-      ],
-      selected: {selected},
-      onSelectionChanged: (newSelection) {
-        setState(() => selected = newSelection.first);
-      },
-    );
-  }
-}`;
-
+        // Theme configs
         const themes = {
-            'dracula': { css: 'dracula', bg: '#282a36', gradient: false },
-            'monokai': { css: 'monokai', bg: '#272822', gradient: false },
-            'github-dark': { css: 'github-dark', bg: '#0d1117', gradient: false },
-            'nord': { css: 'nord', bg: '#2e3440', gradient: false },
-            'tokyo-night': { css: 'tokyo-night-dark', bg: '#1a1b26', gradient: false },
-            'atom-one-dark': { css: 'atom-one-dark', bg: '#282c34', gradient: false },
-            'gradient-sunset': { 
-                css: 'monokai', 
-                bg: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', 
-                gradient: true,
-                color: '#2d1b00'
-            },
-            'gradient-ocean': { 
-                css: 'github-dark', 
-                bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
-                gradient: true,
-                color: '#ffffff'
-            },
-            'gradient-purple': { 
-                css: 'dracula', 
-                bg: 'linear-gradient(135deg, #c471f5 0%, #fa71cd 100%)', 
-                gradient: true,
-                color: '#1a0a1f'
-            },
-            'gradient-fire': { 
-                css: 'monokai', 
-                bg: 'linear-gradient(135deg, #ff6b6b 0%, #ffd93d 100%)', 
-                gradient: true,
-                color: '#2d0000'
-            },
-            'gradient-forest': { 
-                css: 'github-dark', 
-                bg: 'linear-gradient(135deg, #0ba360 0%, #3cba92 100%)', 
-                gradient: true,
-                color: '#ffffff'
-            },
-            'gradient-candy': { 
-                css: 'atom-one-dark', 
-                bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)', 
-                gradient: true,
-                color: '#4a2c1f'
-            }
+            'atom-one-dark': { css: 'atom-one-dark', bg: '#282c34' },
+            'dracula': { css: 'dracula', bg: '#282a36' },
+            'monokai': { css: 'monokai', bg: '#272822' },
+            'github-dark': { css: 'github-dark', bg: '#0d1117' },
+            'nord': { css: 'nord', bg: '#2e3440' },
+            'tokyo-night': { css: 'tokyo-night-dark', bg: '#1a1b26' }
         };
 
-        function updateCode() {
-            const code = codeInput.value || initialCode;
+        // Background colors
+        const bgColors = {
+            'teal': '#a8b5b2',
+            'purple': '#b8a8c8',
+            'blue': '#a8c8d8',
+            'pink': '#d8a8b8',
+            'orange': '#d8c8a8',
+            'dark': '#3a3a3a'
+        };
+
+        // Apply theme
+        function applyTheme() {
+            const theme = themeSelect.value;
+            const themeData = themes[theme];
+
+            const themeLink = document.querySelector('link[href*="highlight.js/"]');
+            themeLink.href = `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/${themeData.css}.min.css`;
+            codeWindow.style.backgroundColor = themeData.bg;
+        }
+
+        // Apply background
+        function applyBackground() {
+            const bg = bgSelect.value;
+
+            // Remove all bg classes
+            captureArea.className = '';
+
+            if (bg === 'custom') {
+                customColorItem.style.display = 'flex';
+                captureArea.style.background = bgColorPicker.value;
+            } else {
+                customColorItem.style.display = 'none';
+                captureArea.style.background = bgColors[bg];
+            }
+        }
+
+        // Update styles
+        function updateStyles() {
+            const fontSize = fontSizeSlider.value;
+            fontSizeValue.textContent = fontSize;
+            codeEditor.style.fontSize = `${fontSize}px`;
+            codeWindow.style.fontSize = `${fontSize}px`;
+
+            const padding = paddingSlider.value;
+            paddingValue.textContent = padding;
+            captureArea.style.padding = `${padding}px`;
+        }
+
+        // Auto-resize textarea
+        function autoResize() {
+            codeEditor.style.height = 'auto';
+            codeEditor.style.height = Math.max(100, codeEditor.scrollHeight) + 'px';
+        }
+
+        // Update title based on language
+        function updateTitle() {
             const lang = languageSelect.value;
-            
+            const extensions = {
+                'dart': 'main.dart',
+                'javascript': 'index.js',
+                'typescript': 'index.ts',
+                'python': 'main.py',
+                'java': 'Main.java',
+                'kotlin': 'Main.kt',
+                'swift': 'main.swift',
+                'go': 'main.go',
+                'rust': 'main.rs',
+                'cpp': 'main.cpp',
+                'csharp': 'Program.cs',
+                'ruby': 'main.rb',
+                'php': 'index.php',
+                'html': 'index.html',
+                'css': 'styles.css',
+                'sql': 'query.sql',
+                'json': 'data.json',
+                'yaml': 'config.yaml',
+                'plaintext': 'Untitled'
+            };
+            windowTitle.textContent = extensions[lang] || 'Untitled';
+        }
+
+        // Prepare for export
+        function prepareForExport() {
+            const code = codeEditor.value || '// Your code here';
+            const lang = languageSelect.value;
+
             codeDisplay.textContent = code;
             codeDisplay.className = 'language-' + lang;
-            
             hljs.highlightElement(codeDisplay);
         }
 
-        function applyTheme() {
-            const theme = themeSelect.value;
-            const themeData = themes[theme] || themes['dracula'];
-            
-            const themeLink = document.querySelector('link[href*="highlight.js/"]');
-            themeLink.href = `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/${themeData.css}.min.css`;
-            
-            if (themeData.gradient) {
-                codeWindow.style.background = themeData.bg;
-                codeWindow.style.backgroundColor = 'transparent';
-                // Apply text color for gradient themes
-                if (themeData.color) {
-                    codeDisplay.style.color = themeData.color;
-                }
-            } else {
-                codeWindow.style.backgroundColor = themeData.bg;
-                codeWindow.style.background = 'none';
-                codeDisplay.style.color = '';
-            }
-        }
-
-        function updateStyles() {
-            // Font size
-            const fontSize = fontSizeSlider.value;
-            fontSizeValue.textContent = fontSize;
-            codeWindow.style.fontSize = `${fontSize}px`;
-
-            // Code padding (inside the window)
-            const padding = paddingSlider.value;
-            paddingValue.textContent = padding;
-            codeContent.style.padding = `${padding}px`;
-
-            // Background padding (around the window)
-            const bgPadding = bgPaddingSlider.value;
-            bgPaddingValue.textContent = bgPadding;
-            captureArea.style.padding = `${bgPadding}px`;
-
-            // Background color
-            captureArea.style.backgroundColor = bgColorPicker.value;
-        }
-
+        // Download
         async function downloadImage() {
             const originalText = downloadBtn.innerHTML;
-            downloadBtn.innerHTML = '<span>⏳</span> Exporting...';
+            downloadBtn.innerHTML = '<span>⏳</span> Wait...';
             downloadBtn.disabled = true;
 
             try {
+                prepareForExport();
+                codeEditor.style.display = 'none';
+                codeDisplay.style.display = 'block';
+
+                await new Promise(r => setTimeout(r, 150));
+
                 const canvas = await html2canvas(captureArea, {
                     scale: 2,
-                    backgroundColor: bgColorPicker.value,
+                    backgroundColor: null,
                     logging: false,
-                    useCORS: true,
-                    allowTaint: true
+                    useCORS: true
                 });
-                
+
+                codeEditor.style.display = 'block';
+                codeDisplay.style.display = 'none';
+
                 canvas.toBlob(async (blob) => {
                     if (!blob) {
-                        alert('Capture failed');
+                        alert('Export failed');
                         downloadBtn.innerHTML = originalText;
                         downloadBtn.disabled = false;
                         return;
                     }
 
-                    // Create file for sharing
-                    const fileName = `code-snap-${Date.now()}.png`;
+                    const fileName = `codesnap-${Date.now()}.png`;
                     const file = new File([blob], fileName, { type: 'image/png' });
 
-                    // Use Web Share API for Mobile devices 📱
                     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
                         try {
-                            await navigator.share({
-                                files: [file],
-                                title: 'Code Snap',
-                                text: 'Check out my code snippet!'
-                            });
-                        } catch (shareError) {
-                            // User cancelled share, or share failed
-                            console.log('Share was cancelled or failed', shareError);
+                            await navigator.share({ files: [file], title: 'Code Snap' });
+                        } catch (e) {
+                            console.log('Share cancelled');
                         }
                     } else {
-                        // Fallback for Desktop 💻 (The a.click() method)
                         const url = URL.createObjectURL(blob);
                         const link = document.createElement('a');
                         link.download = fileName;
                         link.href = url;
-                        document.body.appendChild(link);
                         link.click();
-                        document.body.removeChild(link);
                         URL.revokeObjectURL(url);
                     }
-                    
-                    // Reset Button
+
                     downloadBtn.innerHTML = originalText;
                     downloadBtn.disabled = false;
                 }, 'image/png');
-                
+
             } catch (error) {
                 console.error('Export failed:', error);
-                alert('Export failed. Please try again.');
+                codeEditor.style.display = 'block';
+                codeDisplay.style.display = 'none';
                 downloadBtn.innerHTML = originalText;
                 downloadBtn.disabled = false;
             }
         }
 
         // Event listeners
-        codeInput.addEventListener('input', updateCode);
-        languageSelect.addEventListener('change', updateCode);
-        themeSelect.addEventListener('change', () => {
-            applyTheme();
-            updateCode();
+        codeEditor.addEventListener('input', autoResize);
+        languageSelect.addEventListener('change', updateTitle);
+        themeSelect.addEventListener('change', applyTheme);
+        bgSelect.addEventListener('change', applyBackground);
+        bgColorPicker.addEventListener('input', () => {
+            captureArea.style.background = bgColorPicker.value;
         });
         fontSizeSlider.addEventListener('input', updateStyles);
         paddingSlider.addEventListener('input', updateStyles);
-        bgPaddingSlider.addEventListener('input', updateStyles);
-        bgColorPicker.addEventListener('input', updateStyles);
-        resetBgBtn.addEventListener('click', () => {
-            bgColorPicker.value = '#1a1a2e';
-            updateStyles();
-        });
         downloadBtn.addEventListener('click', downloadImage);
 
+        // Tab key support
+        codeEditor.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = codeEditor.selectionStart;
+                const end = codeEditor.selectionEnd;
+                codeEditor.value = codeEditor.value.substring(0, start) + '  ' + codeEditor.value.substring(end);
+                codeEditor.selectionStart = codeEditor.selectionEnd = start + 2;
+            }
+        });
+
         // Initialize
-        codeInput.value = initialCode;
         applyTheme();
+        applyBackground();
         updateStyles();
-        updateCode();
+        updateTitle();
     </script>
 </body>
+
 </html>
