@@ -56,4 +56,31 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }, 1000);
+
+    // ===== ROTATING TEXT ANIMATION =====
+    const rotatingText = document.querySelector('.rotating-text');
+
+    if (rotatingText) {
+        const words = ['Mobile', 'Web', 'Desktop', 'API'];
+        let currentIndex = 0;
+
+        function rotateText() {
+            // Fade out
+            rotatingText.classList.add('fade-out');
+            rotatingText.classList.remove('fade-in');
+
+            setTimeout(() => {
+                // Change to next word
+                currentIndex = (currentIndex + 1) % words.length;
+                rotatingText.textContent = words[currentIndex];
+
+                // Fade in
+                rotatingText.classList.remove('fade-out');
+                rotatingText.classList.add('fade-in');
+            }, 400);
+        }
+
+        // Start rotation every 3 seconds
+        setInterval(rotateText, 3000);
+    }
 });

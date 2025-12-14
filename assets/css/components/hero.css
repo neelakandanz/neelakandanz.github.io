@@ -134,3 +134,47 @@ h1 {
         height: 400px;
     }
 }
+
+/* ===== ROTATING TEXT ANIMATION ===== */
+.rotating-text {
+    display: inline-block;
+    position: relative;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    min-width: 3ch;
+    /* Reserve space for longest word to prevent layout shift */
+}
+
+/* Keep rotating word and following text on same line */
+.hero-line-nowrap {
+    white-space: nowrap;
+}
+
+.rotating-text.fade-out {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+.rotating-text.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Rotating Badge Text */
+.rotating-badge {
+    display: inline-block;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.rotating-badge.fade-out {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+.rotating-badge.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+}
