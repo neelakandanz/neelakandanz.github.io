@@ -1,0 +1,43 @@
+:root {
+  /* Color Palette - Modern Dark Theme Base */
+  --color-bg: #0f172a;       /* Slate 900 */
+  --color-surface: #1e293b;  /* Slate 800 */
+  --color-surface-2: #334155;/* Slate 700 */
+  --color-text: #f8fafc;     /* Slate 50 */
+  --color-text-muted: #94a3b8; /* Slate 400 */
+
+  /* Brand Colors */
+  --color-primary: #6366f1;  /* Indigo 500 */
+  --color-primary-glow: rgba(99, 102, 241, 0.5);
+  --color-accent: #f59e0b;   /* Amber 500 */
+  --color-secondary: #ec4899; /* Pink 500 */
+
+  /* Gradients */
+  --gradient-main: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  --gradient-text: linear-gradient(to right, #c7d2fe, #818cf8, #f472b6);
+
+  /* Typography */
+  --font-display: 'Playfair Display', serif;
+  --font-body: 'Inter', sans-serif;
+
+  /* Spacing & Layout */
+  --container-width: 1200px;
+  --header-height: 80px;
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+
+  /* Animation defaults */
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Light Mode Overrides (if implemented later, for now we stick to Dark Premium) */
+[data-theme="light"] {
+  --color-bg: #ffffff;
+  --color-surface: #f8fafc;
+  --color-text: #0f172a;
+  --color-text-muted: #64748b;
+}

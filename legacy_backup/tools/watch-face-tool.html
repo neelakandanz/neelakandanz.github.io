@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analog Clock Design Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image-more/2.9.5/dom-to-image-more.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Catamaran:wght@500;900&family=Hind+Madurai:wght@500;700&family=Meera+Inimai&family=Pavanam&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .clock {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        .clock-face {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: 1;
+        }
+        .hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom;
+            border-radius: 10px;
+            z-index: 2;
+            transition: background-color 0.3s ease;
+        }
+        .hour-hand { width: 6px; height: 60px; }
+        .minute-hand { width: 4px; height: 90px; }
+        .second-hand { width: 2px; height: 110px; }
+        .center-dot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 12px;
+            height: 12px;
+            background-color: #333;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+        
+        .marker {
+            position: absolute;
+            font-weight: 500;
+            font-size: 1.25rem;
+            color: #333;
+            z-index: 1;
+            transition: text-shadow 0.3s ease, font-weight 0.3s ease;
+            transform: translate(-50%, -50%); /* Center the marker */
+        }
+        .marker.line { width: 2px; height: 10px; background-color: #333; }
+        .marker.line.thick { width: 4px; height: 15px; }
+        .marker.minute-marker { width: 2px; height: 8px; }
+        .marker.second-marker { width: 1px; height: 4px; opacity: 0.7; }
+
+        .text-style-inset { text-shadow: -1px -1px 1px rgba(255, 255, 255, 0.7), 1px 1px 1px rgba(0, 0, 0, 0.2); }
+        .text-style-raised { text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.7), -1px -1px 1px rgba(0, 0, 0, 0.2); }
+        .text-style-shadow { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4); }
+        .text-style-neon { text-shadow: 0 0 3px currentColor, 0 0 5px #fff; }
+
+        input[type="color"] {
+            -webkit-appearance: none;
+            width: 40px; height: 40px; border: none; border-radius: 50%;
+            cursor: pointer; padding: 0; overflow: hidden;
+        }
+        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        input[type="color"]::-webkit-color-swatch { border: 2px solid #e2e8f0; border-radius: 50%; }
+
+        .frame-option, .dial-option, .text-style-option {
+            cursor: pointer; padding: 0.5rem; border: 2px solid transparent;
+            border-radius: 0.5rem; transition: all 0.2s ease-in-out; text-align: center;
+        }
+        .frame-option:hover, .dial-option:hover, .text-style-option:hover { background-color: #f3f4f6; }
+        .frame-option.active, .dial-option.active, .text-style-option.active { border-color: #4f46e5; background-color: #eef2ff; }
+        
+        .frame-preview, .dial-preview, .text-style-preview {
+            width: 40px; height: 40px; border-radius: 0.5rem; margin: 0 auto 0.5rem;
+            display: flex; justify-content: center; align-items: center; background-size: cover;
+            border: 1px solid #e2e8f0; font-size: 1.2rem; font-weight: bold;
+        }
+        .dial-preview { border-radius: 50%; }
+        .frame-preview { border-radius: 50%; }
+
+        .frame-minimalist { border: 6px solid #2d3748; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .frame-shadow { border: none; box-shadow: 0 15px 30px rgba(0,0,0,0.15), 0 5px 10px rgba(0,0,0,0.1); }
+        .frame-gradient { padding: 8px; background: linear-gradient(45deg, #6366f1, #a855f7); box-shadow: 0 8px 20px rgba(128, 90, 213, 0.4); }
+        .frame-double { border: 4px solid #4a5568; box-shadow: 0 0 0 4px #cbd5e1, 0 4px 12px rgba(0,0,0,0.1); }
+        .frame-none { border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .frame-neon { border: none; box-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #0ea5e9, 0 0 30px #0ea5e9, 0 0 40px #0ea5e9; }
+        .frame-brushed-metal { padding: 10px; background: linear-gradient(to bottom, #d1d5db, #9ca3af, #d1d5db); box-shadow: inset 0 0 5px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.2); }
+        .frame-wood { padding: 12px; background: #855b3b; background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.1) 75%, transparent 75%, transparent); box-shadow: inset 0 0 10px #422a18, 0 4px 12px rgba(0,0,0,0.2); }
+        .frame-pinstripe { border: 10px double #4b5563; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .frame-segmented { border: 8px dashed #6b7280; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .frame-dualtone { border: 8px solid #3b82f6; border-top-color: #ef4444; border-left-color: #ef4444; transform: rotate(45deg); }
+        .frame-dualtone .clock-face { transform: rotate(-45deg); }
+        .frame-inner-shadow { border: 1px solid #d1d5db; box-shadow: inset 0 0 20px rgba(0,0,0,0.2); }
+        .frame-industrial { border: 10px solid #4b5563; background: #9ca3af; padding: 5px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .frame-marble { padding: 10px; background-image: url('https://www.transparenttextures.com/patterns/natural-paper.png'), linear-gradient(to right, #e5e7eb, #f3f4f6); box-shadow: inset 0 0 5px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.1); }
+        .frame-inset { border: 1px solid #d1d5db; box-shadow: 0 0 0 8px #f3f4f6, 0 4px 12px rgba(0,0,0,0.1); }
+        .frame-gilded-marble { padding: 8px; background: linear-gradient(to right, #d4af37, #f0e68c, #d4af37); box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5); }
+        .frame-gilded-marble .clock-face { background-image: url('https://www.transparenttextures.com/patterns/concrete-wall.png'), linear-gradient(to bottom right, #ffffff, #f1f5f9); }
+        .frame-carbon-fiber { padding: 10px; background-color: #262626; background-image: linear-gradient(45deg, rgba(0,0,0,.2) 25%, transparent 25%, transparent 50%, rgba(0,0,0,.2) 50%, rgba(0,0,0,.2) 75%, transparent 75%, transparent); background-size: 20px 20px; box-shadow: inset 0 0 10px rgba(0,0,0,0.6); }
+        .frame-art-deco { background: #1a1a1a; padding: 4px; box-shadow: 0 0 0 4px #d4af37, 0 0 0 6px #1a1a1a, 0 0 15px rgba(212,175,55,0.5); }
+        .frame-galaxy { background: url('https://images.pexels.com/photos/110854/pexels-photo-110854.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260') center/cover; padding: 6px; box-shadow: inset 0 0 20px 10px rgba(0,0,0,0.7); }
+        .frame-rose-gold { padding: 10px; background: linear-gradient(135deg, #f0d8c9 0%, #d29d87 25%, #b6634d 50%, #d29d87 75%, #f0d8c9 100%); box-shadow: inset 0 0 5px rgba(255,255,255,0.5), 0 5px 15px rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 flex flex-col lg:flex-row items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-6xl bg-white rounded-2xl shadow-2xl flex flex-col lg:flex-row overflow-hidden">
+        <div class="w-full lg:w-1/2 bg-gray-50 flex items-center justify-center p-8 lg:p-12">
+            <div id="clock" class="clock">
+                <div id="clock-face" class="clock-face bg-white"></div>
+                <div class="center-dot"></div>
+                <div id="hour-hand" class="hand hour-hand bg-gray-800"></div>
+                <div id="minute-hand" class="hand minute-hand bg-gray-600"></div>
+                <div id="second-hand" class="hand second-hand bg-red-500"></div>
+            </div>
+        </div>
+
+        <div class="w-full lg:w-1/2 p-8 lg:p-10 space-y-6 overflow-y-auto" style="max-height: 90vh;">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Clock Designer</h1>
+                <p class="text-gray-500 mt-1">Customize your analog clock in real-time.</p>
+            </div>
+
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                    <a href="#" class="border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" aria-current="page">
+                        Clock Designer
+                    </a>
+                    <a href="./watch-hands-tool.html" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                        Hand Designer
+                    </a>
+                </nav>
+            </div>
+
+            <div class="space-y-4">
+                <h2 class="text-xl font-semibold border-b pb-2">Dial Templates</h2>
+                <div id="dial-templates-grid" class="grid grid-cols-4 sm:grid-cols-5 gap-4"></div>
+            </div>
+            <div class="space-y-4">
+                <h2 class="text-xl font-semibold border-b pb-2">Face Style</h2>
+                <div class="flex items-center justify-between"><label for="face-color" class="text-gray-600">Background Color</label><input type="color" id="face-color" value="#FFFFFF"></div>
+                <div class="flex flex-col space-y-2"><label for="bg-image-url" class="text-gray-600">Background Image URL</label><input type="text" id="bg-image-url" class="w-full rounded-lg border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 p-2" placeholder="e.g., https://placehold.co/300x300"></div>
+                <div class="mt-2"><label for="bg-image-upload" class="w-full text-center cursor-pointer bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors duration-300 block">Upload from Device</label><input type="file" id="bg-image-upload" class="hidden" accept="image/*"></div>
+                <div class="flex flex-col space-y-2 pt-2"><label for="bg-image-zoom" class="text-gray-600">Image Size: <span id="bg-image-zoom-value">100</span>%</label><input type="range" id="bg-image-zoom" min="50" max="250" value="100" class="w-full"></div>
+                
+                <div class="flex items-center justify-between pt-2"><label for="marker-style" class="text-gray-600">Hour Text Style</label><select id="marker-style" class="rounded-lg border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"><option value="numbers">Numbers</option><option value="roman">Roman</option><option value="tamil">Tamil</option><option value="none">None</option></select></div>
+                
+                <div id="tamil-font-wrapper" class="flex items-center justify-between pt-2" style="display: none;">
+                    <label for="tamil-font-select" class="text-gray-600">Tamil Font</label>
+                    <select id="tamil-font-select" class="rounded-lg border-gray-300 focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="'Hind Madurai', sans-serif">Hind Madurai</option>
+                        <option value="'Meera Inimai', sans-serif">Meera Inimai</option>
+                        <option value="'Catamaran', sans-serif">Catamaran</option>
+                        <option value="'Pavanam', sans-serif">Pavanam</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center justify-between pt-2">
+                    <label for="show-hour-lines" class="text-gray-600">Hour Line Markers</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="checkbox" id="show-hour-lines" class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500" checked>
+                        <input type="color" id="hour-line-color" value="#333333">
+                    </div>
+                </div>
+                <div class="flex items-center justify-between pt-2">
+                    <label for="show-minute-markers" class="text-gray-600">Minute Markers</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="checkbox" id="show-minute-markers" class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500">
+                        <input type="color" id="minute-marker-color" value="#a0aec0">
+                    </div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <label for="show-second-markers" class="text-gray-600">Second Markers</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="checkbox" id="show-second-markers" class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500">
+                        <input type="color" id="second-marker-color" value="#cbd5e1">
+                    </div>
+                </div>
+
+                <div id="text-color-wrapper" class="flex items-center justify-between"><label for="text-color" class="text-gray-600">Text Color</label><input type="color" id="text-color" value="#333333"></div>
+                <div id="text-style-controls">
+                    <div class="flex flex-col space-y-2 pt-2"><label for="marker-text-size" class="text-gray-600">Text Size: <span id="marker-text-size-value">1.25</span>rem</label><input type="range" id="marker-text-size" min="0.8" max="2.5" value="1.25" step="0.05" class="w-full"></div>
+                    <div class="flex items-center justify-between pt-2"><label for="marker-text-bold" class="text-gray-600">Bold Text</label><input type="checkbox" id="marker-text-bold" class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500"></div>
+                    <div class="flex flex-col space-y-2 pt-2"><label for="marker-radius" class="text-gray-600">Text Distance: <span id="marker-radius-value">42</span>%</label><input type="range" id="marker-radius" min="30" max="48" value="42" step="0.5" class="w-full"></div>
+                    <div class="flex flex-col space-y-2 pt-2"><label for="marker-offset-x" class="text-gray-600">Horizontal Offset: <span id="marker-offset-x-value">0</span>%</label><input type="range" id="marker-offset-x" min="-20" max="20" value="0" step="0.5" class="w-full"></div>
+                    <div class="flex flex-col space-y-2 pt-2"><label for="marker-offset-y" class="text-gray-600">Vertical Offset: <span id="marker-offset-y-value">0</span>%</label><input type="range" id="marker-offset-y" min="-20" max="20" value="0" step="0.5" class="w-full"></div>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <h2 class="text-xl font-semibold border-b pb-2">3D Text Styles</h2>
+                <div id="text-styles-grid" class="grid grid-cols-4 sm:grid-cols-5 gap-4"></div>
+            </div>
+            <div class="space-y-4">
+                <h2 class="text-xl font-semibold border-b pb-2">Hands & Dot Style</h2>
+                <div class="flex items-center justify-between"><label for="hour-hand-color" class="text-gray-600">Hour Hand</label><div class="flex items-center space-x-3"><input type="checkbox" id="show-hour-hand" class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500" checked><input type="color" id="hour-hand-color" value="#2d3748"></div></div>
+                <div class="flex items-center justify-between"><label for="minute-hand-color" class="text-gray-600">Minute Hand</label><div class="flex items-center space-x-3"><input type="checkbox" id="show-minute-hand" class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500" checked><input type="color" id="minute-hand-color" value="#4a5568"></div></div>
+                <div class="flex items-center justify-between"><label for="second-hand-color" class="text-gray-600">Second Hand</label><div class="flex items-center space-x-3"><input type="checkbox" id="show-second-hand" class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500" checked><input type="color" id="second-hand-color" value="#ef4444"></div></div>
+                <div class="flex items-center justify-between">
+                    <label for="center-dot-color" class="text-gray-600">Center Dot</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="checkbox" id="show-center-dot" class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500" checked>
+                        <input type="color" id="center-dot-color" value="#333333">
+                    </div>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <h2 class="text-xl font-semibold border-b pb-2">Frame Templates</h2>
+                <div class="grid grid-cols-4 sm:grid-cols-5 gap-4">
+                    <div class="frame-option" data-frame="frame-minimalist"><div class="frame-preview border-4 border-gray-700"></div><span class="text-sm">Minimalist</span></div>
+                    <div class="frame-option" data-frame="frame-shadow"><div class="frame-preview shadow-lg"></div><span class="text-sm">Shadow</span></div>
+                    <div class="frame-option" data-frame="frame-gradient"><div class="frame-preview bg-gradient-to-br from-indigo-500 to-purple-500"></div><span class="text-sm">Gradient</span></div>
+                    <div class="frame-option" data-frame="frame-double"><div class="frame-preview border-2 border-gray-600 shadow-[0_0_0_2px_#cbd5e1]"></div><span class="text-sm">Double</span></div>
+                    <div class="frame-option" data-frame="frame-none"><div class="frame-preview shadow-inner bg-gray-100"></div><span class="text-sm">Frameless</span></div>
+                    <div class="frame-option" data-frame="frame-neon"><div class="frame-preview bg-gray-800 shadow-[0_0_5px_#fff,0_0_10px_#0ea5e9,0_0_15px_#0ea5e9]"></div><span class="text-sm">Neon</span></div>
+                    <div class="frame-option" data-frame="frame-brushed-metal"><div class="frame-preview" style="background: linear-gradient(to bottom, #d1d5db, #9ca3af, #d1d5db);"></div><span class="text-sm">Metal</span></div>
+                    <div class="frame-option" data-frame="frame-wood"><div class="frame-preview" style="background: #855b3b;"></div><span class="text-sm">Wood</span></div>
+                    <div class="frame-option" data-frame="frame-pinstripe"><div class="frame-preview border-[6px] double #4b5563"></div><span class="text-sm">Pinstripe</span></div>
+                    <div class="frame-option" data-frame="frame-segmented"><div class="frame-preview border-4 dashed #6b7280"></div><span class="text-sm">Segment</span></div>
+                    <div class="frame-option" data-frame="frame-dualtone"><div class="frame-preview border-4 border-blue-500 border-t-red-500 border-l-red-500"></div><span class="text-sm">Dual-Tone</span></div>
+                    <div class="frame-option" data-frame="frame-inner-shadow"><div class="frame-preview shadow-inner"></div><span class="text-sm">Inner</span></div>
+                    <div class="frame-option" data-frame="frame-industrial"><div class="frame-preview bg-gray-400 border-4 border-gray-600"></div><span class="text-sm">Industrial</span></div>
+                    <div class="frame-option" data-frame="frame-marble"><div class="frame-preview" style="background-image: linear-gradient(to right, #e5e7eb, #f3f4f6);"></div><span class="text-sm">Marble</span></div>
+                    <div class="frame-option" data-frame="frame-inset"><div class="frame-preview shadow-[0_0_0_4px_#f3f4f6]"></div><span class="text-sm">Inset</span></div>
+                    <div class="frame-option" data-frame="frame-gilded-marble"><div class="frame-preview" style="background: linear-gradient(to right, #d4af37, #f0e68c);"><div class="w-8 h-8 rounded-full bg-white bg-opacity-50"></div></div><span class="text-sm">Gilded</span></div>
+                    <div class="frame-option" data-frame="frame-carbon-fiber"><div class="frame-preview bg-gray-800"></div><span class="text-sm">Carbon</span></div>
+                    <div class="frame-option" data-frame="frame-art-deco"><div class="frame-preview bg-black border-2 border-yellow-400"></div><span class="text-sm">Art Deco</span></div>
+                    <div class="frame-option" data-frame="frame-galaxy"><div class="frame-preview bg-black"></div><span class="text-sm">Galaxy</span></div>
+                    <div class="frame-option" data-frame="frame-rose-gold"><div class="frame-preview" style="background: linear-gradient(135deg, #f0d8c9, #b6634d);"></div><span class="text-sm">Rose Gold</span></div>
+                </div>
+            </div>
+            
+            <div class="pt-4">
+                 <button id="save-btn" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-300">
+                      Save as HD Image
+                 </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const clock = document.getElementById('clock');
+        const clockFace = document.getElementById('clock-face');
+        const centerDot = document.querySelector('.center-dot');
+        const hourHand = document.getElementById('hour-hand');
+        const minuteHand = document.getElementById('minute-hand');
+        const secondHand = document.getElementById('second-hand');
+        const faceColorInput = document.getElementById('face-color');
+        const bgImageUrlInput = document.getElementById('bg-image-url');
+        const bgImageUploadInput = document.getElementById('bg-image-upload');
+        const bgImageZoomInput = document.getElementById('bg-image-zoom');
+        const bgImageZoomValue = document.getElementById('bg-image-zoom-value');
+        const markerStyleInput = document.getElementById('marker-style');
+        const textColorInput = document.getElementById('text-color');
+        const textSizeInput = document.getElementById('marker-text-size');
+        const textSizeValue = document.getElementById('marker-text-size-value');
+        const markerTextBoldCheck = document.getElementById('marker-text-bold');
+        const markerRadiusInput = document.getElementById('marker-radius');
+        const markerRadiusValue = document.getElementById('marker-radius-value');
+        const markerOffsetXInput = document.getElementById('marker-offset-x');
+        const markerOffsetXValue = document.getElementById('marker-offset-x-value');
+        const markerOffsetYInput = document.getElementById('marker-offset-y');
+        const markerOffsetYValue = document.getElementById('marker-offset-y-value');
+        const textColorWrapper = document.getElementById('text-color-wrapper');
+        const textStyleControlsWrapper = document.getElementById('text-style-controls');
+        const hourHandColorInput = document.getElementById('hour-hand-color');
+        const minuteHandColorInput = document.getElementById('minute-hand-color');
+        const secondHandColorInput = document.getElementById('second-hand-color');
+        const showHourHandCheck = document.getElementById('show-hour-hand');
+        const showMinuteHandCheck = document.getElementById('show-minute-hand');
+        const showSecondHandCheck = document.getElementById('show-second-hand');
+        const showCenterDotCheck = document.getElementById('show-center-dot');
+        const centerDotColorInput = document.getElementById('center-dot-color');
+        const saveBtn = document.getElementById('save-btn');
+        const frameOptions = document.querySelectorAll('.frame-option');
+        const dialTemplatesGrid = document.getElementById('dial-templates-grid');
+        const textStylesGrid = document.getElementById('text-styles-grid');
+        const romanNumerals = ['XII', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI'];
+        const numbers = ['12', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'];
+        const tamilNumerals = ['௧௨', '௧', '௨', '௩', '௪', '௫', '௬', '௭', '௮', '௯', '௰', '௧௧'];
+        
+        const tamilFontWrapper = document.getElementById('tamil-font-wrapper');
+        const tamilFontSelect = document.getElementById('tamil-font-select');
+        const showHourLinesCheck = document.getElementById('show-hour-lines');
+        const hourLineColorInput = document.getElementById('hour-line-color');
+        const showMinuteMarkersCheck = document.getElementById('show-minute-markers');
+        const minuteMarkerColorInput = document.getElementById('minute-marker-color');
+        const showSecondMarkersCheck = document.getElementById('show-second-markers');
+        const secondMarkerColorInput = document.getElementById('second-marker-color');
+
+        const dialTemplates = {
+            classic: { name: 'Classic', faceColor: '#FFFFFF', markerStyle: 'numbers', showHourLines: true, textColor: '#333333', hourLineColor: '#333333' },
+            midnight: { name: 'Midnight', faceColor: '#1a202c', markerStyle: 'numbers', showHourLines: true, textColor: '#FFFFFF', hourLineColor: '#FFFFFF' },
+            vintage: { name: 'Vintage', faceColor: '#f5e8d7', markerStyle: 'roman', showHourLines: true, textColor: '#5a3a22', hourLineColor: '#5a3a22' },
+            minimal: { name: 'Minimal', faceColor: '#e2e8f0', markerStyle: 'none', showHourLines: true, hourLineColor: '#2d3748' },
+            blueprint: { name: 'Blueprint', faceColor: '#2b6cb0', markerStyle: 'none', showHourLines: true, hourLineColor: '#FFFFFF' },
+            natural: { name: 'Natural', backgroundImage: 'url("https://www.transparenttextures.com/patterns/wood-pattern.png")', faceColor: '#855b3b', markerStyle: 'none', showHourLines: false },
+            marble: { name: 'Marble', backgroundImage: 'url("https://www.transparenttextures.com/patterns/concrete-wall.png")', faceColor: '#f1f5f9', markerStyle: 'roman', showHourLines: false, textColor: '#c0a062' },
+            galaxy: { name: 'Galaxy', backgroundImage: 'url("https://images.pexels.com/photos/110854/pexels-photo-110854.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500")', faceColor: '#000000', markerStyle: 'none', showHourLines: false },
+            pastel: { name: 'Pastel', faceColor: '#d1fae5', markerStyle: 'numbers', showHourLines: true, textColor: '#064e3b', hourLineColor: '#064e3b' },
+            tech: { name: 'Tech', backgroundImage: 'url("https://www.transparenttextures.com/patterns/low-contrast-linen.png")', faceColor: '#111827', markerStyle: 'none', showHourLines: true, hourLineColor: '#22d3ee' },
+        };
+        const textStyles = {
+            'none': { name: 'None', class: '' },
+            'inset': { name: 'Inset', class: 'text-style-inset' },
+            'raised': { name: 'Raised', class: 'text-style-raised' },
+            'shadow': { name: 'Shadow', class: 'text-style-shadow' },
+            'neon': { name: 'Neon', class: 'text-style-neon' }
+        };
+
+        function updateMarkerControlVisibility() {
+            const style = markerStyleInput.value;
+            const isText = (style === 'numbers' || style === 'roman' || style === 'tamil');
+            textColorWrapper.style.display = isText ? 'flex' : 'none';
+            textStyleControlsWrapper.style.display = isText ? 'block' : 'none';
+            textStylesGrid.parentElement.style.display = isText ? 'block' : 'none';
+
+            // Show/hide Tamil font selector
+            tamilFontWrapper.style.display = (style === 'tamil') ? 'flex' : 'none';
+        }
+
+        function applyTextStyle() {
+            const activeStyleEl = document.querySelector('.text-style-option.active');
+            if (!activeStyleEl) return;
+            const styleClass = textStyles[activeStyleEl.dataset.style].class;
+            const markers = clockFace.querySelectorAll('.marker');
+            markers.forEach(marker => {
+                Object.values(textStyles).forEach(s => { if (s.class) marker.classList.remove(s.class); });
+                if (styleClass) marker.classList.add(styleClass);
+            });
+        }
+        
+        function generateMarkers() {
+            const existingMarkers = clockFace.querySelectorAll('.marker');
+            existingMarkers.forEach(m => m.remove());
+            
+            if (showHourLinesCheck.checked) {
+                for (let i = 0; i < 12; i++) {
+                    const marker = document.createElement('div');
+                    const angle = i * 30;
+                    const x = 50 + 48 * Math.sin(angle * Math.PI / 180);
+                    const y = 50 - 48 * Math.cos(angle * Math.PI / 180);
+                    marker.style.left = `${x}%`;
+                    marker.style.top = `${y}%`;
+                    marker.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+                    marker.classList.add('marker', 'line');
+                    if (i % 3 === 0) {
+                        marker.classList.add('thick');
+                    }
+                    marker.style.backgroundColor = hourLineColorInput.value;
+                    clockFace.appendChild(marker);
+                }
+            }
+            if (showSecondMarkersCheck.checked) {
+                for (let i = 0; i < 60; i++) {
+                    if (i % 5 === 0) continue; 
+                    const marker = document.createElement('div');
+                    const angle = i * 6;
+                    const x = 50 + 48 * Math.sin(angle * Math.PI / 180);
+                    const y = 50 - 48 * Math.cos(angle * Math.PI / 180);
+                    marker.style.left = `${x}%`;
+                    marker.style.top = `${y}%`;
+                    marker.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+                    marker.classList.add('marker', 'second-marker');
+                    marker.style.backgroundColor = secondMarkerColorInput.value;
+                    marker.style.height = '6px';
+                    clockFace.appendChild(marker);
+                }
+            }
+            if (showMinuteMarkersCheck.checked) {
+                for (let i = 0; i < 60; i++) {
+                    if (i % 5 === 0) continue; 
+                    const marker = document.createElement('div');
+                    const angle = i * 6;
+                    const x = 50 + 48 * Math.sin(angle * Math.PI / 180);
+                    const y = 50 - 48 * Math.cos(angle * Math.PI / 180);
+                    marker.style.left = `${x}%`;
+                    marker.style.top = `${y}%`;
+                    marker.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+                    marker.classList.add('marker', 'minute-marker');
+                    marker.style.backgroundColor = minuteMarkerColorInput.value;
+                    marker.style.height = '10px';
+                    clockFace.appendChild(marker);
+                }
+            }
+            
+            const style = markerStyleInput.value;
+            if (style !== 'none') {
+                 const radius = parseFloat(markerRadiusInput.value);
+                const offsetX = parseFloat(markerOffsetXInput.value);
+                const offsetY = parseFloat(markerOffsetYInput.value);
+
+                for (let i = 0; i < 12; i++) {
+                    const angle = i * 30;
+                    const marker = document.createElement('div');
+                    const x = 50 + radius * Math.sin(angle * Math.PI / 180);
+                    const y = 50 - radius * Math.cos(angle * Math.PI / 180);
+                    marker.style.left = `${x + offsetX}%`;
+                    marker.style.top = `${y + offsetY}%`;
+                    marker.className = 'marker';
+
+                    // Apply selected Tamil font or reset to default
+                    if (style === 'tamil') {
+                        marker.style.fontFamily = tamilFontSelect.value;
+                    } else {
+                        marker.style.fontFamily = "'Inter', sans-serif";
+                    }
+
+                    marker.style.color = textColorInput.value;
+                    marker.style.fontSize = `${textSizeInput.value}rem`;
+                    marker.style.fontWeight = markerTextBoldCheck.checked ? '900' : '500';
+                    if (style === 'numbers') marker.innerText = numbers[i];
+                    if (style === 'roman') marker.innerText = romanNumerals[i];
+                    if (style === 'tamil') marker.innerText = tamilNumerals[i];
+                    clockFace.appendChild(marker);
+                }
+            }
+            applyTextStyle();
+        }
+
+        function setTime() {
+            const now = new Date();
+            const seconds = now.getSeconds();
+            const minutes = now.getMinutes();
+            const hours = now.getHours();
+            const secondsDegrees = (seconds / 60) * 360;
+            const minutesDegrees = (minutes / 60) * 360 + (seconds / 60) * 6;
+            const hoursDegrees = (hours / 12) * 360 + (minutes / 60) * 30;
+            if (seconds === 0) { secondHand.style.transition = 'none'; } 
+            else { secondHand.style.transition = 'transform 0.05s linear'; }
+            secondHand.style.transform = `translateX(-50%) rotate(${secondsDegrees}deg)`;
+            minuteHand.style.transform = `translateX(-50%) rotate(${minutesDegrees}deg)`;
+            hourHand.style.transform = `translateX(-50%) rotate(${hoursDegrees}deg)`;
+        }
+
+        function populateDialTemplates() {
+            for (const [key, template] of Object.entries(dialTemplates)) {
+                const option = document.createElement('div'); option.className = 'dial-option'; option.dataset.dial = key;
+                const preview = document.createElement('div'); preview.className = 'dial-preview';
+                preview.style.backgroundColor = template.faceColor;
+                if (template.backgroundImage) { preview.style.backgroundImage = template.backgroundImage; }
+                if (template.markerStyle === 'numbers') { preview.innerHTML = `<span style="font-size: 8px; font-weight: bold; color: ${template.textColor}; opacity: 0.7;">12</span>`; } 
+                else if (template.showHourLines) { preview.innerHTML = `<div style="width: 1px; height: 5px; background-color: ${template.hourLineColor}; opacity: 0.7;"></div>`; }
+                const name = document.createElement('span'); name.className = 'text-sm'; name.innerText = template.name;
+                option.appendChild(preview); option.appendChild(name); dialTemplatesGrid.appendChild(option);
+            }
+        }
+
+        function populateTextStyles() {
+            for (const [key, style] of Object.entries(textStyles)) {
+                const option = document.createElement('div'); option.className = 'text-style-option'; option.dataset.style = key;
+                const preview = document.createElement('div'); preview.className = `text-style-preview ${style.class}`; preview.innerText = '3D';
+                if(key === 'neon') preview.style.color = '#3b82f6';
+                const name = document.createElement('span'); name.className = 'text-sm'; name.innerText = style.name;
+                option.appendChild(preview); option.appendChild(name); textStylesGrid.appendChild(option);
+            }
+        }
+
+        function applyDialTemplate(templateKey) {
+            const template = dialTemplates[templateKey]; if (!template) return;
+            bgImageUrlInput.value = ''; bgImageUploadInput.value = '';
+            faceColorInput.value = template.faceColor; clockFace.style.backgroundColor = template.faceColor;
+            if (template.backgroundImage) {
+                clockFace.style.backgroundImage = template.backgroundImage; bgImageZoomInput.value = 100;
+                bgImageZoomValue.textContent = 100; clockFace.style.backgroundSize = 'cover';
+            } else { clockFace.style.backgroundImage = 'none'; }
+            markerStyleInput.value = template.markerStyle; 
+            textColorInput.value = template.textColor || '#333333';
+            showHourLinesCheck.checked = template.showHourLines !== undefined ? template.showHourLines : false;
+            hourLineColorInput.value = template.hourLineColor || '#333333';
+            generateMarkers(); 
+            updateMarkerControlVisibility();
+        }
+
+        function deselectActiveTemplate(templateType) {
+            const activeEl = document.querySelector(`.${templateType}-option.active`);
+            if (activeEl) activeEl.classList.remove('active');
+        }
+
+        faceColorInput.addEventListener('input', (e) => { clockFace.style.backgroundColor = e.target.value; deselectActiveTemplate('dial'); });
+        bgImageUrlInput.addEventListener('input', (e) => {
+            const url = e.target.value.trim(); clockFace.style.backgroundImage = url ? `url('${url}')` : 'none';
+            clockFace.style.backgroundSize = 'cover'; bgImageZoomInput.value = 100; bgImageZoomValue.textContent = 100;
+            bgImageUploadInput.value = ''; deselectActiveTemplate('dial');
+        });
+        bgImageUploadInput.addEventListener('change', (e) => {
+            const file = e.target.files[0]; if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    clockFace.style.backgroundImage = `url('${event.target.result}')`; bgImageUrlInput.value = '';
+                    clockFace.style.backgroundSize = 'cover'; bgImageZoomInput.value = 100; bgImageZoomValue.textContent = 100;
+                    deselectActiveTemplate('dial');
+                }; reader.readAsDataURL(file);
+            }
+        });
+        bgImageZoomInput.addEventListener('input', (e) => { clockFace.style.backgroundSize = `${e.target.value}%`; bgImageZoomValue.textContent = e.target.value; });
+        markerStyleInput.addEventListener('change', () => { generateMarkers(); updateMarkerControlVisibility(); deselectActiveTemplate('dial'); });
+        textSizeInput.addEventListener('input', (e) => { textSizeValue.textContent = e.target.value; generateMarkers(); deselectActiveTemplate('dial'); });
+        textColorInput.addEventListener('input', () => { generateMarkers(); deselectActiveTemplate('dial'); });
+        markerTextBoldCheck.addEventListener('change', () => { generateMarkers(); deselectActiveTemplate('dial'); });
+        
+        const positionChangeHandler = () => { generateMarkers(); deselectActiveTemplate('dial'); };
+        markerRadiusInput.addEventListener('input', (e) => { markerRadiusValue.textContent = e.target.value; positionChangeHandler(); });
+        markerOffsetXInput.addEventListener('input', (e) => { markerOffsetXValue.textContent = e.target.value; positionChangeHandler(); });
+        markerOffsetYInput.addEventListener('input', (e) => { markerOffsetYValue.textContent = e.target.value; positionChangeHandler(); });
+        
+        hourHandColorInput.addEventListener('input', (e) => { hourHand.style.backgroundColor = e.target.value; });
+        minuteHandColorInput.addEventListener('input', (e) => { minuteHand.style.backgroundColor = e.target.value; });
+        secondHandColorInput.addEventListener('input', (e) => { secondHand.style.backgroundColor = e.target.value; });
+        showHourHandCheck.addEventListener('input', (e) => { hourHand.style.display = e.target.checked ? 'block' : 'none'; });
+        showMinuteHandCheck.addEventListener('input', (e) => { minuteHand.style.display = e.target.checked ? 'block' : 'none'; });
+        showSecondHandCheck.addEventListener('input', (e) => { secondHand.style.display = e.target.checked ? 'block' : 'none'; });
+        
+        showCenterDotCheck.addEventListener('input', (e) => { centerDot.style.display = e.target.checked ? 'block' : 'none'; });
+        centerDotColorInput.addEventListener('input', (e) => { centerDot.style.backgroundColor = e.target.value; });
+        
+        tamilFontSelect.addEventListener('change', generateMarkers);
+        showHourLinesCheck.addEventListener('change', generateMarkers);
+        hourLineColorInput.addEventListener('input', generateMarkers);
+        showMinuteMarkersCheck.addEventListener('change', generateMarkers);
+        minuteMarkerColorInput.addEventListener('input', generateMarkers);
+        showSecondMarkersCheck.addEventListener('change', generateMarkers);
+        secondMarkerColorInput.addEventListener('input', generateMarkers);
+
+        frameOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                frameOptions.forEach(opt => { clock.classList.remove(opt.dataset.frame); opt.classList.remove('active'); });
+                clock.classList.add(option.dataset.frame); option.classList.add('active');
+            });
+        });
+
+        saveBtn.addEventListener('click', () => {
+            const scale = 4;
+            const originalElement = clock;
+            const artboard = document.createElement('div');
+            artboard.style.width = originalElement.offsetWidth + 'px';
+            artboard.style.height = originalElement.offsetHeight + 'px';
+            artboard.style.position = 'absolute';
+            artboard.style.top = '-9999px';
+            artboard.style.left = '-9999px';
+            
+            const clockClone = originalElement.cloneNode(true);
+            
+            clockClone.style.transform = `scale(${scale})`;
+            clockClone.style.transformOrigin = 'top left';
+
+            artboard.appendChild(clockClone);
+            document.body.appendChild(artboard);
+
+            const options = {
+                width: originalElement.offsetWidth * scale,
+                height: originalElement.offsetHeight * scale,
+                quality: 1.0
+            };
+
+            domtoimage.toPng(artboard, options)
+                .then(function (dataUrl) {
+                const link = document.createElement('a');
+                link.download = 'custom-clock-hd.png';
+                link.href = dataUrl;
+                link.click();
+            }).catch(function (error) {
+                console.error('Image generation failed!', error);
+                alert('Could not save the image. Please try again.');
+            }).finally(function () {
+                document.body.removeChild(artboard);
+            });
+        });
+
+        populateDialTemplates();
+        populateTextStyles();
+        const dialOptions = document.querySelectorAll('.dial-option');
+        dialOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                dialOptions.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+                applyDialTemplate(option.dataset.dial);
+            });
+        });
+        const textStyleOptions = document.querySelectorAll('.text-style-option');
+        textStyleOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                textStyleOptions.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+                applyTextStyle();
+            });
+        });
+        setTime();
+        setInterval(setTime, 1000);
+        updateMarkerControlVisibility();
+        document.querySelector('.dial-option[data-dial="classic"]').click();
+        document.querySelector('.frame-option[data-frame="frame-minimalist"]').click();
+        document.querySelector('.text-style-option[data-style="none"]').click();
+    </script>
+</body>
+</html>
