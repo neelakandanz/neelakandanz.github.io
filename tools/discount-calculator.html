@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discount Calculator | Neelakandan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-dark: #0c0c0c;
+            --bg-surface: #161616;
+            --bg-card: #1f1f1f;
+            --accent: #a855f7;
+            --accent-light: #c084fc;
+            --accent-glow: rgba(168, 85, 247, 0.25);
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --border: rgba(255, 255, 255, 0.08);
+            --success: #22c55e;
+            --danger: #ef4444;
+            --radius: 16px;
+            --radius-sm: 10px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .app {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 0.875rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent), #ec4899);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .back-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.8125rem;
+            padding: 0.5rem 0.875rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .back-link:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        .main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .calculator {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .calc-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .calc-header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .calc-header p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 1.25rem;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .discount-presets {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .preset-btn {
+            padding: 0.5rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        .preset-btn.active {
+            background: rgba(168, 85, 247, 0.2);
+            border-color: var(--accent);
+            color: var(--accent-light);
+        }
+
+        .result-box {
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .result-box.show {
+            display: block;
+        }
+
+        .price-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .price-card {
+            padding: 1.25rem;
+            border-radius: var(--radius-sm);
+            text-align: center;
+        }
+
+        .price-card.original {
+            background: var(--bg-card);
+        }
+
+        .price-card.final {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.05));
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .price-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .price-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .price-card.original .price-value {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .price-card.final .price-value {
+            color: var(--success);
+        }
+
+        .savings-banner {
+            background: linear-gradient(135deg, var(--danger), #f97316);
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .savings-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .savings-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .extra-discount {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg-card);
+            border-radius: var(--radius-sm);
+        }
+
+        .extra-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .extra-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .extra-label {
+            color: var(--text-secondary);
+        }
+
+        .extra-value {
+            font-weight: 600;
+        }
+
+        @media (max-width: 480px) {
+            .main {
+                padding: 1rem;
+            }
+
+            .calculator {
+                padding: 1.5rem;
+            }
+
+            .price-comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <header class="header">
+            <a href="#" class="logo">
+                <div class="logo-icon">🏷️</div>
+                <span class="logo-text">Discount Calculator</span>
+            </a>
+            <a href="./#calculators" class="back-link">← Back</a>
+        </header>
+
+        <main class="main">
+            <div class="calculator">
+                <div class="calc-header">
+                    <h1>🏷️ Discount Calculator</h1>
+                    <p>Calculate how much you save on discounted items</p>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Original Price</label>
+                    <input type="number" class="input-field" id="original-price" placeholder="₹0" value="1000"
+                        oninput="calculate()">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Discount Percentage</label>
+                    <input type="number" class="input-field" id="discount-percent" placeholder="0%" value="20"
+                        oninput="calculate()">
+                    <div class="discount-presets">
+                        <button class="preset-btn" onclick="setDiscount(10)">10%</button>
+                        <button class="preset-btn active" onclick="setDiscount(20)">20%</button>
+                        <button class="preset-btn" onclick="setDiscount(25)">25%</button>
+                        <button class="preset-btn" onclick="setDiscount(30)">30%</button>
+                        <button class="preset-btn" onclick="setDiscount(50)">50%</button>
+                        <button class="preset-btn" onclick="setDiscount(70)">70%</button>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Additional Discount (Optional)</label>
+                    <input type="number" class="input-field" id="extra-discount" placeholder="0%" value="0"
+                        oninput="calculate()">
+                </div>
+
+                <div class="result-box show" id="result-box">
+                    <div class="price-comparison">
+                        <div class="price-card original">
+                            <div class="price-label">Original Price</div>
+                            <div class="price-value" id="res-original">₹1,000</div>
+                        </div>
+                        <div class="price-card final">
+                            <div class="price-label">Final Price</div>
+                            <div class="price-value" id="res-final">₹800</div>
+                        </div>
+                    </div>
+
+                    <div class="savings-banner">
+                        <span class="savings-label">🎉 You Save</span>
+                        <span class="savings-value" id="res-savings">₹200</span>
+                    </div>
+
+                    <div class="extra-discount" id="extra-section" style="display: none;">
+                        <div class="extra-row">
+                            <span class="extra-label">After 1st Discount</span>
+                            <span class="extra-value" id="after-first">₹0</span>
+                        </div>
+                        <div class="extra-row">
+                            <span class="extra-label">Additional Discount</span>
+                            <span class="extra-value" id="extra-amount">₹0</span>
+                        </div>
+                        <div class="extra-row">
+                            <span class="extra-label">Effective Discount</span>
+                            <span class="extra-value" id="effective-discount">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function formatCurrency(num) {
+            return '₹' + num.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+        }
+
+        function setDiscount(percent) {
+            document.getElementById('discount-percent').value = percent;
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent === percent + '%');
+            });
+            calculate();
+        }
+
+        function calculate() {
+            const original = parseFloat(document.getElementById('original-price').value) || 0;
+            const discount1 = parseFloat(document.getElementById('discount-percent').value) || 0;
+            const discount2 = parseFloat(document.getElementById('extra-discount').value) || 0;
+
+            // First discount
+            const savings1 = (discount1 / 100) * original;
+            const afterFirst = original - savings1;
+
+            // Second discount (applied on discounted price)
+            const savings2 = (discount2 / 100) * afterFirst;
+            const finalPrice = afterFirst - savings2;
+
+            const totalSavings = original - finalPrice;
+            const effectiveDiscount = original > 0 ? (totalSavings / original) * 100 : 0;
+
+            // Update UI
+            document.getElementById('res-original').textContent = formatCurrency(original);
+            document.getElementById('res-final').textContent = formatCurrency(finalPrice);
+            document.getElementById('res-savings').textContent = formatCurrency(totalSavings);
+
+            // Show extra section if second discount exists
+            const extraSection = document.getElementById('extra-section');
+            if (discount2 > 0) {
+                extraSection.style.display = 'block';
+                document.getElementById('after-first').textContent = formatCurrency(afterFirst);
+                document.getElementById('extra-amount').textContent = formatCurrency(savings2);
+                document.getElementById('effective-discount').textContent = effectiveDiscount.toFixed(1) + '%';
+            } else {
+                extraSection.style.display = 'none';
+            }
+
+            // Update preset buttons
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent === discount1 + '%');
+            });
+        }
+
+        // Initial calculation
+        calculate();
+    </script>
+</body>
+
+</html>

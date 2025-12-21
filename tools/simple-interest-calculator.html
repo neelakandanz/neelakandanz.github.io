@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Interest Calculator | Neelakandan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-dark: #0c0c0c;
+            --bg-surface: #161616;
+            --bg-card: #1f1f1f;
+            --accent: #a855f7;
+            --accent-light: #c084fc;
+            --accent-glow: rgba(168, 85, 247, 0.25);
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --border: rgba(255, 255, 255, 0.08);
+            --success: #22c55e;
+            --radius: 16px;
+            --radius-sm: 10px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .app {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 0.875rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent), #ec4899);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .back-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.8125rem;
+            padding: 0.5rem 0.875rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .back-link:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        .main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .calculator {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .calc-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .calc-header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .calc-header p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .formula-box {
+            background: var(--bg-card);
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-family: 'Georgia', serif;
+            font-size: 1.1rem;
+        }
+
+        .formula-box span {
+            color: var(--accent-light);
+        }
+
+        .input-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 0.875rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .unit-select {
+            width: 100px;
+            padding: 0.875rem 0.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        .calc-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--accent), #ec4899);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .calc-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px var(--accent-glow);
+        }
+
+        .result-box {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05));
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: var(--radius-sm);
+            display: none;
+        }
+
+        .result-box.show {
+            display: block;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+        }
+
+        .result-label {
+            color: var(--text-secondary);
+        }
+
+        .result-value {
+            font-weight: 600;
+        }
+
+        .result-row.total {
+            border-top: 1px solid var(--border);
+            margin-top: 0.5rem;
+            padding-top: 1rem;
+        }
+
+        .result-row.total .result-value {
+            font-size: 1.5rem;
+            color: var(--success);
+        }
+
+        @media (max-width: 480px) {
+            .main {
+                padding: 1rem;
+            }
+
+            .calculator {
+                padding: 1.5rem;
+            }
+
+            .input-row {
+                flex-direction: column;
+            }
+
+            .unit-select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <header class="header">
+            <a href="#" class="logo">
+                <div class="logo-icon">💵</div>
+                <span class="logo-text">Simple Interest</span>
+            </a>
+            <a href="./#calculators" class="back-link">← Back</a>
+        </header>
+
+        <main class="main">
+            <div class="calculator">
+                <div class="calc-header">
+                    <h1>💵 Simple Interest Calculator</h1>
+                    <p>Calculate simple interest on your investments</p>
+                </div>
+
+                <div class="formula-box">
+                    SI = <span>P</span> × <span>R</span> × <span>T</span> / 100
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Principal Amount (P)</label>
+                    <input type="number" class="input-field" id="principal" placeholder="Enter principal amount"
+                        value="10000">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Rate of Interest (R) % per annum</label>
+                    <input type="number" class="input-field" id="rate" placeholder="Enter interest rate" value="10"
+                        step="0.1">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Time Period (T)</label>
+                    <div class="input-row">
+                        <input type="number" class="input-field" id="time" placeholder="Enter time" value="2">
+                        <select class="unit-select" id="time-unit">
+                            <option value="years">Years</option>
+                            <option value="months">Months</option>
+                            <option value="days">Days</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="calc-btn" onclick="calculateSI()">Calculate Interest</button>
+
+                <div class="result-box" id="result-box">
+                    <div class="result-row">
+                        <span class="result-label">Principal Amount</span>
+                        <span class="result-value" id="res-principal">₹0</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Simple Interest</span>
+                        <span class="result-value" id="res-interest">₹0</span>
+                    </div>
+                    <div class="result-row total">
+                        <span class="result-label">Total Amount</span>
+                        <span class="result-value" id="res-total">₹0</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function formatCurrency(num) {
+            return '₹' + num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function calculateSI() {
+            const principal = parseFloat(document.getElementById('principal').value);
+            const rate = parseFloat(document.getElementById('rate').value);
+            let time = parseFloat(document.getElementById('time').value);
+            const timeUnit = document.getElementById('time-unit').value;
+
+            if (isNaN(principal) || isNaN(rate) || isNaN(time)) return;
+
+            // Convert time to years
+            if (timeUnit === 'months') {
+                time = time / 12;
+            } else if (timeUnit === 'days') {
+                time = time / 365;
+            }
+
+            // SI = P × R × T / 100
+            const interest = (principal * rate * time) / 100;
+            const total = principal + interest;
+
+            document.getElementById('res-principal').textContent = formatCurrency(principal);
+            document.getElementById('res-interest').textContent = formatCurrency(interest);
+            document.getElementById('res-total').textContent = formatCurrency(total);
+
+            document.getElementById('result-box').classList.add('show');
+        }
+
+        // Auto-calculate on load
+        calculateSI();
+    </script>
+</body>
+
+</html>

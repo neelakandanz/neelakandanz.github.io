@@ -216,6 +216,7 @@
                 <button class="category-tab" data-category="calculators">
                     <span class="tab-icon">🔢</span>
                     <span>Calculators</span>
+                    <span class="tab-count">10</span>
                 </button>
                 <button class="category-tab" data-category="converters">
                     <span class="tab-icon">🔄</span>
@@ -302,6 +303,88 @@
                                 Open Tool <span>→</span>
                             </a>
                         </article>
+
+                        <!-- Calculator Tools -->
+                        <article class="tool-card" data-category="calculators">
+                            <div class="tool-icon">%</div>
+                            <h4>Percentage Calculator</h4>
+                            <p>Calculate percentages: X% of Y, what percent, increase/decrease.</p>
+                            <a href="percentage-calculator.html" class="tool-link">
+                                Open Tool <span>→</span>
+                            </a>
+                        </article>
+                        <article class="tool-card" data-category="calculators">
+                            <div class="tool-icon">🎂</div>
+                            <h4>Age Calculator</h4>
+                            <p>Calculate exact age in years, months, days with next birthday countdown.</p>
+                            <a href="age-calculator.html" class="tool-link">
+                                Open Tool <span>→</span>
+                            </a>
+                        </article>
+                        <article class="tool-card" data-category="calculators">
+                            <div class="tool-icon">🏦</div>
+                            <h4>EMI / Loan Calculator</h4>
+                            <p>Calculate monthly EMI for home, car, or personal loans with visual breakdown.</p>
+                            <a href="emi-calculator.html" class="tool-link">
+                                Open Tool <span>→</span>
+                            </a>
+                        </article>
+                        <article class="tool-card" data-category="calculators">
+                            <div class="tool-icon">🧾</div>
+                            <h4>GST Calculator</h4>
+                            <p>Calculate GST (India) with CGST/SGST split. Add or remove GST from prices.</p>
+                            <a href="gst-calculator.html" class="tool-link">
+                                Open Tool <span>→</span>
+                            </a>
+                        </article>
+                        <article class="tool-card" data-category="calculators">
+                            <div class="tool-icon">💵</div>
+                            <h4>Simple Interest</h4>
+                            <p>Calculate simple interest on investments with different time periods.</p>
+                            <a href="simple-interest-calculator.html" class="tool-link">
+                                Open Tool <span>→</span>
+                            </a>
+                        </article>
+                        <article class="tool-card" data-category="calculators">
+                            <div class="tool-icon">📈</div>
+                            <h4>Compound Interest</h4>
+                            <p>Calculate compound interest with different compounding frequencies.</p>
+                            <a href="compound-interest-calculator.html" class="tool-link">
+                                Open Tool <span>→</span>
+                            </a>
+                        </article>
+                        <article class="tool-card" data-category="calculators">
+                            <div class="tool-icon">⚖️</div>
+                            <h4>BMI Calculator</h4>
+                            <p>Calculate Body Mass Index with health category and personalized tips.</p>
+                            <a href="bmi-calculator.html" class="tool-link">
+                                Open Tool <span>→</span>
+                            </a>
+                        </article>
+                        <article class="tool-card" data-category="calculators">
+                            <div class="tool-icon">💱</div>
+                            <h4>Currency Converter</h4>
+                            <p>Convert between 11 popular world currencies with live-feel rates.</p>
+                            <a href="currency-converter.html" class="tool-link">
+                                Open Tool <span>→</span>
+                            </a>
+                        </article>
+                        <article class="tool-card" data-category="calculators">
+                            <div class="tool-icon">📐</div>
+                            <h4>Unit Converter</h4>
+                            <p>Convert length, weight, temperature, area, volume, speed, and data.</p>
+                            <a href="unit-converter.html" class="tool-link">
+                                Open Tool <span>→</span>
+                            </a>
+                        </article>
+                        <article class="tool-card" data-category="calculators">
+                            <div class="tool-icon">🏷️</div>
+                            <h4>Discount Calculator</h4>
+                            <p>Calculate savings on discounted items with stacked discount support.</p>
+                            <a href="discount-calculator.html" class="tool-link">
+                                Open Tool <span>→</span>
+                            </a>
+                        </article>
                     </div>
                 </section>
             </div>
@@ -337,7 +420,7 @@
             const categoryData = {
                 'all': { icon: '📦', title: 'All Tools', hasTools: true },
                 'developer': { icon: '🛠️', title: 'Developer Tools', hasTools: true },
-                'calculators': { icon: '🔢', title: 'Calculators', hasTools: false },
+                'calculators': { icon: '🔢', title: 'Calculators', hasTools: true },
                 'converters': { icon: '🔄', title: 'Converters', hasTools: false },
                 'text': { icon: '✏️', title: 'Text Tools', hasTools: false },
                 'design': { icon: '🎨', title: 'Design Tools', hasTools: false },
@@ -360,11 +443,11 @@
                 categoryTitle.textContent = data.title;
 
                 // Show/hide tools or coming soon
-                if (category === 'all' || category === 'developer') {
+                if (data.hasTools) {
                     toolsContent.style.display = 'block';
                     comingSoon.style.display = 'none';
 
-                    // Filter tools if not showing all
+                    // Filter tools by category
                     const allTools = document.querySelectorAll('.tool-card');
                     allTools.forEach(tool => {
                         if (category === 'all' || tool.dataset.category === category) {

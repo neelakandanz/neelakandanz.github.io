@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMI Calculator | Neelakandan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-dark: #0c0c0c;
+            --bg-surface: #161616;
+            --bg-card: #1f1f1f;
+            --accent: #a855f7;
+            --accent-light: #c084fc;
+            --accent-glow: rgba(168, 85, 247, 0.25);
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --border: rgba(255, 255, 255, 0.08);
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --radius: 16px;
+            --radius-sm: 10px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .app {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 0.875rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent), #ec4899);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .back-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.8125rem;
+            padding: 0.5rem 0.875rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .back-link:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        .main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .calculator {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            width: 100%;
+            max-width: 520px;
+        }
+
+        .calc-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .calc-header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .calc-header p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .input-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-value {
+            color: var(--accent-light);
+            font-family: monospace;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .slider {
+            width: 100%;
+            margin-top: 0.5rem;
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--bg-card);
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            border: 2px solid var(--bg-dark);
+        }
+
+        .calc-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--accent), #ec4899);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 0.5rem;
+        }
+
+        .calc-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px var(--accent-glow);
+        }
+
+        .result-box {
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .result-box.show {
+            display: block;
+        }
+
+        .emi-display {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05));
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: var(--radius-sm);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .emi-label {
+            font-size: 0.75rem;
+            color: var(--success);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .emi-value {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .emi-value small {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .breakdown {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+        }
+
+        .breakdown-item {
+            background: var(--bg-card);
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            text-align: center;
+        }
+
+        .breakdown-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .breakdown-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .breakdown-item.interest .breakdown-value {
+            color: var(--warning);
+        }
+
+        .chart-container {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .pie-chart {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .chart-legend {
+            flex: 1;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        .legend-color.principal {
+            background: var(--success);
+        }
+
+        .legend-color.interest {
+            background: var(--warning);
+        }
+
+        @media (max-width: 480px) {
+            .main {
+                padding: 1rem;
+            }
+
+            .calculator {
+                padding: 1.5rem;
+            }
+
+            .emi-value {
+                font-size: 1.75rem;
+            }
+
+            .breakdown {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <header class="header">
+            <a href="#" class="logo">
+                <div class="logo-icon">🏦</div>
+                <span class="logo-text">EMI Calculator</span>
+            </a>
+            <a href="./#calculators" class="back-link">← Back</a>
+        </header>
+
+        <main class="main">
+            <div class="calculator">
+                <div class="calc-header">
+                    <h1>🏦 EMI / Loan Calculator</h1>
+                    <p>Calculate your monthly EMI for home, car, or personal loans</p>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">
+                        <span>Loan Amount</span>
+                        <span class="input-value" id="amount-display">₹5,00,000</span>
+                    </label>
+                    <input type="range" class="slider" id="loan-amount" min="10000" max="10000000" value="500000"
+                        step="10000">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">
+                        <span>Interest Rate (% per annum)</span>
+                        <span class="input-value" id="rate-display">10%</span>
+                    </label>
+                    <input type="range" class="slider" id="interest-rate" min="1" max="30" value="10" step="0.1">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">
+                        <span>Loan Tenure</span>
+                        <span class="input-value" id="tenure-display">5 Years</span>
+                    </label>
+                    <input type="range" class="slider" id="loan-tenure" min="1" max="30" value="5" step="1">
+                </div>
+
+                <button class="calc-btn" onclick="calculateEMI()">Calculate EMI</button>
+
+                <div class="result-box" id="result-box">
+                    <div class="emi-display">
+                        <div class="emi-label">Monthly EMI</div>
+                        <div class="emi-value">₹<span id="emi-amount">0</span> <small>/month</small></div>
+                    </div>
+
+                    <div class="breakdown">
+                        <div class="breakdown-item">
+                            <div class="breakdown-value" id="principal-amount">₹0</div>
+                            <div class="breakdown-label">Principal</div>
+                        </div>
+                        <div class="breakdown-item interest">
+                            <div class="breakdown-value" id="interest-amount">₹0</div>
+                            <div class="breakdown-label">Total Interest</div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="breakdown-value" id="total-amount">₹0</div>
+                            <div class="breakdown-label">Total Payment</div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <div class="pie-chart" id="pie-chart"></div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color principal"></div>
+                                <span>Principal (<span id="principal-percent">0</span>%)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color interest"></div>
+                                <span>Interest (<span id="interest-percent">0</span>%)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const amountSlider = document.getElementById('loan-amount');
+        const rateSlider = document.getElementById('interest-rate');
+        const tenureSlider = document.getElementById('loan-tenure');
+
+        function formatCurrency(num) {
+            return num.toLocaleString('en-IN');
+        }
+
+        function updateDisplays() {
+            document.getElementById('amount-display').textContent = '₹' + formatCurrency(parseInt(amountSlider.value));
+            document.getElementById('rate-display').textContent = rateSlider.value + '%';
+            document.getElementById('tenure-display').textContent = tenureSlider.value + ' Years';
+        }
+
+        amountSlider.addEventListener('input', updateDisplays);
+        rateSlider.addEventListener('input', updateDisplays);
+        tenureSlider.addEventListener('input', updateDisplays);
+
+        function calculateEMI() {
+            const principal = parseFloat(amountSlider.value);
+            const annualRate = parseFloat(rateSlider.value);
+            const tenureYears = parseInt(tenureSlider.value);
+
+            const monthlyRate = annualRate / 12 / 100;
+            const tenureMonths = tenureYears * 12;
+
+            // EMI = P × r × (1 + r)^n / ((1 + r)^n - 1)
+            const emi = principal * monthlyRate * Math.pow(1 + monthlyRate, tenureMonths) /
+                (Math.pow(1 + monthlyRate, tenureMonths) - 1);
+
+            const totalPayment = emi * tenureMonths;
+            const totalInterest = totalPayment - principal;
+
+            const principalPercent = Math.round((principal / totalPayment) * 100);
+            const interestPercent = 100 - principalPercent;
+
+            // Update UI
+            document.getElementById('emi-amount').textContent = formatCurrency(Math.round(emi));
+            document.getElementById('principal-amount').textContent = '₹' + formatCurrency(Math.round(principal));
+            document.getElementById('interest-amount').textContent = '₹' + formatCurrency(Math.round(totalInterest));
+            document.getElementById('total-amount').textContent = '₹' + formatCurrency(Math.round(totalPayment));
+            document.getElementById('principal-percent').textContent = principalPercent;
+            document.getElementById('interest-percent').textContent = interestPercent;
+
+            // Pie chart
+            document.getElementById('pie-chart').style.background =
+                `conic-gradient(#22c55e 0% ${principalPercent}%, #f59e0b ${principalPercent}% 100%)`;
+
+            document.getElementById('result-box').classList.add('show');
+        }
+
+        // Initial display update
+        updateDisplays();
+
+        // Auto-calculate on load
+        calculateEMI();
+    </script>
+</body>
+
+</html>
