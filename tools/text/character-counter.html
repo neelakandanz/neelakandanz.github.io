@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Counter | Neelakandan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-dark: #0c0c0c;
+            --bg-surface: #161616;
+            --bg-card: #1f1f1f;
+            --accent: #a855f7;
+            --accent-light: #c084fc;
+            --accent-glow: rgba(168, 85, 247, 0.25);
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --border: rgba(255, 255, 255, 0.08);
+            --success: #22c55e;
+            --radius: 16px;
+            --radius-sm: 10px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .app {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 0.875rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent), #ec4899);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .back-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.8125rem;
+            padding: 0.5rem 0.875rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .back-link:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        .main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .tool-container {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            width: 100%;
+            max-width: 700px;
+        }
+
+        .tool-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .tool-header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .tool-header p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .text-area {
+            width: 100%;
+            min-height: 200px;
+            padding: 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.2s;
+        }
+
+        .text-area:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .text-area::placeholder {
+            color: var(--text-muted);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(236, 72, 153, 0.1));
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: var(--radius-sm);
+            padding: 1.25rem;
+            text-align: center;
+        }
+
+        .stat-card.highlight {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05));
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .char-breakdown {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: var(--bg-card);
+            border-radius: var(--radius-sm);
+        }
+
+        .breakdown-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+
+        .breakdown-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem;
+            background: var(--bg-surface);
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+
+        .breakdown-item span:first-child {
+            color: var(--text-secondary);
+        }
+
+        .breakdown-item span:last-child {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .clear-btn {
+            width: 100%;
+            padding: 0.875rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 1rem;
+        }
+
+        .clear-btn:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 480px) {
+            .main {
+                padding: 1rem;
+            }
+
+            .tool-container {
+                padding: 1.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <header class="header">
+            <a href="#" class="logo">
+                <div class="logo-icon">🔤</div>
+                <span class="logo-text">Character Counter</span>
+            </a>
+            <a href="../#text" class="back-link">← Back</a>
+        </header>
+
+        <main class="main">
+            <div class="tool-container">
+                <div class="tool-header">
+                    <h1>🔤 Character Counter</h1>
+                    <p>Count characters with detailed breakdown</p>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Enter your text</label>
+                    <textarea class="text-area" id="text-input"
+                        placeholder="Start typing or paste your text here..."></textarea>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card highlight">
+                        <div class="stat-value" id="total-chars">0</div>
+                        <div class="stat-label">Total Chars</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="no-spaces">0</div>
+                        <div class="stat-label">No Spaces</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="spaces">0</div>
+                        <div class="stat-label">Spaces</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="words">0</div>
+                        <div class="stat-label">Words</div>
+                    </div>
+                </div>
+
+                <div class="char-breakdown">
+                    <div class="breakdown-title">Character Breakdown</div>
+                    <div class="breakdown-grid">
+                        <div class="breakdown-item">
+                            <span>Letters</span>
+                            <span id="letters">0</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Numbers</span>
+                            <span id="numbers">0</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Symbols</span>
+                            <span id="symbols">0</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Uppercase</span>
+                            <span id="uppercase">0</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Lowercase</span>
+                            <span id="lowercase">0</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Newlines</span>
+                            <span id="newlines">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="clear-btn" onclick="clearText()">Clear Text</button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const textInput = document.getElementById('text-input');
+
+        textInput.addEventListener('input', updateStats);
+
+        function updateStats() {
+            const text = textInput.value;
+
+            // Total characters
+            document.getElementById('total-chars').textContent = text.length;
+
+            // Without spaces
+            const noSpaces = text.replace(/\s/g, '').length;
+            document.getElementById('no-spaces').textContent = noSpaces;
+
+            // Spaces
+            const spaces = (text.match(/ /g) || []).length;
+            document.getElementById('spaces').textContent = spaces;
+
+            // Words
+            const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+            document.getElementById('words').textContent = words;
+
+            // Letters
+            const letters = (text.match(/[a-zA-Z]/g) || []).length;
+            document.getElementById('letters').textContent = letters;
+
+            // Numbers
+            const numbers = (text.match(/[0-9]/g) || []).length;
+            document.getElementById('numbers').textContent = numbers;
+
+            // Symbols
+            const symbols = (text.match(/[^a-zA-Z0-9\s]/g) || []).length;
+            document.getElementById('symbols').textContent = symbols;
+
+            // Uppercase
+            const uppercase = (text.match(/[A-Z]/g) || []).length;
+            document.getElementById('uppercase').textContent = uppercase;
+
+            // Lowercase
+            const lowercase = (text.match(/[a-z]/g) || []).length;
+            document.getElementById('lowercase').textContent = lowercase;
+
+            // Newlines
+            const newlines = (text.match(/\n/g) || []).length;
+            document.getElementById('newlines').textContent = newlines;
+        }
+
+        function clearText() {
+            textInput.value = '';
+            updateStats();
+        }
+    </script>
+</body>
+
+</html>
