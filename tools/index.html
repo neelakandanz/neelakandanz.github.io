@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tools & Utilities | Neelakandan</title>
+    <meta name="description"
+        content="100+ free online tools - Calculators, Converters, Text Tools, Design Tools, and more.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="../assets/css/variables.css">
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/components/header.css">
+    <link rel="stylesheet" href="../assets/css/components/tools.css">
+
+    <style>
+        /* Tools Page Specific Styles */
+        .tools-page {
+            min-height: 100vh;
+            padding-top: 100px;
+        }
+
+        .tools-hero {
+            text-align: center;
+            padding: 3rem 0 2rem;
+        }
+
+        .tools-hero h1 {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .tools-hero p {
+            color: var(--color-text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Category Tabs */
+        .category-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.75rem;
+            margin: 2rem 0;
+            padding: 0 1rem;
+        }
+
+        .category-tab {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: var(--color-surface);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            color: var(--color-text-muted);
+        }
+
+        .category-tab:hover {
+            border-color: var(--color-primary);
+            color: var(--color-text);
+        }
+
+        .category-tab.active {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2));
+            border-color: var(--color-primary);
+            color: var(--color-text);
+        }
+
+        .category-tab .tab-icon {
+            font-size: 1.1rem;
+        }
+
+        .category-tab .tab-count {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.15rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+
+        /* Active Category Section */
+        .active-category-header {
+            text-align: center;
+            margin: 2rem 0 1.5rem;
+        }
+
+        .active-category-header h2 {
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        /* Tools Grid */
+        .tools-grid-page {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            padding: 1rem 0 4rem;
+        }
+
+        /* Category Section */
+        .category-section {
+            display: none;
+        }
+
+        .category-section.active {
+            display: block;
+        }
+
+        /* Back Link */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--color-text-muted);
+            margin-bottom: 1rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--color-primary);
+        }
+
+        /* Footer */
+        .tools-footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid var(--color-surface-2);
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .tools-hero h1 {
+                font-size: 2rem;
+            }
+
+            .category-tabs {
+                gap: 0.5rem;
+            }
+
+            .category-tab {
+                padding: 0.6rem 1rem;
+                font-size: 0.8rem;
+            }
+
+            .tools-grid-page {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <button class="nav-toggle" aria-label="Toggle Navigation">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../#hero">Home</a></li>
+                    <li><a href="../#about">About</a></li>
+                    <li><a href="../#skills">Skills</a></li>
+                    <li><a href="../#projects">Projects</a></li>
+                    <li><a href="./" class="active">Tools</a></li>
+                    <li><a href="../#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <!-- Back Link -->
+            <a href="../" class="back-link">
+                <span>←</span> Back to Home
+            </a>
+
+            <!-- Hero -->
+            <div class="tools-hero">
+                <h1 class="gradient-text">Tools & Utilities</h1>
+                <p>100+ free online tools to make your life easier. Click a category to explore.</p>
+            </div>
+
+            <!-- Category Tabs -->
+            <div class="category-tabs" id="category-tabs">
+                <button class="category-tab active" data-category="all">
+                    <span class="tab-icon">📦</span>
+                    <span>All</span>
+                </button>
+                <button class="category-tab" data-category="developer">
+                    <span class="tab-icon">🛠️</span>
+                    <span>Developer</span>
+                    <span class="tab-count">5</span>
+                </button>
+                <button class="category-tab" data-category="calculators">
+                    <span class="tab-icon">🔢</span>
+                    <span>Calculators</span>
+                </button>
+                <button class="category-tab" data-category="converters">
+                    <span class="tab-icon">🔄</span>
+                    <span>Converters</span>
+                </button>
+                <button class="category-tab" data-category="text">
+                    <span class="tab-icon">✏️</span>
+                    <span>Text</span>
+                </button>
+                <button class="category-tab" data-category="design">
+                    <span class="tab-icon">🎨</span>
+                    <span>Design</span>
+                </button>
+                <button class="category-tab" data-category="datetime">
+                    <span class="tab-icon">📅</span>
+                    <span>Date & Time</span>
+                </button>
+                <button class="category-tab" data-category="security">
+                    <span class="tab-icon">🔐</span>
+                    <span>Security</span>
+                </button>
+                <button class="category-tab" data-category="seo">
+                    <span class="tab-icon">📊</span>
+                    <span>SEO</span>
+                </button>
+                <button class="category-tab" data-category="finance">
+                    <span class="tab-icon">💰</span>
+                    <span>Finance</span>
+                </button>
+                <button class="category-tab" data-category="random">
+                    <span class="tab-icon">🎲</span>
+                    <span>Fun</span>
+                </button>
+            </div>
+
+            <!-- Active Category Header -->
+            <div class="active-category-header" id="active-category-header">
+                <h2><span id="category-icon">📦</span> <span id="category-title">All Tools</span></h2>
+            </div>
+
+            <!-- Tools Content -->
+            <div id="tools-content">
+                <!-- All Tools Section -->
+                <section class="category-section active" data-category="all">
+                    <div class="tools-grid-page">
+                        <!-- Developer Tools -->
+                        <article class="tool-card" data-category="developer">
+                            <div class="tool-icon">📸</div>
+                            <h4>Code Snap Generator</h4>
+                            <p>Create beautiful, stylized images of your source code to share on social media.</p>
+                            <a href="code-snap-tool.html" class="tool-link">
+                                Open Tool <span>→</span>
+                            </a>
+                        </article>
+                        <article class="tool-card" data-category="developer">
+                            <div class="tool-icon">⌚</div>
+                            <h4>Watch Face Tool</h4>
+                            <p>Create personalized watch faces with various styles including Tamil numerals.</p>
+                            <a href="watch-face-tool.html" class="tool-link">
+                                Open Tool <span>→</span>
+                            </a>
+                        </article>
+                        <article class="tool-card" data-category="developer">
+                            <div class="tool-icon">🎨</div>
+                            <h4>Photo Editor</h4>
+                            <p>A powerful photo editor with filters, drawing tools, and text overlays.</p>
+                            <a href="photo-editor.html" class="tool-link">
+                                Open Tool <span>→</span>
+                            </a>
+                        </article>
+                        <article class="tool-card" data-category="developer">
+                            <div class="tool-icon">▶️</div>
+                            <h4>Play Store Asset Gen</h4>
+                            <p>Resize and format app assets to meet Google Play Store specifications.</p>
+                            <a href="google-play-image-gen.html" class="tool-link">
+                                Open Tool <span>→</span>
+                            </a>
+                        </article>
+                        <article class="tool-card" data-category="developer">
+                            <div class="tool-icon">📱</div>
+                            <h4>QR Code Generator</h4>
+                            <p>Generate downloadable QR codes from any text or URL instantly.</p>
+                            <a href="text-to-qr-code-generator.html" class="tool-link">
+                                Open Tool <span>→</span>
+                            </a>
+                        </article>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Coming Soon Message for other categories -->
+            <div id="coming-soon" style="display: none; text-align: center; padding: 4rem 2rem;">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">🚀</div>
+                <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Coming Soon!</h3>
+                <p style="color: var(--color-text-muted);">We're working hard to bring you amazing tools in this
+                    category.</p>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="tools-footer glass">
+        <p>© 2025 Neelakandan. All rights reserved.</p>
+        <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 0.5rem;">
+            <a href="../" style="color: var(--color-primary);">← Back to Portfolio</a>
+        </p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabs = document.querySelectorAll('.category-tab');
+            const header = document.getElementById('active-category-header');
+            const categoryIcon = document.getElementById('category-icon');
+            const categoryTitle = document.getElementById('category-title');
+            const toolsContent = document.getElementById('tools-content');
+            const comingSoon = document.getElementById('coming-soon');
+
+            const categoryData = {
+                'all': { icon: '📦', title: 'All Tools', hasTools: true },
+                'developer': { icon: '🛠️', title: 'Developer Tools', hasTools: true },
+                'calculators': { icon: '🔢', title: 'Calculators', hasTools: false },
+                'converters': { icon: '🔄', title: 'Converters', hasTools: false },
+                'text': { icon: '✏️', title: 'Text Tools', hasTools: false },
+                'design': { icon: '🎨', title: 'Design Tools', hasTools: false },
+                'datetime': { icon: '📅', title: 'Date & Time', hasTools: false },
+                'security': { icon: '🔐', title: 'Security & Privacy', hasTools: false },
+                'seo': { icon: '📊', title: 'SEO & Marketing', hasTools: false },
+                'finance': { icon: '💰', title: 'Finance', hasTools: false },
+                'random': { icon: '🎲', title: 'Random & Fun', hasTools: false }
+            };
+
+            function showCategory(category) {
+                // Update tabs
+                tabs.forEach(tab => {
+                    tab.classList.toggle('active', tab.dataset.category === category);
+                });
+
+                // Update header
+                const data = categoryData[category];
+                categoryIcon.textContent = data.icon;
+                categoryTitle.textContent = data.title;
+
+                // Show/hide tools or coming soon
+                if (category === 'all' || category === 'developer') {
+                    toolsContent.style.display = 'block';
+                    comingSoon.style.display = 'none';
+
+                    // Filter tools if not showing all
+                    const allTools = document.querySelectorAll('.tool-card');
+                    allTools.forEach(tool => {
+                        if (category === 'all' || tool.dataset.category === category) {
+                            tool.style.display = 'block';
+                        } else {
+                            tool.style.display = 'none';
+                        }
+                    });
+                } else {
+                    toolsContent.style.display = 'none';
+                    comingSoon.style.display = 'block';
+                }
+
+                // Update URL hash
+                if (category !== 'all') {
+                    history.replaceState(null, '', '#' + category);
+                } else {
+                    history.replaceState(null, '', window.location.pathname);
+                }
+            }
+
+            // Tab click handlers
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    showCategory(tab.dataset.category);
+                });
+            });
+
+            // Handle initial hash
+            const hash = window.location.hash.substring(1);
+            if (hash && categoryData[hash]) {
+                showCategory(hash);
+            }
+
+            // Handle hash changes
+            window.addEventListener('hashchange', () => {
+                const hash = window.location.hash.substring(1);
+                if (hash && categoryData[hash]) {
+                    showCategory(hash);
+                } else {
+                    showCategory('all');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
