@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encryption Tool (AES) - Security Tools | Neelakandan</title>
+    <meta name="description" content="Encrypt and decrypt text using AES encryption directly in your browser.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        .tool-container {
+            max-width: 900px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .panel {
+            background: var(--color-surface);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--color-text-muted);
+            font-size: 0.9rem;
+        }
+
+        .text-area {
+            width: 100%;
+            height: 150px;
+            padding: 1rem;
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            color: var(--color-text);
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 0.8rem;
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            color: var(--color-text);
+            font-family: inherit;
+        }
+
+        .btn {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn-secondary {
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+        }
+
+        .error-msg {
+            color: #ef4444;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#security">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#security" class="back-link">← Back to Security Tools</a>
+                <h1>Encryption Tool (AES)</h1>
+                <p>Securely encrypt and decrypt text using AES (Advanced Encryption Standard).</p>
+            </div>
+
+            <div class="tool-container">
+                <div class="panel">
+                    <div class="input-group">
+                        <label for="input">Input Text</label>
+                        <textarea id="input" class="text-area"
+                            placeholder="Enter text to encrypt or decrypt..."></textarea>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="secret">Secret Key / Password</label>
+                        <input type="password" id="secret" class="text-input"
+                            placeholder="Enter a secret key to lock/unlock your data">
+                    </div>
+
+                    <div class="controls">
+                        <button class="btn" onclick="process('encrypt')">🔒 Encrypt</button>
+                        <button class="btn btn-secondary" onclick="process('decrypt')">🔓 Decrypt</button>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="input-group">
+                        <label for="output">Result</label>
+                        <textarea id="output" class="text-area" readonly
+                            placeholder="Result will appear here..."></textarea>
+                        <div id="error" class="error-msg"></div>
+                    </div>
+                    <button class="btn btn-secondary" style="width: 100%" onclick="copyOutput()">Copy Result</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function process(action) {
+            const input = document.getElementById('input').value;
+            const secret = document.getElementById('secret').value;
+            const errorDiv = document.getElementById('error');
+            const outputArea = document.getElementById('output');
+
+            errorDiv.style.display = 'none';
+            outputArea.value = '';
+
+            if (!input || !secret) {
+                errorDiv.textContent = 'Please enter both input text and a secret key.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                let result = '';
+                if (action === 'encrypt') {
+                    result = CryptoJS.AES.encrypt(input, secret).toString();
+                } else {
+                    const bytes = CryptoJS.AES.decrypt(input, secret);
+                    result = bytes.toString(CryptoJS.enc.Utf8);
+
+                    if (!result) {
+                        throw new Error('Invalid key or corrupted data');
+                    }
+                }
+                outputArea.value = result;
+            } catch (err) {
+                errorDiv.textContent = 'Decryption failed. Please check your text and secret key.';
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        function copyOutput() {
+            const copyText = document.getElementById('output');
+            copyText.select();
+            document.execCommand('copy');
+            // Better to use navigator.clipboard for modern browsers but this is a quick fallback pattern often seen
+            // Let's use the modern one actually
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(copyText.value);
+            }
+        }
+    </script>
+</body>
+
+</html>

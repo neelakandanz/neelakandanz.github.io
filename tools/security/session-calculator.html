@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session Timeout Calculator - Security Tools | Neelakandan</title>
+    <meta name="description"
+        content="Calculate and convert session timeout values between seconds, minutes, hours, and days.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <style>
+        .tool-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--color-surface);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--color-text-muted);
+            font-size: 0.9rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .time-input {
+            width: 100%;
+            padding: 1rem;
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            color: var(--color-text);
+            font-family: 'Fira Code', monospace;
+            font-size: 1.2rem;
+        }
+
+        .time-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        .unit-label {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-text-muted);
+            font-size: 0.8rem;
+            pointer-events: none;
+        }
+
+        .common-presets {
+            margin-top: 2rem;
+            border-top: 1px solid var(--color-border);
+            padding-top: 1.5rem;
+        }
+
+        .preset-title {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 1rem;
+        }
+
+        .preset-card {
+            background: var(--color-surface-2);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-border);
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .preset-card:hover {
+            border-color: var(--color-accent);
+            transform: translateY(-2px);
+        }
+
+        .preset-time {
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .preset-desc {
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+        }
+
+        .code-snippets {
+            margin-top: 2rem;
+        }
+
+        .snippet {
+            background: #1e1e1e;
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            color: #d4d4d4;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .snippet-label {
+            color: #569cd6;
+            margin-bottom: 0.5rem;
+            display: block;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#security">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#security" class="back-link">← Back to Security Tools</a>
+                <h1>Session Timeout Calculator</h1>
+                <p>Convert time duration values for session configuration.</p>
+            </div>
+
+            <div class="tool-container">
+                <div class="panel">
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label>Seconds</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="seconds" class="time-input" placeholder="0">
+                                <span class="unit-label">sec</span>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Minutes</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="minutes" class="time-input" placeholder="0">
+                                <span class="unit-label">min</span>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Hours</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="hours" class="time-input" placeholder="0">
+                                <span class="unit-label">hrs</span>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Days</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="days" class="time-input" placeholder="0">
+                                <span class="unit-label">days</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="code-snippets">
+                        <div class="snippet">
+                            <span class="snippet-label">JWT (seconds)</span>
+                            <span id="jwt-val">expiresIn: 3600</span>
+                        </div>
+                        <div class="snippet">
+                            <span class="snippet-label">Cookie Max-Age (milliseconds)</span>
+                            <span id="cookie-val">maxAge: 3600000</span>
+                        </div>
+                        <div class="snippet">
+                            <span class="snippet-label">Human Readable</span>
+                            <span id="human-val">1 hour</span>
+                        </div>
+                    </div>
+
+                    <div class="common-presets">
+                        <div class="preset-title">Common Presets</div>
+                        <div class="preset-grid">
+                            <div class="preset-card" onclick="setSeconds(300)">
+                                <div class="preset-time">5 min</div>
+                                <div class="preset-desc">Short Session</div>
+                            </div>
+                            <div class="preset-card" onclick="setSeconds(900)">
+                                <div class="preset-time">15 min</div>
+                                <div class="preset-desc">Bank Standard</div>
+                            </div>
+                            <div class="preset-card" onclick="setSeconds(3600)">
+                                <div class="preset-time">1 hour</div>
+                                <div class="preset-desc">Standard Token</div>
+                            </div>
+                            <div class="preset-card" onclick="setSeconds(86400)">
+                                <div class="preset-time">24 hours</div>
+                                <div class="preset-desc">Daily Login</div>
+                            </div>
+                            <div class="preset-card" onclick="setSeconds(604800)">
+                                <div class="preset-time">7 days</div>
+                                <div class="preset-desc">Weekly</div>
+                            </div>
+                            <div class="preset-card" onclick="setSeconds(2592000)">
+                                <div class="preset-time">30 days</div>
+                                <div class="preset-desc">Remember Me</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const secInput = document.getElementById('seconds');
+        const minInput = document.getElementById('minutes');
+        const hrsInput = document.getElementById('hours');
+        const daysInput = document.getElementById('days');
+
+        const inputs = [secInput, minInput, hrsInput, daysInput];
+
+        function updateAll(seconds, source) {
+            if (source !== secInput) secInput.value = seconds ? parseFloat(seconds.toFixed(2)) : '';
+            if (source !== minInput) minInput.value = seconds ? parseFloat((seconds / 60).toFixed(4)) : '';
+            if (source !== hrsInput) hrsInput.value = seconds ? parseFloat((seconds / 3600).toFixed(4)) : '';
+            if (source !== daysInput) daysInput.value = seconds ? parseFloat((seconds / 86400).toFixed(4)) : '';
+
+            updateSnippets(seconds);
+        }
+
+        function updateSnippets(seconds) {
+            if (!seconds) {
+                document.getElementById('jwt-val').textContent = '...';
+                document.getElementById('cookie-val').textContent = '...';
+                document.getElementById('human-val').textContent = '...';
+                return;
+            }
+
+            document.getElementById('jwt-val').textContent = `expiresIn: ${Math.floor(seconds)}`;
+            document.getElementById('cookie-val').textContent = `maxAge: ${Math.floor(seconds * 1000)}`;
+
+            let human = '';
+            if (seconds < 60) human = `${seconds} seconds`;
+            else if (seconds < 3600) human = `${(seconds / 60).toFixed(1)} minutes`;
+            else if (seconds < 86400) human = `${(seconds / 3600).toFixed(1)} hours`;
+            else human = `${(seconds / 86400).toFixed(1)} days`;
+
+            document.getElementById('human-val').textContent = human;
+        }
+
+        secInput.addEventListener('input', () => updateAll(parseFloat(secInput.value) || 0, secInput));
+        minInput.addEventListener('input', () => updateAll((parseFloat(minInput.value) || 0) * 60, minInput));
+        hrsInput.addEventListener('input', () => updateAll((parseFloat(hrsInput.value) || 0) * 3600, hrsInput));
+        daysInput.addEventListener('input', () => updateAll((parseFloat(daysInput.value) || 0) * 86400, daysInput));
+
+        function setSeconds(s) {
+            secInput.value = s;
+            updateAll(s, secInput);
+        }
+
+        // Init default
+        setSeconds(3600);
+    </script>
+</body>
+
+</html>

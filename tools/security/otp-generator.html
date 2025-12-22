@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Generator - Security Tools | Neelakandan</title>
+    <meta name="description" content="Generate secure One-Time Passwords (OTP) and simulate 2FA tokens.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <style>
+        .tool-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--color-surface);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            text-align: center;
+        }
+
+        .otp-display {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--color-primary);
+            font-family: 'Fira Code', monospace;
+            letter-spacing: 0.5rem;
+            margin: 2rem 0;
+            text-shadow: 0 0 20px rgba(var(--color-primary-rgb), 0.3);
+        }
+
+        .timer-ring {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 1rem;
+            position: relative;
+        }
+
+        .timer-ring svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .timer-ring circle {
+            fill: none;
+            stroke-width: 4;
+            stroke-linecap: round;
+        }
+
+        .timer-bg {
+            stroke: var(--color-surface-2);
+        }
+
+        .timer-progress {
+            stroke: var(--color-accent);
+            stroke-dasharray: 100;
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 1s linear;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            background: var(--color-surface-2);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+            padding: 0.8rem 1.5rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .settings {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .setting-opt {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--color-text-muted);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#security">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#security" class="back-link">← Back to Security Tools</a>
+                <h1>OTP Generator</h1>
+                <p>Generate Time-based One-Time Passwords (TOTP) simulation.</p>
+            </div>
+
+            <div class="tool-container">
+                <div class="panel">
+                    <div class="timer-ring">
+                        <svg viewBox="0 0 36 36">
+                            <circle class="timer-bg" cx="18" cy="18" r="16"></circle>
+                            <circle class="timer-progress" cx="18" cy="18" r="16" pathLength="100"></circle>
+                        </svg>
+                        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); font-size:0.8rem; font-weight:bold;"
+                            id="time-left">30</div>
+                    </div>
+
+                    <div class="otp-display" id="otp">000 000</div>
+
+                    <p style="color: var(--color-text-muted); font-size: 0.9rem;">
+                        Code refreshes automatically every 30 seconds
+                    </p>
+
+                    <div class="controls">
+                        <button class="btn" onclick="regenerateManual()">
+                            🔄 Regenerate
+                        </button>
+                        <button class="btn" onclick="copyOTP()">
+                            📋 Copy Code
+                        </button>
+                    </div>
+
+                    <div class="settings">
+                        <label class="setting-opt">
+                            <input type="radio" name="digits" value="6" checked onchange="updateDigits()"> 6 Digits
+                        </label>
+                        <label class="setting-opt">
+                            <input type="radio" name="digits" value="8" onchange="updateDigits()"> 8 Digits
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let digits = 6;
+        let timeLeft = 30;
+        let interval;
+
+        function generateOTP() {
+            let code = '';
+            // Generate securely
+            const array = new Uint8Array(digits);
+            crypto.getRandomValues(array);
+
+            for (let i = 0; i < digits; i++) {
+                code += Math.floor(array[i] % 10);
+            }
+
+            // Format with space in middle
+            const mid = Math.ceil(digits / 2);
+            document.getElementById('otp').textContent = code.slice(0, mid) + ' ' + code.slice(mid);
+        }
+
+        function startTimer() {
+            clearInterval(interval);
+            timeLeft = 30;
+            updateTimerUI();
+
+            interval = setInterval(() => {
+                timeLeft--;
+                updateTimerUI();
+
+                if (timeLeft <= 0) {
+                    regenerateManual();
+                }
+            }, 1000);
+        }
+
+        function updateTimerUI() {
+            document.getElementById('time-left').textContent = timeLeft;
+            const progress = (timeLeft / 30) * 100;
+            document.querySelector('.timer-progress').style.strokeDashoffset = 100 - progress;
+
+            // Color warning
+            const ring = document.querySelector('.timer-progress');
+            if (timeLeft <= 5) {
+                ring.style.stroke = '#ef4444'; // Red
+            } else {
+                ring.style.stroke = 'var(--color-accent)';
+            }
+        }
+
+        function regenerateManual() {
+            generateOTP();
+            startTimer();
+        }
+
+        function copyOTP() {
+            const code = document.getElementById('otp').textContent.replace(' ', '');
+            navigator.clipboard.writeText(code);
+
+            const btn = document.querySelector('button[onclick="copyOTP()"]');
+            const original = btn.innerHTML;
+            btn.innerHTML = '✓ Copied';
+            setTimeout(() => btn.innerHTML = original, 1000);
+        }
+
+        function updateDigits() {
+            digits = parseInt(document.querySelector('input[name="digits"]:checked').value);
+            regenerateManual();
+        }
+
+        // Init
+        regenerateManual();
+    </script>
+</body>
+
+</html>

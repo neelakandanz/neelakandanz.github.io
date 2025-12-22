@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner - Security Tools | Neelakandan</title>
+    <meta name="description" content="Scan QR codes directly from your camera or upload an image file.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <style>
+        .tool-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--color-surface);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            text-align: center;
+        }
+
+        #reader {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background: #000;
+        }
+
+        .result-area {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: var(--color-surface-2);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-border);
+            display: none;
+        }
+
+        .result-area h3 {
+            margin-bottom: 0.5rem;
+            color: var(--color-success);
+        }
+
+        .scanned-text {
+            font-family: 'Fira Code', monospace;
+            word-break: break-all;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .upload-section {
+            margin-top: 2rem;
+            border-top: 1px solid var(--color-border);
+            padding-top: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#security">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#security" class="back-link">← Back to Security Tools</a>
+                <h1>QR Code Scanner</h1>
+                <p>Scan QR codes using your camera or upload an image.</p>
+            </div>
+
+            <div class="tool-container">
+                <div class="panel">
+                    <div id="reader"></div>
+
+                    <div class="upload-section">
+                        <p style="margin-bottom: 1rem;">Or upload an image file:</p>
+                        <input type="file" id="qr-input-file" accept="image/*" class="btn"
+                            style="background: var(--color-surface-2); border: 1px solid var(--color-border);">
+                    </div>
+
+                    <div id="result" class="result-area">
+                        <h3>✅ Scan Successful</h3>
+                        <div id="decoded-text" class="scanned-text"></div>
+                        <button class="btn" onclick="copyResult()">Copy Text</button>
+                        <a id="open-link" href="#" target="_blank" class="btn"
+                            style="display:none; text-decoration: none; margin-left: 0.5rem; background: var(--color-secondary);">Open
+                            Link</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const html5QrCode = new Html5Qrcode("reader");
+        const resultArea = document.getElementById('result');
+        const decodedTextElement = document.getElementById('decoded-text');
+        const openLinkBtn = document.getElementById('open-link');
+
+        function onScanSuccess(decodedText, decodedResult) {
+            // Stop scanning context
+            html5QrCode.stop().then((ignore) => {
+                // QR Code scanning is stopped.
+                showResult(decodedText);
+            }).catch((err) => {
+                // Stop failed, handle it.
+                console.error("Failed to stop scanning", err);
+                showResult(decodedText);
+            });
+        }
+
+        function showResult(text) {
+            resultArea.style.display = 'block';
+            decodedTextElement.textContent = text;
+
+            if (isValidURL(text)) {
+                openLinkBtn.href = text;
+                openLinkBtn.style.display = 'inline-block';
+            } else {
+                openLinkBtn.style.display = 'none';
+            }
+        }
+
+        function isValidURL(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        function copyResult() {
+            navigator.clipboard.writeText(decodedTextElement.textContent);
+            const btn = document.querySelector('.result-area .btn');
+            const original = btn.textContent;
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = original, 1000);
+        }
+
+        // Start scanning
+        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+        // Prefer back camera
+        html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
+            .catch(err => {
+                document.getElementById('reader').innerHTML = `<p style="padding: 2rem; color: var(--color-text-muted);">Camera access denied or unavailable.<br>Please use file upload below.</p>`;
+            });
+
+        // File scan support
+        const fileInput = document.getElementById('qr-input-file');
+        fileInput.addEventListener('change', e => {
+            if (e.target.files.length == 0) {
+                return;
+            }
+            const imageFile = e.target.files[0];
+            // Scan file
+            html5QrCode.scanFile(imageFile, true)
+                .then(decodedText => {
+                    showResult(decodedText);
+                })
+                .catch(err => {
+                    alert(`Error scanning file. Reason: ${err}`);
+                });
+        });
+    </script>
+</body>
+
+</html>
