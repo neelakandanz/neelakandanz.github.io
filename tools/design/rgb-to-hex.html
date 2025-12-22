@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>RGB to HEX Converter | Neelakandan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0c0c0c;
+            color: #fff;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #333;
+            align-items: center;
+        }
+
+        .back {
+            color: #aaa;
+            text-decoration: none;
+            border: 1px solid #333;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .main {
+            padding: 2rem;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            background: #161616;
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid #333;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #aaa;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.8rem;
+            background: #000;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 8px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .result {
+            background: #1f2937;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .res-text {
+            font-size: 1.5rem;
+            font-family: monospace;
+            color: #60a5fa;
+            margin-bottom: 0.5rem;
+        }
+
+        .preview {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+            border: 1px solid #333;
+            background: #000;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <strong>RGB to HEX</strong>
+        <a href="../../tools/index.html#design" class="back">Back</a>
+    </div>
+    <div class="main">
+        <div class="card">
+            <div class="inputs">
+                <div>
+                    <label>Red (0-255)</label>
+                    <input type="number" id="r" min="0" max="255" value="0">
+                </div>
+                <div>
+                    <label>Green (0-255)</label>
+                    <input type="number" id="g" min="0" max="255" value="0">
+                </div>
+                <div>
+                    <label>Blue (0-255)</label>
+                    <input type="number" id="b" min="0" max="255" value="0">
+                </div>
+            </div>
+
+            <div class="result">
+                <div class="preview" id="preview"></div>
+                <div class="res-text" id="hex">#000000</div>
+                <div style="color:#aaa; font-size:0.9rem">HEX Code</div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const rIn = document.getElementById('r');
+        const gIn = document.getElementById('g');
+        const bIn = document.getElementById('b');
+        const hexOut = document.getElementById('hex');
+        const preview = document.getElementById('preview');
+
+        function toHex(c) {
+            let hex = Math.max(0, Math.min(255, parseInt(c) || 0)).toString(16);
+            return hex.length === 1 ? "0" + hex : hex;
+        }
+
+        function update() {
+            const r = rIn.value;
+            const g = gIn.value;
+            const b = bIn.value;
+
+            const hex = "#" + toHex(r) + toHex(g) + toHex(b);
+            hexOut.textContent = hex;
+            preview.style.background = `rgb(${r},${g},${b})`;
+        }
+
+        [rIn, gIn, bIn].forEach(el => el.addEventListener('input', update));
+        update();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Font Preview Tool | Neelakandan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Examples of Google Fonts for preview -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto&family=Open+Sans&family=Lato&family=Montserrat&family=Poppins&family=Merriweather&family=Playfair+Display&display=swap"
+        rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0c0c0c;
+            color: #fff;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #333;
+            align-items: center;
+        }
+
+        .back {
+            color: #aaa;
+            text-decoration: none;
+            border: 1px solid #333;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .main {
+            padding: 2rem;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .card {
+            background: #161616;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 800px;
+            border: 1px solid #333;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #333;
+            padding-bottom: 1.5rem;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 0.8rem;
+            background: #000;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        .preview-list {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .font-card {
+            background: #000;
+            padding: 1.5rem;
+            border: 1px solid #333;
+            border-radius: 8px;
+        }
+
+        .font-name {
+            color: #888;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Force UI font for name */
+        .preview-text {
+            font-size: 1.5rem;
+            line-height: 1.4;
+            transition: all 0.2s;
+            word-wrap: break-word;
+        }
+
+        @media (max-width: 600px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <strong>Font Preview Tool</strong>
+        <a href="../../tools/index.html#design" class="back">Back</a>
+    </div>
+    <div class="main">
+        <div class="card">
+            <div class="controls">
+                <input type="text" id="text" placeholder="Type something..."
+                    value="The quick brown fox jumps over the lazy dog">
+                <input type="number" id="size" value="24" min="8" max="100">
+                <select id="weight">
+                    <option value="400">Regular</option>
+                    <option value="700">Bold</option>
+                    <option value="300">Light</option>
+                    <option value="900">Black</option>
+                </select>
+            </div>
+
+            <div id="list" class="preview-list"></div>
+        </div>
+    </div>
+    <script>
+        const fonts = [
+            'Inter', 'Roboto', 'Open Sans', 'Lato', 'Montserrat',
+            'Poppins', 'Merriweather', 'Playfair Display',
+            'Arial', 'Times New Roman', 'Courier New', 'Georgia', 'Verdana'
+        ];
+
+        const list = document.getElementById('list');
+        const textIn = document.getElementById('text');
+        const sizeIn = document.getElementById('size');
+        const weightIn = document.getElementById('weight');
+
+        // Init list
+        fonts.forEach(font => {
+            const div = document.createElement('div');
+            div.className = 'font-card';
+            div.innerHTML = `
+                <div class="font-name">${font}</div>
+                <div class="preview-text" style="font-family: '${font}', sans-serif;"></div>
+            `;
+            list.appendChild(div);
+        });
+
+        function update() {
+            const txt = textIn.value || "The quick brown fox jumps over the lazy dog";
+            const sz = sizeIn.value + 'px';
+            const wt = weightIn.value;
+
+            document.querySelectorAll('.preview-text').forEach(el => {
+                el.textContent = txt;
+                el.style.fontSize = sz;
+                el.style.fontWeight = wt;
+            });
+        }
+
+        [textIn, sizeIn, weightIn].forEach(el => el.addEventListener('input', update));
+        update();
+    </script>
+</body>
+
+</html>

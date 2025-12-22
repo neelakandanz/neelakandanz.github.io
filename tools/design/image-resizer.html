@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Image Resizer | Neelakandan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0c0c0c;
+            color: #fff;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #333;
+            align-items: center;
+        }
+
+        .back {
+            color: #aaa;
+            text-decoration: none;
+            border: 1px solid #333;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .main {
+            padding: 2rem;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .card {
+            background: #161616;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid #333;
+        }
+
+        .upload-area {
+            border: 2px dashed #333;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .upload-area:hover {
+            border-color: #555;
+            background: #1a1a1a;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            display: none;
+        }
+
+        .control-group label {
+            display: block;
+            color: #aaa;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 0.8rem;
+            background: #000;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            width: 100%;
+            display: none;
+        }
+
+        #preview {
+            max-width: 100%;
+            margin-top: 1rem;
+            border-radius: 8px;
+            border: 1px solid #333;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <strong>Image Resizer</strong>
+        <a href="../../tools/index.html#design" class="back">Back</a>
+    </div>
+    <div class="main">
+        <div class="card">
+            <input type="file" id="file" accept="image/*" style="display:none">
+            <div class="upload-area" onclick="document.getElementById('file').click()">
+                <div style="font-size:2rem;margin-bottom:0.5rem">📐</div>
+                <div>Click to Upload Image</div>
+            </div>
+
+            <div id="ui" class="controls">
+                <div class="control-group">
+                    <label>Width (px)</label>
+                    <input type="number" id="w">
+                </div>
+                <div class="control-group">
+                    <label>Height (px)</label>
+                    <input type="number" id="h">
+                </div>
+                <div class="control-group"
+                    style="grid-column: span 2; display: flex; align-items: center; gap: 0.5rem;">
+                    <input type="checkbox" id="ratio" checked style="width:auto">
+                    <label style="margin:0; cursor:pointer" for="ratio">Maintain Aspect Ratio</label>
+                </div>
+            </div>
+
+            <button id="btn" onclick="resizeAndDownload()">Resize & Download</button>
+            <img id="preview">
+        </div>
+    </div>
+    <script>
+        const fileIn = document.getElementById('file');
+        const wIn = document.getElementById('w');
+        const hIn = document.getElementById('h');
+        const ratioCheck = document.getElementById('ratio');
+        const ui = document.getElementById('ui');
+        const btn = document.getElementById('btn');
+        const preview = document.getElementById('preview');
+
+        let img = null;
+        let aspectRatio = 0;
+
+        fileIn.addEventListener('change', e => {
+            const f = e.target.files[0];
+            if (!f) return;
+
+            const r = new FileReader();
+            r.onload = ev => {
+                img = new Image();
+                img.onload = () => {
+                    aspectRatio = img.width / img.height;
+                    wIn.value = img.width;
+                    hIn.value = img.height;
+                    ui.style.display = 'grid';
+                    btn.style.display = 'block';
+                    preview.style.display = 'block';
+                    preview.src = img.src;
+                }
+                img.src = ev.target.result;
+            }
+            r.readAsDataURL(f);
+        });
+
+        wIn.addEventListener('input', () => {
+            if (ratioCheck.checked && img) {
+                hIn.value = Math.round(wIn.value / aspectRatio);
+            }
+        });
+
+        hIn.addEventListener('input', () => {
+            if (ratioCheck.checked && img) {
+                wIn.value = Math.round(hIn.value * aspectRatio);
+            }
+        });
+
+        function resizeAndDownload() {
+            if (!img) return;
+            const cvs = document.createElement('canvas');
+            cvs.width = parseInt(wIn.value);
+            cvs.height = parseInt(hIn.value);
+            const ctx = cvs.getContext('2d');
+            ctx.drawImage(img, 0, 0, cvs.width, cvs.height);
+
+            const a = document.createElement('a');
+            a.href = cvs.toDataURL('image/png');
+            a.download = 'resized-image.png';
+            a.click();
+        }
+    </script>
+</body>
+
+</html>

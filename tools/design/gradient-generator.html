@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Gradient Generator | Neelakandan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0c0c0c;
+            color: #fff;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #333;
+            align-items: center;
+        }
+
+        .back {
+            color: #aaa;
+            text-decoration: none;
+            border: 1px solid #333;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .main {
+            padding: 2rem;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .card {
+            background: #161616;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid #333;
+        }
+
+        .preview {
+            width: 100%;
+            height: 200px;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 1px solid #333;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .control-group label {
+            display: block;
+            color: #aaa;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        input[type="color"] {
+            width: 100%;
+            height: 40px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            padding: 0;
+            background: none;
+        }
+
+        select {
+            width: 100%;
+            padding: 0.8rem;
+            background: #000;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 6px;
+        }
+
+        .css-box {
+            background: #000;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #333;
+            font-family: monospace;
+            color: #a5b4fc;
+            word-break: break-all;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: #333;
+            color: white;
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .copy-btn:hover {
+            background: #444;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <strong>Gradient Generator</strong>
+        <a href="../../tools/index.html#design" class="back">Back</a>
+    </div>
+    <div class="main">
+        <div class="card">
+            <div id="preview" class="preview"></div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label>Color 1</label>
+                    <input type="color" id="c1" value="#ff0000">
+                </div>
+                <div class="control-group">
+                    <label>Color 2</label>
+                    <input type="color" id="c2" value="#0000ff">
+                </div>
+                <div class="control-group">
+                    <label>Direction</label>
+                    <select id="dir">
+                        <option value="to right">To Right →</option>
+                        <option value="to left">To Left ←</option>
+                        <option value="to bottom">To Bottom ↓</option>
+                        <option value="to top">To Top ↑</option>
+                        <option value="45deg">45 Degree ↗</option>
+                        <option value="135deg">135 Degree ↘</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Type</label>
+                    <select id="type">
+                        <option value="linear">Linear</option>
+                        <option value="radial">Radial</option>
+                    </select>
+                </div>
+            </div>
+
+            <label style="display:block;margin-bottom:0.5rem;color:#aaa">CSS Code</label>
+            <div class="css-box">
+                <code id="css">background: ...</code>
+                <button class="copy-btn" onclick="copy()">Copy</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const c1 = document.getElementById('c1');
+        const c2 = document.getElementById('c2');
+        const dir = document.getElementById('dir');
+        const type = document.getElementById('type');
+        const preview = document.getElementById('preview');
+        const css = document.getElementById('css');
+
+        function update() {
+            let style = '';
+            if (type.value === 'radial') {
+                style = `background: radial-gradient(circle, ${c1.value}, ${c2.value});`;
+                dir.disabled = true;
+            } else {
+                style = `background: linear-gradient(${dir.value}, ${c1.value}, ${c2.value});`;
+                dir.disabled = false;
+            }
+
+            preview.style = style;
+            css.textContent = style;
+        }
+
+        function copy() {
+            navigator.clipboard.writeText(css.textContent);
+            const btn = document.querySelector('.copy-btn');
+            const original = btn.textContent;
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = original, 1500);
+        }
+
+        [c1, c2, dir, type].forEach(el => el.addEventListener('input', update));
+        update();
+    </script>
+</body>
+
+</html>

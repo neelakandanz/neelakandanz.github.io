@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Favicon Generator | Neelakandan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0c0c0c;
+            color: #fff;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #333;
+            align-items: center;
+        }
+
+        .back {
+            color: #aaa;
+            text-decoration: none;
+            border: 1px solid #333;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .main {
+            padding: 2rem;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .card {
+            background: #161616;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid #333;
+        }
+
+        .upload-area {
+            border: 2px dashed #333;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 2rem;
+        }
+
+        .upload-area:hover {
+            border-color: #555;
+            background: #1a1a1a;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .preview-item {
+            text-align: center;
+            background: #000;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+
+        .preview-item img {
+            margin-bottom: 0.5rem;
+            border: 1px solid #333;
+        }
+
+        .size-label {
+            color: #888;
+            font-size: 0.8rem;
+        }
+
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <strong>Favicon Generator</strong>
+        <a href="../../tools/index.html#design" class="back">Back</a>
+    </div>
+    <div class="main">
+        <div class="card">
+            <input type="file" id="file" accept="image/*" style="display:none">
+            <div class="upload-area" onclick="document.getElementById('file').click()">
+                <div style="font-size:2rem;margin-bottom:0.5rem">🖼️</div>
+                <div>Upload Image</div>
+                <div style="font-size:0.8rem;color:#666">Ideally 512x512 png</div>
+            </div>
+
+            <div id="grid" class="preview-grid"></div>
+        </div>
+    </div>
+    <script>
+        const fileIn = document.getElementById('file');
+        const grid = document.getElementById('grid');
+        const sizes = [16, 32, 192, 512];
+
+        fileIn.addEventListener('change', e => {
+            const f = e.target.files[0];
+            if (!f) return;
+
+            const r = new FileReader();
+            r.onload = ev => {
+                const img = new Image();
+                img.onload = () => generate(img);
+                img.src = ev.target.result;
+            }
+            r.readAsDataURL(f);
+        });
+
+        function generate(img) {
+            grid.innerHTML = '';
+            grid.style.display = 'grid';
+
+            sizes.forEach(size => {
+                const cvs = document.createElement('canvas');
+                cvs.width = size;
+                cvs.height = size;
+                const ctx = cvs.getContext('2d');
+                ctx.drawImage(img, 0, 0, size, size);
+
+                const url = cvs.toDataURL('image/png');
+
+                const div = document.createElement('div');
+                div.className = 'preview-item';
+                div.innerHTML = `
+                    <img src="${url}" width="${Math.min(size, 64)}" height="${Math.min(size, 64)}">
+                    <div class="size-label">${size}x${size}</div>
+                    <button onclick="dl('${url}', ${size})">Download</button>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        window.dl = function (url, size) {
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `favicon-${size}x${size}.png`;
+            a.click();
+        }
+    </script>
+</body>
+
+</html>

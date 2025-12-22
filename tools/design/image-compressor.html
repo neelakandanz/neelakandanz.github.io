@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Image Compressor | Neelakandan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0c0c0c;
+            color: #fff;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #333;
+            align-items: center;
+        }
+
+        .back {
+            color: #aaa;
+            text-decoration: none;
+            border: 1px solid #333;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .main {
+            padding: 2rem;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .card {
+            background: #161616;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid #333;
+        }
+
+        .upload-area {
+            border: 2px dashed #333;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .upload-area:hover {
+            border-color: #555;
+            background: #1a1a1a;
+        }
+
+        .preview-container {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: block;
+            border: 1px solid #333;
+        }
+
+        .controls {
+            margin: 1rem 0;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin: 1rem 0;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 1rem;
+        }
+
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            width: 100%;
+        }
+
+        button:hover {
+            background: #2563eb;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <strong>Image Compressor</strong>
+        <a href="../../tools/index.html#design" class="back">Back</a>
+    </div>
+    <div class="main">
+        <div class="card">
+            <input type="file" id="file" accept="image/png, image/jpeg, image/webp" style="display:none">
+            <div class="upload-area" onclick="document.getElementById('file').click()">
+                <div style="font-size:2rem;margin-bottom:0.5rem">📂</div>
+                <div>Click to Upload Image</div>
+                <div style="font-size:0.8rem;color:#666;margin-top:0.5rem">PNG, JPG, WEBP</div>
+            </div>
+
+            <div class="preview-container" id="preview-box">
+                <img id="preview">
+
+                <div class="controls">
+                    <label>Quality: <span id="q-val">80</span>%</label>
+                    <input type="range" id="quality" min="1" max="100" value="80">
+                </div>
+
+                <div class="stats">
+                    <div>Original: <span id="orig-size">-</span></div>
+                    <div>New: <span id="new-size">-</span></div>
+                </div>
+
+                <button onclick="download()">Download Compressed Image</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const fileIn = document.getElementById('file');
+        const range = document.getElementById('quality');
+        const qVal = document.getElementById('q-val');
+        const preview = document.getElementById('preview');
+        const box = document.getElementById('preview-box');
+        const origSize = document.getElementById('orig-size');
+        const newSize = document.getElementById('new-size');
+
+        let originalImage = null;
+        let compressedBlob = null;
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024, sizes = ['B', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        fileIn.addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            origSize.textContent = formatBytes(file.size);
+            const reader = new FileReader();
+            reader.onload = ev => {
+                originalImage = new Image();
+                originalImage.onload = () => {
+                    compress();
+                    box.style.display = 'block';
+                }
+                originalImage.src = ev.target.result;
+            }
+            reader.readAsDataURL(file);
+        });
+
+        range.addEventListener('input', () => {
+            qVal.textContent = range.value;
+            compress();
+        });
+
+        function compress() {
+            if (!originalImage) return;
+
+            const canvas = document.createElement('canvas');
+            canvas.width = originalImage.width;
+            canvas.height = originalImage.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(originalImage, 0, 0);
+
+            const q = parseInt(range.value) / 100;
+
+            canvas.toBlob(blob => {
+                compressedBlob = blob;
+                newSize.textContent = formatBytes(blob.size);
+                preview.src = URL.createObjectURL(blob);
+            }, 'image/jpeg', q);
+        }
+
+        function download() {
+            if (!compressedBlob) return;
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(compressedBlob);
+            a.download = 'compressed-image.jpg';
+            a.click();
+        }
+    </script>
+</body>
+
+</html>

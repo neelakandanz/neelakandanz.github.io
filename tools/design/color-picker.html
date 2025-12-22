@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Color Picker | Neelakandan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0c0c0c;
+            color: #fff;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+
+        .back-link {
+            color: #aaa;
+            text-decoration: none;
+            border: 1px solid #333;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .main {
+            padding: 2rem;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .card {
+            background: #161616;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid #333;
+        }
+
+        .color-display {
+            width: 100%;
+            height: 150px;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border: 1px solid #333;
+            background: #ff0000;
+            transition: background 0.1s;
+        }
+
+        input[type="color"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 50px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            padding: 0;
+            background: none;
+        }
+
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        input[type="color"]::-webkit-color-swatch {
+            border: 1px solid #333;
+            border-radius: 8px;
+        }
+
+        .values {
+            margin-top: 2rem;
+            display: grid;
+            gap: 1rem;
+        }
+
+        .val-group {
+            background: #000;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .label {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .val {
+            font-family: monospace;
+            font-size: 1.1rem;
+            color: #fff;
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            color: #3b82f6;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .copy-btn:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <strong>Color Picker</strong>
+        <a href="../../tools/index.html#design" class="back-link">Back</a>
+    </div>
+    <div class="main">
+        <div class="card">
+            <div id="preview" class="color-display"></div>
+            <input type="color" id="picker" value="#ff0000">
+
+            <div class="values">
+                <div class="val-group">
+                    <span class="label">HEX</span>
+                    <span class="val" id="hex">#ff0000</span>
+                    <button class="copy-btn" onclick="copy('hex')">Copy</button>
+                </div>
+                <div class="val-group">
+                    <span class="label">RGB</span>
+                    <span class="val" id="rgb">rgb(255, 0, 0)</span>
+                    <button class="copy-btn" onclick="copy('rgb')">Copy</button>
+                </div>
+                <div class="val-group">
+                    <span class="label">HSL</span>
+                    <span class="val" id="hsl">hsl(0, 100%, 50%)</span>
+                    <button class="copy-btn" onclick="copy('hsl')">Copy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const picker = document.getElementById('picker');
+        const preview = document.getElementById('preview');
+        const hexEl = document.getElementById('hex');
+        const rgbEl = document.getElementById('rgb');
+        const hslEl = document.getElementById('hsl');
+
+        function update() {
+            const hex = picker.value;
+            preview.style.background = hex;
+            hexEl.textContent = hex;
+
+            // Hex to RGB
+            const r = parseInt(hex.slice(1, 3), 16);
+            const g = parseInt(hex.slice(3, 5), 16);
+            const b = parseInt(hex.slice(5, 7), 16);
+            rgbEl.textContent = `rgb(${r}, ${g}, ${b})`;
+
+            // RGB to HSL
+            let r_ = r / 255, g_ = g / 255, b_ = b / 255;
+            let max = Math.max(r_, g_, b_), min = Math.min(r_, g_, b_);
+            let h, s, l = (max + min) / 2;
+
+            if (max == min) {
+                h = s = 0;
+            } else {
+                let d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r_: h = (g_ - b_) / d + (g_ < b_ ? 6 : 0); break;
+                    case g_: h = (b_ - r_) / d + 2; break;
+                    case b_: h = (r_ - g_) / d + 4; break;
+                }
+                h /= 6;
+            }
+            hslEl.textContent = `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`;
+        }
+
+        function copy(id) {
+            const text = document.getElementById(id).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied!');
+            });
+        }
+
+        picker.addEventListener('input', update);
+        update();
+    </script>
+</body>
+
+</html>

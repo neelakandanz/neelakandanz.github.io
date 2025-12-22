@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Contrast Checker | Neelakandan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0c0c0c;
+            color: #fff;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #333;
+            align-items: center;
+        }
+
+        .back {
+            color: #aaa;
+            text-decoration: none;
+            border: 1px solid #333;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .main {
+            padding: 2rem;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .card {
+            background: #161616;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid #333;
+        }
+
+        .preview-box {
+            padding: 3rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 2rem;
+            border: 1px solid #333;
+            transition: all 0.2s;
+        }
+
+        .inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-group label {
+            display: block;
+            color: #aaa;
+            margin-bottom: 0.5rem;
+        }
+
+        .color-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        input[type="color"] {
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 0;
+            background: none;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 0.6rem;
+            background: #000;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        .score-card {
+            background: #000;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #333;
+        }
+
+        .ratio {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .grade {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .pass {
+            color: #4ade80;
+        }
+
+        .fail {
+            color: #f87171;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <strong>Contrast Checker</strong>
+        <a href="../../tools/index.html#design" class="back">Back</a>
+    </div>
+    <div class="main">
+        <div class="card">
+            <div id="preview" class="preview-box">
+                <h2 style="margin:0">The quick brown fox</h2>
+                <p style="margin:0.5rem 0 0">Jumps over the lazy dog</p>
+            </div>
+
+            <div class="inputs">
+                <div class="input-group">
+                    <label>Text Color</label>
+                    <div class="color-control">
+                        <input type="color" id="fg-picker" value="#ffffff">
+                        <input type="text" id="fg-text" value="#ffffff">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Background Color</label>
+                    <div class="color-control">
+                        <input type="color" id="bg-picker" value="#000000">
+                        <input type="text" id="bg-text" value="#000000">
+                    </div>
+                </div>
+            </div>
+
+            <div class="score-card">
+                <div class="ratio" id="ratio">21.00</div>
+                <div class="grade" id="grade-info">Excellent (AAA)</div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const fgP = document.getElementById('fg-picker');
+        const fgT = document.getElementById('fg-text');
+        const bgP = document.getElementById('bg-picker');
+        const bgT = document.getElementById('bg-text');
+        const preview = document.getElementById('preview');
+        const ratioEl = document.getElementById('ratio');
+        const gradeEl = document.getElementById('grade-info');
+
+        function hexToRgb(hex) {
+            const shorthand = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+            hex = hex.replace(shorthand, (m, r, g, b) => r + r + g + g + b + b);
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+
+        function luminance(r, g, b) {
+            const a = [r, g, b].map(function (v) {
+                v /= 255;
+                return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+            });
+            return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+        }
+
+        function update() {
+            // Apply colors
+            preview.style.color = fgP.value;
+            preview.style.backgroundColor = bgP.value;
+            fgT.value = fgP.value;
+            bgT.value = bgP.value;
+
+            // Calc Ratio
+            const c1 = hexToRgb(fgP.value);
+            const c2 = hexToRgb(bgP.value);
+
+            if (c1 && c2) {
+                const l1 = luminance(c1.r, c1.g, c1.b);
+                const l2 = luminance(c2.r, c2.g, c2.b);
+                const ratio = l1 > l2 ? (l1 + 0.05) / (l2 + 0.05) : (l2 + 0.05) / (l1 + 0.05);
+
+                ratioEl.textContent = ratio.toFixed(2);
+
+                let grade = "";
+                let cssClass = "fail";
+
+                if (ratio >= 7) {
+                    grade = "Excellent (AAA)";
+                    cssClass = "pass";
+                } else if (ratio >= 4.5) {
+                    grade = "Good (AA)";
+                    cssClass = "pass";
+                } else if (ratio >= 3) {
+                    grade = "Large Text Only";
+                    cssClass = "fail"; // Sort of pass
+                } else {
+                    grade = "Fail";
+                    cssClass = "fail";
+                }
+
+                gradeEl.textContent = grade;
+                gradeEl.className = "grade " + cssClass;
+            }
+        }
+
+        fgP.addEventListener('input', update);
+        bgP.addEventListener('input', update);
+        fgT.addEventListener('change', () => { fgP.value = fgT.value; update(); });
+        bgT.addEventListener('change', () => { bgP.value = bgT.value; update(); });
+
+        update();
+    </script>
+</body>
+
+</html>
