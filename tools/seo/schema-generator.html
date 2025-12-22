@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schema Markup Generator - SEO Tools | Neelakandan</title>
+    <meta name="description"
+        content="Generate JSON-LD Schema Markup for your website to help search engines understand content.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <style>
+        .tool-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+        }
+
+        .panel {
+            background: var(--color-surface);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            height: fit-content;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--color-text-muted);
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 0.8rem;
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            color: var(--color-text);
+            font-family: inherit;
+        }
+
+        .code-output {
+            width: 100%;
+            min-height: 500px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            border: 1px solid var(--color-border);
+            white-space: pre-wrap;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .schema-form {
+            display: none;
+        }
+
+        .schema-form.active {
+            display: block;
+        }
+
+        @media (max-width: 900px) {
+            .tool-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#seo">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#seo" class="back-link">← Back to SEO Tools</a>
+                <h1>Schema Markup Generator</h1>
+                <p>Create JSON-LD structured data for articles, breadcrumbs, organizations, and more.</p>
+            </div>
+
+            <div class="tool-container">
+                <!-- Controls -->
+                <div class="panel">
+                    <div class="form-group">
+                        <label>Schema Type</label>
+                        <select id="schema-type" onchange="changeForm()">
+                            <option value="article">Article</option>
+                            <option value="breadcrumb">Breadcrumb</option>
+                            <option value="organization">Organization</option>
+                            <option value="person">Person</option>
+                            <option value="product">Product</option>
+                            <option value="faq">FAQ Page</option>
+                        </select>
+                    </div>
+
+                    <!-- Article Form -->
+                    <div id="form-article" class="schema-form active">
+                        <div class="form-group">
+                            <label>Article Type</label>
+                            <select class="input-article" data-field="type">
+                                <option value="Article">Article</option>
+                                <option value="NewsArticle">NewsArticle</option>
+                                <option value="BlogPosting">BlogPosting</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Headline</label>
+                            <input type="text" class="input-article" data-field="headline"
+                                placeholder="Article Headline">
+                        </div>
+                        <div class="form-group">
+                            <label>Image URL</label>
+                            <input type="text" class="input-article" data-field="image"
+                                placeholder="https://example.com/image.jpg">
+                        </div>
+                        <div class="form-group">
+                            <label>Author Name</label>
+                            <input type="text" class="input-article" data-field="author" placeholder="Author Name">
+                        </div>
+                        <div class="form-group">
+                            <label>Date Published</label>
+                            <input type="date" class="input-article" data-field="datePublished">
+                        </div>
+                    </div>
+
+                    <!-- Breadcrumb Form -->
+                    <div id="form-breadcrumb" class="schema-form">
+                        <div class="form-group">
+                            <label>Item 1 Name</label>
+                            <input type="text" class="input-breadcrumb" data-index="0" data-key="name" value="Home">
+                        </div>
+                        <div class="form-group">
+                            <label>Item 1 URL</label>
+                            <input type="text" class="input-breadcrumb" data-index="0" data-key="item"
+                                value="https://example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Item 2 Name</label>
+                            <input type="text" class="input-breadcrumb" data-index="1" data-key="name"
+                                placeholder="Category">
+                        </div>
+                        <div class="form-group">
+                            <label>Item 2 URL</label>
+                            <input type="text" class="input-breadcrumb" data-index="1" data-key="item"
+                                placeholder="https://example.com/category">
+                        </div>
+                    </div>
+
+                    <!-- Organization Form -->
+                    <div id="form-organization" class="schema-form">
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" class="input-org" data-field="name" placeholder="Organization Name">
+                        </div>
+                        <div class="form-group">
+                            <label>URL</label>
+                            <input type="text" class="input-org" data-field="url" placeholder="https://example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Logo URL</label>
+                            <input type="text" class="input-org" data-field="logo"
+                                placeholder="https://example.com/logo.png">
+                        </div>
+                        <div class="form-group">
+                            <label>SameAs (Social URLs)</label>
+                            <input type="text" class="input-org" data-field="sameAs"
+                                placeholder="https://facebook.com/org, https://twitter.com/org">
+                        </div>
+                    </div>
+
+                    <!-- Person Form -->
+                    <div id="form-person" class="schema-form">
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" class="input-person" data-field="name" placeholder="John Doe">
+                        </div>
+                        <div class="form-group">
+                            <label>Job Title</label>
+                            <input type="text" class="input-person" data-field="jobTitle"
+                                placeholder="Software Engineer">
+                        </div>
+                        <div class="form-group">
+                            <label>URL</label>
+                            <input type="text" class="input-person" data-field="url"
+                                placeholder="https://example.com/john">
+                        </div>
+                    </div>
+
+                    <!-- Product Form -->
+                    <div id="form-product" class="schema-form">
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" class="input-product" data-field="name" placeholder="Product Name">
+                        </div>
+                        <div class="form-group">
+                            <label>Image URL</label>
+                            <input type="text" class="input-product" data-field="image"
+                                placeholder="https://example.com/product.jpg">
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <input type="text" class="input-product" data-field="description"
+                                placeholder="Product description">
+                        </div>
+                        <div class="form-group">
+                            <label>Brand</label>
+                            <input type="text" class="input-product" data-field="brand" placeholder="Brand Name">
+                        </div>
+                        <div class="form-group">
+                            <label>Price</label>
+                            <input type="number" class="input-product" data-field="price" placeholder="99.99">
+                        </div>
+                        <div class="form-group">
+                            <label>Currency</label>
+                            <input type="text" class="input-product" data-field="priceCurrency" value="USD">
+                        </div>
+                    </div>
+
+                    <!-- FAQ Form -->
+                    <div id="form-faq" class="schema-form">
+                        <div class="form-group">
+                            <label>Question 1</label>
+                            <input type="text" class="input-faq" data-index="0" data-key="question"
+                                placeholder="Question?">
+                        </div>
+                        <div class="form-group">
+                            <label>Answer 1</label>
+                            <input type="text" class="input-faq" data-index="0" data-key="answer" placeholder="Answer.">
+                        </div>
+                    </div>
+
+                    <button class="btn-primary" onclick="generate()" style="width:100%; margin-top:1rem;">Generate
+                        Schema</button>
+                </div>
+
+                <!-- Output -->
+                <div class="panel">
+                    <div style="position:relative;">
+                        <textarea id="output" class="code-output" readonly></textarea>
+                        <button class="copy-btn" onclick="copyCode()">Copy Code</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function changeForm() {
+            const type = document.getElementById('schema-type').value;
+            // Hide all
+            document.querySelectorAll('.schema-form').forEach(el => el.classList.remove('active'));
+            // Show selected
+            document.getElementById(`form-${type}`).classList.add('active');
+            generate();
+        }
+
+        function generate() {
+            const type = document.getElementById('schema-type').value;
+            let schema = {};
+
+            if (type === 'article') {
+                const inputs = document.querySelectorAll('.input-article');
+                const data = {};
+                inputs.forEach(i => data[i.dataset.field] = i.value);
+
+                schema = {
+                    "@context": "https://schema.org",
+                    "@type": data.type,
+                    "headline": data.headline,
+                    "image": data.image ? [data.image] : [],
+                    "author": {
+                        "@type": "Person",
+                        "name": data.author
+                    },
+                    "datePublished": data.datePublished
+                };
+            } else if (type === 'breadcrumb') {
+                const inputs = document.querySelectorAll('.input-breadcrumb');
+                const itemListElement = [];
+
+                inputs.forEach(i => {
+                    const idx = parseInt(i.dataset.index);
+                    const key = i.dataset.key;
+                    if (i.value) {
+                        if (!itemListElement[idx]) itemListElement[idx] = { "@type": "ListItem", "position": idx + 1 };
+                        itemListElement[idx][key] = i.value;
+                    }
+                });
+
+                schema = {
+                    "@context": "https://schema.org",
+                    "@type": "BreadcrumbList",
+                    "itemListElement": itemListElement.filter(i => i && i.name && i.item)
+                };
+            } else if (type === 'organization') {
+                const inputs = document.querySelectorAll('.input-org');
+                const data = {};
+                inputs.forEach(i => data[i.dataset.field] = i.value);
+
+                schema = {
+                    "@context": "https://schema.org",
+                    "@type": "Organization",
+                    "name": data.name,
+                    "url": data.url,
+                    "logo": data.logo,
+                    "sameAs": data.sameAs ? data.sameAs.split(',').map(s => s.trim()) : []
+                };
+            } else if (type === 'person') {
+                const inputs = document.querySelectorAll('.input-person');
+                const data = {};
+                inputs.forEach(i => data[i.dataset.field] = i.value);
+
+                schema = {
+                    "@context": "https://schema.org",
+                    "@type": "Person",
+                    "name": data.name,
+                    "jobTitle": data.jobTitle,
+                    "url": data.url
+                };
+            } else if (type === 'product') {
+                const inputs = document.querySelectorAll('.input-product');
+                const data = {};
+                inputs.forEach(i => data[i.dataset.field] = i.value);
+
+                schema = {
+                    "@context": "https://schema.org",
+                    "@type": "Product",
+                    "name": data.name,
+                    "image": data.image ? [data.image] : [],
+                    "description": data.description,
+                    "brand": {
+                        "@type": "Brand",
+                        "name": data.brand
+                    },
+                    "offers": {
+                        "@type": "Offer",
+                        "url": "",
+                        "priceCurrency": data.priceCurrency,
+                        "price": data.price
+                    }
+                };
+            } else if (type === 'faq') {
+                const inputs = document.querySelectorAll('.input-faq');
+                const mainEntity = [];
+                inputs.forEach(i => {
+                    const idx = parseInt(i.dataset.index);
+                    const key = i.dataset.key; // question or answer
+                    if (i.value) {
+                        if (!mainEntity[idx]) mainEntity[idx] = { "@type": "Question" };
+
+                        if (key === 'question') {
+                            mainEntity[idx].name = i.value;
+                        } else {
+                            mainEntity[idx].acceptedAnswer = {
+                                "@type": "Answer",
+                                "text": i.value
+                            };
+                        }
+                    }
+                });
+
+                schema = {
+                    "@context": "https://schema.org",
+                    "@type": "FAQPage",
+                    "mainEntity": mainEntity.filter(q => q && q.name && q.acceptedAnswer)
+                };
+            }
+
+            // Add scripts tag wrapper
+            const json = JSON.stringify(schema, null, 2);
+            document.getElementById('output').value = `<script type="application/ld+json">\n${json}\n<\/script>`;
+        }
+
+        function copyCode() {
+            const output = document.getElementById('output');
+            output.select();
+            document.execCommand('copy');
+            const btn = document.querySelector('.copy-btn');
+            const original = btn.textContent;
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = original, 1000);
+        }
+
+        // Init
+        generate();
+
+        // Add event listeners to all inputs
+        document.addEventListener('input', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+                generate();
+            }
+        });
+    </script>
+</body>
+
+</html>

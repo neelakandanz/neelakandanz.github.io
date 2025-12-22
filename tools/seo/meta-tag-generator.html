@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meta Tag Generator - SEO Tools | Neelakandan</title>
+    <meta name="description" content="Generate essential HTML meta tags for SEO and social media.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <style>
+        .tool-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .panel {
+            background: var(--color-surface);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            height: fit-content;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--color-text-muted);
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 0.8rem;
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            color: var(--color-text);
+            font-family: inherit;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        .code-output {
+            width: 100%;
+            height: 400px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            border: 1px solid var(--color-border);
+            white-space: pre;
+            position: relative;
+        }
+
+        .copy-btn {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            width: 100%;
+            font-weight: 500;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .tool-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#seo">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#seo" class="back-link">← Back to SEO Tools</a>
+                <h1>Meta Tag Generator</h1>
+                <p>Generate optimized meta tags for better search engine rankings.</p>
+            </div>
+
+            <div class="tool-container">
+                <!-- Controls -->
+                <div class="panel">
+                    <div class="form-group">
+                        <label>Site Title</label>
+                        <input type="text" id="title" placeholder="My Awesome Website" oninput="generate()">
+                    </div>
+                    <div class="form-group">
+                        <label>Meta Description</label>
+                        <textarea id="description" rows="3" placeholder="Description of your website content..."
+                            oninput="generate()"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Keywords (comma separated)</label>
+                        <input type="text" id="keywords" placeholder="seo, tools, generator" oninput="generate()">
+                    </div>
+                    <div class="form-group">
+                        <label>Robots Indexing</label>
+                        <select id="robots" onchange="generate()">
+                            <option value="index, follow">Index, Follow</option>
+                            <option value="noindex, follow">No Index, Follow</option>
+                            <option value="index, nofollow">Index, No Follow</option>
+                            <option value="noindex, nofollow">No Index, No Follow</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Author</label>
+                        <input type="text" id="author" placeholder="Author Name" oninput="generate()">
+                    </div>
+                    <div class="form-group">
+                        <label>Charset</label>
+                        <select id="charset" onchange="generate()">
+                            <option value="UTF-8">UTF-8 (Recommended)</option>
+                            <option value="ISO-8859-1">ISO-8859-1</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Language</label>
+                        <input type="text" id="language" value="English" oninput="generate()">
+                    </div>
+                </div>
+
+                <!-- Output -->
+                <div class="panel">
+                    <h3 style="margin-bottom: 1rem;">Generated Meta Tags</h3>
+                    <textarea id="output" class="code-output" readonly></textarea>
+                    <button class="copy-btn" onclick="copyCode()">Copy Code</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function generate() {
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const keywords = document.getElementById('keywords').value;
+            const robots = document.getElementById('robots').value;
+            const author = document.getElementById('author').value;
+            const charset = document.getElementById('charset').value;
+            const language = document.getElementById('language').value;
+
+            let code = '';
+
+            // Charset first
+            code += `<meta charset="${charset}">\n`;
+
+            // Viewport standard
+            code += `<meta name="viewport" content="width=device-width, initial-scale=1.0">\n`;
+
+            // Title
+            if (title) code += `<title>${title}</title>\n`;
+
+            // Standard Meta
+            if (description) code += `<meta name="description" content="${description}">\n`;
+            if (keywords) code += `<meta name="keywords" content="${keywords}">\n`;
+            if (author) code += `<meta name="author" content="${author}">\n`;
+            if (language) code += `<meta name="language" content="${language}">\n`;
+
+            // Robots
+            code += `<meta name="robots" content="${robots}">\n`;
+
+            document.getElementById('output').value = code;
+        }
+
+        function copyCode() {
+            const output = document.getElementById('output');
+            output.select();
+            document.execCommand('copy');
+            const btn = document.querySelector('.copy-btn');
+            const original = btn.textContent;
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = original, 1000);
+        }
+
+        // Init
+        generate();
+    </script>
+</body>
+
+</html>

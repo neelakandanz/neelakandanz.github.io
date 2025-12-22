@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SERP Simulator - SEO Tools | Neelakandan</title>
+    <meta name="description"
+        content="Preview how your website will look in Google search results. Check title and description length.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <style>
+        .tool-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .panel {
+            background: var(--color-surface);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--color-text);
+            font-weight: 500;
+        }
+
+        .input-counter {
+            float: right;
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 0.8rem;
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            color: var(--color-text);
+            font-family: inherit;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Google SERP Styles */
+        .preview-container {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            border: 1px solid #dfe1e5;
+            font-family: 'Roboto', arial, sans-serif;
+            color: #4d5156;
+        }
+
+        body.dark-mode .preview-container {
+            background: #202124;
+            border-color: #3c4043;
+            color: #bdc1c6;
+        }
+
+        .serp-result {
+            max-width: 600px;
+            margin-bottom: 2rem;
+        }
+
+        .serp-url-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+
+        .serp-favicon {
+            width: 26px;
+            height: 26px;
+            background: #f1f3f4;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        body.dark-mode .serp-favicon {
+            background: #303134;
+        }
+
+        .serp-site-info {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.3;
+        }
+
+        .serp-site-name {
+            font-size: 14px;
+            color: #202124;
+        }
+
+        body.dark-mode .serp-site-name {
+            color: #bdc1c6;
+        }
+
+        .serp-url {
+            font-size: 12px;
+            color: #4d5156;
+        }
+
+        body.dark-mode .serp-url {
+            color: #bdc1c6;
+        }
+
+        .serp-title {
+            font-size: 20px;
+            color: #1a0dab;
+            line-height: 1.3;
+            margin-bottom: 3px;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+        }
+
+        body.dark-mode .serp-title {
+            color: #8ab4f8;
+        }
+
+        .serp-title:hover {
+            text-decoration: underline;
+        }
+
+        .serp-desc {
+            font-size: 14px;
+            color: #4d5156;
+            line-height: 1.58;
+        }
+
+        body.dark-mode .serp-desc {
+            color: #bdc1c6;
+        }
+
+        .keyword-bold {
+            font-weight: bold;
+            color: #4d5156;
+        }
+
+        body.dark-mode .keyword-bold {
+            color: #bdc1c6;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: var(--color-surface-2);
+            margin-top: 5px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--color-accent);
+            width: 0%;
+            transition: width 0.3s, background-color 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .tool-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#seo">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#seo" class="back-link">← Back to SEO Tools</a>
+                <h1>SERP Simulator</h1>
+                <p>Preview your website in Google Search results and optimize title & description breadth.</p>
+            </div>
+
+            <div class="tool-container">
+                <!-- Inputs -->
+                <div class="panel">
+                    <div class="input-group">
+                        <label>Title Tag <span class="input-counter" id="title-count">0px / 580px</span></label>
+                        <input type="text" id="title-input" placeholder="Page Title | Brand Name"
+                            oninput="updatePreview()">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="title-bar"></div>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Meta Description <span class="input-counter" id="desc-count">0px / 920px</span></label>
+                        <textarea id="desc-input" rows="4" placeholder="A brief description of your page content..."
+                            oninput="updatePreview()"></textarea>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="desc-bar"></div>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>URL / Slug</label>
+                        <input type="text" id="url-input" value="https://example.com/page-slug"
+                            oninput="updatePreview()">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Target Keyword (Bolded in results)</label>
+                        <input type="text" id="keyword-input" placeholder="example" oninput="updatePreview()">
+                    </div>
+                </div>
+
+                <!-- Preview -->
+                <div class="panel">
+                    <h3 style="margin-bottom: 1.5rem;">Google Desktop Preview</h3>
+                    <div class="preview-container">
+                        <div class="serp-result">
+                            <div class="serp-url-row">
+                                <div class="serp-favicon">G</div>
+                                <div class="serp-site-info">
+                                    <div class="serp-site-name">Example Site</div>
+                                    <div class="serp-url" id="preview-url">https://example.com/page-slug</div>
+                                </div>
+                            </div>
+                            <a href="#" class="serp-title" id="preview-title" onclick="return false;">Page Title | Brand
+                                Name</a>
+                            <div class="serp-desc" id="preview-desc">A brief description of your page content...</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 2rem;">
+                        <button class="btn-secondary" onclick="reset()">Reset Fields</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Approximate pixel widths for standard font (arial 20px for title, 14px for desc)
+        function getTextWidth(text, font) {
+            const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"));
+            const context = canvas.getContext("2d");
+            context.font = font;
+            const metrics = context.measureText(text);
+            return metrics.width;
+        }
+
+        function updatePreview() {
+            const titleInput = document.getElementById('title-input').value;
+            const descInput = document.getElementById('desc-input').value;
+            const urlInput = document.getElementById('url-input').value;
+            const keyword = document.getElementById('keyword-input').value;
+
+            // Validate & Truncate Title (Approx 580px desktop limit ~ 60 chars)
+            // Google actually cuts off by pixel width, roughly 600px max container but typically 580px safe
+            const titleWidth = getTextWidth(titleInput, "20px Arial");
+            const titleMax = 580;
+            const titlePercentage = Math.min((titleWidth / titleMax) * 100, 100);
+
+            document.getElementById('title-count').textContent = `${Math.round(titleWidth)}px / ${titleMax}px`;
+            document.getElementById('title-bar').style.width = `${titlePercentage}%`;
+            document.getElementById('title-bar').style.backgroundColor = titleWidth > titleMax ? '#ef4444' : 'var(--color-accent)';
+
+            // Validate & Truncate Desc (Approx 920px desktop limit ~ 160 chars)
+            const descWidth = getTextWidth(descInput, "14px Arial");
+            const descMax = 920;
+            const descPercentage = Math.min((descWidth / descMax) * 100, 100);
+
+            document.getElementById('desc-count').textContent = `${Math.round(descWidth)}px / ${descMax}px`;
+            document.getElementById('desc-bar').style.width = `${descPercentage}%`;
+            document.getElementById('desc-bar').style.backgroundColor = descWidth > descMax ? '#ef4444' : 'var(--color-accent)';
+
+            // Update DOM
+            const displayTitle = titleInput || 'Page Title | Brand Name';
+            const displayDesc = descInput || 'A brief description of your page content...';
+
+            // Handle Title Truncation visuals
+            let finalTitle = displayTitle;
+            if (titleWidth > titleMax) {
+                // simple visual trucation simulation
+                // finding cut off point roughly
+                const chars = displayTitle.length;
+                const ratio = titleMax / titleWidth;
+                const cutIndex = Math.floor(chars * ratio) - 3;
+                finalTitle = displayTitle.substring(0, cutIndex) + '...';
+            }
+
+            // Handle Desc Truncation visuals
+            let finalDesc = displayDesc;
+            if (descWidth > descMax) {
+                const chars = displayDesc.length;
+                const ratio = descMax / descWidth;
+                const cutIndex = Math.floor(chars * ratio) - 3;
+                finalDesc = displayDesc.substring(0, cutIndex) + '...';
+            }
+
+            // Highlight Keywords
+            if (keyword && keyword.trim().length > 0) {
+                const regex = new RegExp(`(${keyword})`, 'gi');
+                finalTitle = finalTitle.replace(regex, '<b>$1</b>'); // Note: Google doesn't bold title matches often anymore but bolding in description is common
+                finalDesc = finalDesc.replace(regex, '<b class="keyword-bold">$1</b>');
+            }
+
+            document.getElementById('preview-title').innerHTML = finalTitle;
+            document.getElementById('preview-desc').innerHTML = finalDesc;
+            document.getElementById('preview-url').textContent = urlInput || 'https://example.com';
+
+            // Extract domain for site name
+            try {
+                const domain = new URL(urlInput).hostname;
+                document.querySelector('.serp-site-name').textContent = domain || 'Example Site';
+            } catch (e) {
+                document.querySelector('.serp-site-name').textContent = 'Example Site';
+            }
+        }
+
+        function reset() {
+            document.getElementById('title-input').value = '';
+            document.getElementById('desc-input').value = '';
+            document.getElementById('url-input').value = 'https://example.com/page-slug';
+            document.getElementById('keyword-input').value = '';
+            updatePreview();
+        }
+
+        // Init
+        updatePreview();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTM Link Builder - SEO Tools | Neelakandan</title>
+    <meta name="description" content="Generate UTM tracking URLs for your marketing campaigns and Google Analytics.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <style>
+        .tool-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .panel {
+            background: var(--color-surface);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--color-text-muted);
+        }
+
+        .required {
+            color: var(--color-primary);
+        }
+
+        input {
+            width: 100%;
+            padding: 0.8rem;
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            color: var(--color-text);
+            font-family: inherit;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        .result-area {
+            background: #1e1e1e;
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            color: #d4d4d4;
+            font-family: 'Fira Code', monospace;
+            word-break: break-all;
+            margin-bottom: 1rem;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .btn-action {
+            padding: 0.8rem;
+            border-radius: var(--radius-md);
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .btn-copy {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-shorten {
+            background: var(--color-surface-2);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+        }
+
+        .help-text {
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+            margin-top: 0.3rem;
+        }
+
+        @media (max-width: 768px) {
+            .tool-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#seo">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#seo" class="back-link">← Back to SEO Tools</a>
+                <h1>UTM Builder</h1>
+                <p>Create campaign tracking URLs for Google Analytics.</p>
+            </div>
+
+            <div class="tool-container">
+                <!-- Input Form -->
+                <div class="panel">
+                    <div class="form-group">
+                        <label>Website URL <span class="required">*</span></label>
+                        <input type="url" id="url" placeholder="https://example.com" oninput="build()">
+                        <div class="help-text">The full website URL (e.g. https://www.example.com)</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Campaign Source (utm_source) <span class="required">*</span></label>
+                        <input type="text" id="source" placeholder="google, newsletter" oninput="build()">
+                        <div class="help-text">The referrer: (e.g. google, newsletter)</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Campaign Medium (utm_medium) <span class="required">*</span></label>
+                        <input type="text" id="medium" placeholder="cpc, banner, email" oninput="build()">
+                        <div class="help-text">Marketing medium: (e.g. cpc, banner, email)</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Campaign Name (utm_campaign) <span class="required">*</span></label>
+                        <input type="text" id="campaign" placeholder="spring_sale" oninput="build()">
+                        <div class="help-text">Product, promo code, or slogan (e.g. spring_sale)</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Campaign Term (utm_term)</label>
+                        <input type="text" id="term" placeholder="running+shoes" oninput="build()">
+                        <div class="help-text">Identify the paid keywords</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Campaign Content (utm_content)</label>
+                        <input type="text" id="content" placeholder="logolink, textlink" oninput="build()">
+                        <div class="help-text">Use to differentiate ads</div>
+                    </div>
+                </div>
+
+                <!-- Result -->
+                <div class="panel" style="display: flex; flex-direction: column; justify-content: center;">
+                    <h3 style="margin-bottom: 1rem;">Generated Campaign URL</h3>
+                    <div id="result" class="result-area">Fill in the required fields...</div>
+
+                    <div class="action-grid">
+                        <button class="btn-action btn-copy" onclick="copyUrl()">Copy URL</button>
+                        <button class="btn-action btn-shorten" onclick="reset()">Reset Form</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function build() {
+            const url = document.getElementById('url').value;
+            const source = document.getElementById('source').value;
+            const medium = document.getElementById('medium').value;
+            const campaign = document.getElementById('campaign').value;
+            const term = document.getElementById('term').value;
+            const content = document.getElementById('content').value;
+
+            const resultEl = document.getElementById('result');
+
+            if (!url || !source || !medium || !campaign) {
+                resultEl.textContent = 'Fill in the required fields...';
+                resultEl.style.color = '#777';
+                return;
+            }
+
+            try {
+                const baseUrl = new URL(url);
+                const params = new URLSearchParams(baseUrl.search);
+
+                // Add UTM params
+                if (source) params.set('utm_source', source);
+                if (medium) params.set('utm_medium', medium);
+                if (campaign) params.set('utm_campaign', campaign);
+                if (term) params.set('utm_term', term);
+                if (content) params.set('utm_content', content);
+
+                // Reconstruct is safer this way to handle existing query params
+                baseUrl.search = params.toString();
+
+                resultEl.textContent = baseUrl.toString();
+                resultEl.style.color = '#d4d4d4';
+            } catch (e) {
+                resultEl.textContent = 'Invalid URL format';
+                resultEl.style.color = '#ef4444';
+            }
+        }
+
+        function copyUrl() {
+            const text = document.getElementById('result').textContent;
+            if (text === 'Fill in the required fields...' || text === 'Invalid URL format') return;
+
+            navigator.clipboard.writeText(text);
+            const btn = document.querySelector('.btn-copy');
+            const original = btn.textContent;
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = original, 1000);
+        }
+
+        function reset() {
+            document.querySelectorAll('input').forEach(i => i.value = '');
+            build();
+        }
+    </script>
+</body>
+
+</html>

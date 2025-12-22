@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Slug Generator - SEO Tools | Neelakandan</title>
+    <meta name="description"
+        content="Convert any text into SEO-friendly URL slugs. Clean special characters and stop words.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <style>
+        .tool-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--color-surface);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+        }
+
+        .input-group {
+            margin-bottom: 2rem;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            color: var(--color-text);
+            margin-bottom: 1rem;
+        }
+
+        .result-box {
+            background: #1e1e1e;
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            color: #d4d4d4;
+            font-family: 'Fira Code', monospace;
+            font-size: 1.2rem;
+            word-break: break-all;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--color-surface-2);
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            color: var(--color-text-muted);
+        }
+
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            width: auto;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#seo">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#seo" class="back-link">← Back to SEO Tools</a>
+                <h1>URL Slug Generator</h1>
+                <p>Turn article titles into clean, readable, SEO-optimized URL slugs.</p>
+            </div>
+
+            <div class="tool-container">
+                <div class="panel">
+                    <div class="input-group">
+                        <label style="display:block; margin-bottom:0.5rem; font-weight:500;">Enter Text</label>
+                        <input type="text" id="input" placeholder="How to Optimize Your Website for SEO in 2025!"
+                            oninput="convert()">
+                    </div>
+
+                    <div class="result-box">
+                        <span id="output">how-to-optimize-your-website-for-seo-in-2025</span>
+                        <button class="copy-btn" onclick="copySlug()">Copy</button>
+                    </div>
+
+                    <div class="options-grid">
+                        <label class="option-item">
+                            <input type="checkbox" id="remove-stops" checked onchange="convert()"> Remove Stop Words
+                        </label>
+                        <label class="option-item">
+                            <input type="checkbox" id="remove-numbers" onchange="convert()"> Remove Numbers
+                        </label>
+                        <label class="option-item">
+                            Separator:
+                            <select id="separator" onchange="convert()"
+                                style="width: auto; padding: 0.3rem; margin-left: 0.5rem;">
+                                <option value="-">Dash (-)</option>
+                                <option value="_">Underscore (_)</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const stopWords = new Set(["a", "an", "the", "and", "or", "but", "for", "nor", "on", "at", "to", "from", "by", "in", "of", "with"]);
+
+        function convert() {
+            const input = document.getElementById('input').value;
+            const removeStops = document.getElementById('remove-stops').checked;
+            const removeNumbers = document.getElementById('remove-numbers').checked;
+            const separator = document.getElementById('separator').value;
+
+            if (!input) {
+                document.getElementById('output').textContent = '...';
+                return;
+            }
+
+            let slug = input.toLowerCase();
+
+            // Remove special chars first (keep alpha-num and spaces)
+            slug = slug.replace(/[^\w\s-]/g, '');
+
+            let words = slug.split(/\s+/);
+
+            if (removeStops) {
+                words = words.filter(w => !stopWords.has(w));
+            }
+
+            if (removeNumbers) {
+                words = words.filter(w => !/^\d+$/.test(w));
+            }
+
+            // Join
+            let finalSlug = words.join(separator);
+
+            // Cleanup
+            if (separator === '-') {
+                finalSlug = finalSlug.replace(/-+/g, '-').replace(/^-|-$/g, '');
+            } else {
+                finalSlug = finalSlug.replace(/_+/g, '_').replace(/^_|_$/g, '');
+            }
+
+            document.getElementById('output').textContent = finalSlug;
+        }
+
+        function copySlug() {
+            const text = document.getElementById('output').textContent;
+            if (text === '...') return;
+            navigator.clipboard.writeText(text);
+
+            const btn = document.querySelector('.copy-btn');
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = 'Copy', 1000);
+        }
+    </script>
+</body>
+
+</html>

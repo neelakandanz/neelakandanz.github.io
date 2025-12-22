@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keyword Density Checker - SEO Tools | Neelakandan</title>
+    <meta name="description" content="Analyze your text for keyword frequency and density to optimize for SEO.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <style>
+        .tool-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .panel {
+            background: var(--color-surface);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 1rem;
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            color: var(--color-text);
+            font-family: inherit;
+            resize: vertical;
+            min-height: 300px;
+            flex-grow: 1;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--color-surface-2);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .results-table th {
+            text-align: left;
+            padding: 0.8rem;
+            border-bottom: 2px solid var(--color-border);
+            color: var(--color-text-muted);
+        }
+
+        .results-table td {
+            padding: 0.8rem;
+            border-bottom: 1px solid var(--color-surface-2);
+        }
+
+        .results-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .density-bar {
+            height: 6px;
+            background: var(--color-surface-2);
+            border-radius: 3px;
+            margin-top: 4px;
+            overflow: hidden;
+            width: 100px;
+        }
+
+        .density-fill {
+            height: 100%;
+            background: var(--color-primary);
+        }
+
+        .options {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .tool-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#seo">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#seo" class="back-link">← Back to SEO Tools</a>
+                <h1>Keyword Density Checker</h1>
+                <p>Analyze text to find the most frequent keywords and phrases.</p>
+            </div>
+
+            <div class="tool-container">
+                <!-- Input -->
+                <div class="panel">
+                    <h3 style="margin-bottom: 1rem;">Content Input</h3>
+                    <textarea id="input-text" placeholder="Paste your article or text content here to analyze..."
+                        oninput="analyze()"></textarea>
+
+                    <div class="options">
+                        <label
+                            style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; cursor: pointer;">
+                            <input type="checkbox" id="exclude-stops" checked onchange="analyze()"> Exclude Stop Words
+                        </label>
+                        <button class="btn-secondary"
+                            onclick="document.getElementById('input-text').value=''; analyze();"
+                            style="margin-left: auto;">Clear</button>
+                    </div>
+                </div>
+
+                <!-- Analysis -->
+                <div class="panel">
+                    <h3 style="margin-bottom: 1rem;">Analysis Results</h3>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-words">0</div>
+                            <div class="stat-label">Total Words</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="unique-words">0</div>
+                            <div class="stat-label">Unique Words</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="read-time">0m</div>
+                            <div class="stat-label">Reading Time</div>
+                        </div>
+                    </div>
+
+                    <div style="flex-grow: 1; overflow-y: auto; max-height: 400px;">
+                        <table class="results-table">
+                            <thead>
+                                <tr>
+                                    <th>Keyword</th>
+                                    <th>Count</th>
+                                    <th>Density</th>
+                                </tr>
+                            </thead>
+                            <tbody id="results-body">
+                                <tr>
+                                    <td colspan="3" style="text-align:center; color: var(--color-text-muted);">No
+                                        content to analyze</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const stopWords = new Set([
+            "a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are", "aren't", "as", "at",
+            "be", "because", "been", "before", "being", "below", "between", "both", "but", "by", "can't", "cannot", "could",
+            "couldn't", "did", "didn't", "do", "does", "doesn't", "doing", "don't", "down", "during", "each", "few", "for",
+            "from", "further", "had", "hadn't", "has", "hasn't", "have", "haven't", "having", "he", "he'd", "he'll", "he's",
+            "her", "here", "here's", "hers", "herself", "him", "himself", "his", "how", "how's", "i", "i'd", "i'll", "i'm",
+            "i've", "if", "in", "into", "is", "isn't", "it", "it's", "its", "itself", "let's", "me", "more", "most", "mustn't",
+            "my", "myself", "no", "nor", "not", "of", "off", "on", "once", "only", "or", "other", "ought", "our", "ours",
+            "ourselves", "out", "over", "own", "same", "shan't", "she", "she'd", "she'll", "she's", "should", "shouldn't",
+            "so", "some", "such", "than", "that", "that's", "the", "their", "theirs", "them", "themselves", "then", "there",
+            "there's", "these", "they", "they'd", "they'll", "they're", "they've", "this", "those", "through", "to", "too",
+            "under", "until", "up", "very", "was", "wasn't", "we", "we'd", "we'll", "we're", "we've", "were", "weren't",
+            "what", "what's", "when", "when's", "where", "where's", "which", "while", "who", "who's", "whom", "why", "why's",
+            "with", "won't", "would", "wouldn't", "you", "you'd", "you'll", "you're", "you've", "your", "yours", "yourself",
+            "yourselves"
+        ]);
+
+        function analyze() {
+            const text = document.getElementById('input-text').value;
+            const excludeStops = document.getElementById('exclude-stops').checked;
+
+            // Clean text: remove special chars, extra spaces, lowercase
+            const words = text.toLowerCase()
+                .replace(/[^\w\s]/g, '')
+                .replace(/\s+/g, ' ')
+                .trim()
+                .split(' ')
+                .filter(w => w.length > 0);
+
+            const totalWords = words.length;
+            document.getElementById('total-words').textContent = totalWords;
+            document.getElementById('read-time').textContent = Math.ceil(totalWords / 200) + 'm';
+
+            const counts = {};
+            words.forEach(word => {
+                if (excludeStops && stopWords.has(word)) return;
+                // Check if purely number
+                if (/^\d+$/.test(word)) return;
+
+                counts[word] = (counts[word] || 0) + 1;
+            });
+
+            const uniqueWords = Object.keys(counts).length;
+            document.getElementById('unique-words').textContent = uniqueWords;
+
+            // Sort by frequency
+            const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+
+            // Render table
+            const tbody = document.getElementById('results-body');
+            tbody.innerHTML = '';
+
+            if (sorted.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">No keywords found</td></tr>';
+                return;
+            }
+
+            // Show top 20
+            sorted.slice(0, 20).forEach(([word, count]) => {
+                const density = ((count / totalWords) * 100).toFixed(2);
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${word}</td>
+                    <td>${count}</td>
+                    <td>
+                        <div style="display:flex; align-items:center; gap:0.5rem;">
+                            <span>${density}%</span>
+                            <div class="density-bar">
+                                <div class="density-fill" style="width: ${Math.min(density * 5, 100)}%"></div>
+                            </div>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robots.txt Generator - SEO Tools | Neelakandan</title>
+    <meta name="description" content="Generate robots.txt files to control search engine crawler access to your site.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <style>
+        .tool-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .panel {
+            background: var(--color-surface);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            height: fit-content;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--color-surface-2);
+        }
+
+        .form-group:last-child {
+            border-bottom: none;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--color-text-muted);
+        }
+
+        select,
+        input {
+            width: 100%;
+            padding: 0.8rem;
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            color: var(--color-text);
+            font-family: inherit;
+        }
+
+        .bot-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .code-output {
+            width: 100%;
+            height: 400px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            border: 1px solid var(--color-border);
+            white-space: pre;
+            resize: vertical;
+        }
+
+        .copy-btn {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            width: 100%;
+            font-weight: 500;
+            margin-top: 1rem;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .tool-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#seo">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#seo" class="back-link">← Back to SEO Tools</a>
+                <h1>Robots.txt Generator</h1>
+                <p>Create the robots.txt file to tell search engines which pages to crawl or ignore.</p>
+            </div>
+
+            <div class="tool-container">
+                <!-- Config -->
+                <div class="panel">
+                    <div class="form-group">
+                        <label>Default - All Robots (*)</label>
+                        <select id="default-access" onchange="generate()">
+                            <option value="allow">Allow All</option>
+                            <option value="disallow">Disallow All</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Crawl Delay (Seconds)</label>
+                        <select id="delay" onchange="generate()">
+                            <option value="">None (Default)</option>
+                            <option value="5">5 Seconds</option>
+                            <option value="10">10 Seconds</option>
+                            <option value="20">20 Seconds</option>
+                            <option value="60">60 Seconds</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Sitemap URL</label>
+                        <input type="url" id="sitemap" placeholder="https://example.com/sitemap.xml"
+                            oninput="generate()">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Specific Bots (Allow/Disallow)</label>
+                        <div class="bot-row">Googlebot <select class="bot-select" data-bot="Googlebot"
+                                onchange="generate()">
+                                <option value="">Default</option>
+                                <option value="Allow">Allow</option>
+                                <option value="Disallow">Disallow</option>
+                            </select></div>
+                        <div class="bot-row">Google Image <select class="bot-select" data-bot="Googlebot-Image"
+                                onchange="generate()">
+                                <option value="">Default</option>
+                                <option value="Allow">Allow</option>
+                                <option value="Disallow">Disallow</option>
+                            </select></div>
+                        <div class="bot-row">Bingbot <select class="bot-select" data-bot="Bingbot"
+                                onchange="generate()">
+                                <option value="">Default</option>
+                                <option value="Allow">Allow</option>
+                                <option value="Disallow">Disallow</option>
+                            </select></div>
+                        <div class="bot-row">Yahoo <select class="bot-select" data-bot="Slurp" onchange="generate()">
+                                <option value="">Default</option>
+                                <option value="Allow">Allow</option>
+                                <option value="Disallow">Disallow</option>
+                            </select></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Restricted Directories (one per line, start with /)</label>
+                        <textarea id="restricted" rows="4" placeholder="/cgi-bin/&#10;/private/&#10;/admin/"
+                            oninput="generate()"
+                            style="width:100%; padding:0.8rem; border-radius:var(--radius-md); border:1px solid var(--color-border); background:var(--color-surface-2); color:var(--color-text);"></textarea>
+                    </div>
+                </div>
+
+                <!-- Output -->
+                <div class="panel">
+                    <h3 style="margin-bottom: 1rem;">Generated robots.txt</h3>
+                    <textarea id="output" class="code-output" readonly></textarea>
+
+                    <div class="action-row">
+                        <button class="copy-btn" onclick="copyCode()">Copy</button>
+                        <button class="copy-btn" onclick="download()"
+                            style="background:var(--color-surface-2); border:1px solid var(--color-border); color:var(--color-text);">Download</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function generate() {
+            const defaultAccess = document.getElementById('default-access').value;
+            const delay = document.getElementById('delay').value;
+            const sitemap = document.getElementById('sitemap').value;
+            const restricted = document.getElementById('restricted').value;
+
+            let txt = '';
+
+            // Default All
+            txt += 'User-agent: *\n';
+            if (defaultAccess === 'disallow') {
+                txt += 'Disallow: /\n';
+            } else {
+                // Check if we have specific restricted directories for global
+                if (restricted) {
+                    const lines = restricted.split('\n');
+                    lines.forEach(line => {
+                        if (line.trim()) txt += `Disallow: ${line.trim()}\n`;
+                    });
+                } else {
+                    // implicit allow, or add Allow: / for clarity? Usually not needed if empty disallow list.
+                    // but lets verify standard. Standard is "Disallow:" [empty] implies allow all.
+                    // If we have restricted folders, we listed them.
+                }
+            }
+
+            if (delay) txt += `Crawl-delay: ${delay}\n`;
+            txt += '\n';
+
+            // Specific Bots
+            const bots = document.querySelectorAll('.bot-select');
+            bots.forEach(bot => {
+                const val = bot.value;
+                if (val) {
+                    txt += `User-agent: ${bot.dataset.bot}\n`;
+                    if (val === 'Disallow') {
+                        txt += 'Disallow: /\n';
+                    } else {
+                        txt += 'Disallow:\n';
+                    }
+                    txt += '\n';
+                }
+            });
+
+            // Sitemap
+            if (sitemap) {
+                txt += `Sitemap: ${sitemap}\n`;
+            }
+
+            document.getElementById('output').value = txt;
+        }
+
+        function copyCode() {
+            const output = document.getElementById('output');
+            output.select();
+            document.execCommand('copy');
+            // Visual feedback handled by button text change usually, skipping for brevity
+        }
+
+        function download() {
+            const text = document.getElementById('output').value;
+            const blob = new Blob([text], { type: "text/plain" });
+            const anchor = document.createElement("a");
+            anchor.download = "robots.txt";
+            anchor.href = window.URL.createObjectURL(blob);
+            anchor.target = "_blank";
+            anchor.style.display = "none";
+            document.body.appendChild(anchor);
+            anchor.click();
+            document.body.removeChild(anchor);
+        }
+
+        // Init
+        generate();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Extractor - SEO Tools | Neelakandan</title>
+    <meta name="description" content="Extract all links (URLs) from your HTML code or text content. Export to CSV.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <style>
+        .tool-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .panel {
+            background: var(--color-surface);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 1rem;
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            color: var(--color-text);
+            font-family: 'Fira Code', monospace;
+            resize: none;
+            flex-grow: 1;
+            font-size: 0.85rem;
+        }
+
+        .stats-bar {
+            background: var(--color-surface-2);
+            padding: 0.8rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn-action {
+            padding: 0.8rem 1.2rem;
+            border-radius: var(--radius-md);
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-extract {
+            background: var(--color-primary);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-secondary-action {
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+            flex: 1;
+        }
+
+        .link-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            overflow-y: auto;
+            flex-grow: 1;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+        }
+
+        .link-item {
+            padding: 0.8rem;
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            word-break: break-all;
+        }
+
+        .link-item:last-child {
+            border-bottom: none;
+        }
+
+        .link-url {
+            color: var(--color-primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .link-text {
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+        }
+
+        @media (max-width: 768px) {
+            .tool-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#seo">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#seo" class="back-link">← Back to SEO Tools</a>
+                <h1>Link Extractor</h1>
+                <p>Paste HTML code to extract and analyze all internal and external links.</p>
+            </div>
+
+            <div class="tool-container">
+                <!-- Input -->
+                <div class="panel">
+                    <h3 style="margin-bottom: 1rem;">Paste HTML Code</h3>
+                    <textarea id="input" placeholder='<a href="https://example.com">Link Text</a>'></textarea>
+
+                    <div class="action-row">
+                        <button class="btn-action btn-extract" onclick="extract()">Extract Links</button>
+                        <button class="btn-action btn-secondary-action"
+                            onclick="document.getElementById('input').value=''">Clear</button>
+                    </div>
+                </div>
+
+                <!-- Results -->
+                <div class="panel">
+                    <h3 style="margin-bottom: 1rem;">Extracted Links</h3>
+
+                    <div class="stats-bar">
+                        <span>Total: <strong id="count-total">0</strong></span>
+                        <span>Internal: <strong id="count-internal">0</strong></span>
+                        <span>External: <strong id="count-external">0</strong></span>
+                    </div>
+
+                    <div id="results" class="link-list">
+                        <div style="padding:2rem; text-align:center; color:var(--color-text-muted);">
+                            Links will appear here...
+                        </div>
+                    </div>
+
+                    <div class="action-row">
+                        <button class="btn-action btn-secondary-action" onclick="copyAll()">Copy List</button>
+                        <button class="btn-action btn-secondary-action" onclick="downloadCSV()">Export CSV</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let globalLinks = [];
+
+        function extract() {
+            const input = document.getElementById('input').value;
+            const container = document.getElementById('results');
+
+            // Basic regex for href extraction (robust enough for simple HTML paste)
+            // Matches href="URL" and captures content >TEXT</a>
+            // Note: Parsing HTML with regex is notoriously fragile but sufficient for client-side tool helper
+            // Better to use DOMParser
+
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(input, 'text/html');
+            const anchors = doc.querySelectorAll('a');
+
+            globalLinks = [];
+            let internal = 0;
+            let external = 0;
+
+            anchors.forEach(a => {
+                const href = a.getAttribute('href');
+                if (href && !href.startsWith('javascript:') && !href.startsWith('#')) {
+                    const text = a.textContent.trim() || '[Image/No Text]';
+                    const isExternal = href.startsWith('http');
+
+                    if (isExternal) external++; else internal++;
+
+                    globalLinks.push({ href, text, isExternal });
+                }
+            });
+
+            // Update stats
+            document.getElementById('count-total').textContent = globalLinks.length;
+            document.getElementById('count-internal').textContent = internal;
+            document.getElementById('count-external').textContent = external;
+
+            // Render
+            if (globalLinks.length === 0) {
+                container.innerHTML = '<div style="padding:2rem; text-align:center; color:var(--color-text-muted);">No links found</div>';
+                return;
+            }
+
+            let html = '';
+            globalLinks.forEach(link => {
+                html += `
+                    <div class="link-item">
+                        <a href="${link.href}" target="_blank" class="link-url">${link.href}</a>
+                        <span class="link-text">${link.isExternal ? '🌐 External' : '🏠 Internal'} • ${link.text}</span>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function copyAll() {
+            if (globalLinks.length === 0) return;
+            const list = globalLinks.map(l => l.href).join('\n');
+            navigator.clipboard.writeText(list);
+            alert('Copied to clipboard!');
+        }
+
+        function downloadCSV() {
+            if (globalLinks.length === 0) return;
+
+            let csv = 'URL,Anchor Text,Type\n';
+            globalLinks.forEach(l => {
+                // escape quotes
+                const text = l.text.replace(/"/g, '""');
+                csv += `"${l.href}","${text}","${l.isExternal ? 'External' : 'Internal'}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: "text/csv" });
+            const anchor = document.createElement("a");
+            anchor.download = "extracted_links.csv";
+            anchor.href = window.URL.createObjectURL(blob);
+            anchor.target = "_blank";
+            anchor.style.display = "none";
+            document.body.appendChild(anchor);
+            anchor.click();
+            document.body.removeChild(anchor);
+        }
+    </script>
+</body>
+
+</html>
