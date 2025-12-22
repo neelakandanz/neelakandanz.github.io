@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Stopwatch | Neelakandan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@500&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0c0c0c;
+            color: #fff;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #333;
+            align-items: center;
+        }
+
+        .back {
+            color: #aaa;
+            text-decoration: none;
+            border: 1px solid #333;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .main {
+            padding: 2rem;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            background: #161616;
+            padding: 3rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid #333;
+            text-align: center;
+        }
+
+        .time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 4rem;
+            color: #fff;
+            margin-bottom: 2rem;
+            font-weight: 500;
+        }
+
+        .ms {
+            font-size: 2rem;
+            color: #666;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        button {
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            width: 100px;
+        }
+
+        .btn-start {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-stop {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-reset {
+            background: #333;
+            color: #fff;
+        }
+
+        .btn-lap {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .laps {
+            max-height: 200px;
+            overflow-y: auto;
+            text-align: left;
+            border-top: 1px solid #333;
+            padding-top: 1rem;
+        }
+
+        .lap-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem;
+            border-bottom: 1px solid #222;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .lap-item:last-child {
+            border: none;
+        }
+
+        .lap-idx {
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <strong>Stopwatch</strong>
+        <a href="../../tools/index.html#datetime" class="back">Back</a>
+    </div>
+    <div class="main">
+        <div class="card">
+            <div class="time" id="display">00:00:00<span class="ms">.00</span></div>
+
+            <div class="controls">
+                <button id="main-btn" class="btn-start" onclick="toggle()">Start</button>
+                <button class="btn-lap" onclick="lap()" id="lap-btn" disabled>Lap</button>
+                <button class="btn-reset" onclick="reset()">Reset</button>
+            </div>
+
+            <div class="laps" id="laps"></div>
+        </div>
+    </div>
+    <script>
+        let startTime;
+        let elapsed = 0;
+        let interval;
+        let isRunning = false;
+
+        const display = document.getElementById('display');
+        const mainBtn = document.getElementById('main-btn');
+        const lapBtn = document.getElementById('lap-btn');
+        const lapsContainer = document.getElementById('laps');
+        let lapCount = 1;
+
+        function format(ms) {
+            const date = new Date(ms);
+            const m = String(date.getUTCMinutes()).padStart(2, '0');
+            const s = String(date.getUTCSeconds()).padStart(2, '0');
+            const cs = String(Math.floor(date.getUTCMilliseconds() / 10)).padStart(2, '0');
+            return `${m}:${s}<span class="ms">.${cs}</span>`;
+        }
+
+        function fullFormat(ms) {
+            const date = new Date(ms);
+            const m = String(date.getUTCMinutes()).padStart(2, '0');
+            const s = String(date.getUTCSeconds()).padStart(2, '0');
+            const cs = String(Math.floor(date.getUTCMilliseconds() / 10)).padStart(2, '0');
+            return `${m}:${s}.${cs}`;
+        }
+
+        function update() {
+            const now = Date.now();
+            const time = elapsed + (now - startTime);
+            display.innerHTML = format(time);
+        }
+
+        function toggle() {
+            if (isRunning) {
+                // Stop
+                elapsed += Date.now() - startTime;
+                clearInterval(interval);
+                mainBtn.textContent = 'Start';
+                mainBtn.className = 'btn-start';
+                lapBtn.disabled = true;
+            } else {
+                // Start
+                startTime = Date.now();
+                interval = setInterval(update, 10);
+                mainBtn.textContent = 'Stop';
+                mainBtn.className = 'btn-stop';
+                lapBtn.disabled = false;
+            }
+            isRunning = !isRunning;
+        }
+
+        function reset() {
+            if (isRunning) toggle();
+            elapsed = 0;
+            display.innerHTML = format(0);
+            lapsContainer.innerHTML = '';
+            lapCount = 1;
+        }
+
+        function lap() {
+            if (!isRunning) return;
+            const now = Date.now();
+            const time = elapsed + (now - startTime);
+
+            const div = document.createElement('div');
+            div.className = 'lap-item';
+            div.innerHTML = `<span class="lap-idx">Lap ${lapCount++}</span> <span>${fullFormat(time)}</span>`;
+            lapsContainer.prepend(div);
+        }
+    </script>
+</body>
+
+</html>

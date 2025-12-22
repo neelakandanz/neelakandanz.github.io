@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Timestamp Converter | Neelakandan</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0c0c0c;
+            color: #fff;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #333;
+            align-items: center;
+        }
+
+        .back {
+            color: #aaa;
+            text-decoration: none;
+            border: 1px solid #333;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .main {
+            padding: 2rem;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .card {
+            background: #161616;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid #333;
+        }
+
+        label {
+            display: block;
+            color: #aaa;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.8rem;
+            background: #000;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #333;
+            padding-bottom: 2rem;
+        }
+
+        .section:last-child {
+            border: none;
+        }
+
+        .res-box {
+            margin-top: 1rem;
+            background: #1a1a1a;
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid #333;
+        }
+
+        .res-label {
+            color: #666;
+            font-size: 0.8rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .res-val {
+            color: #60a5fa;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        button {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            width: 100%;
+        }
+
+        button:hover {
+            background: #444;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <strong>Timestamp Converter</strong>
+        <a href="../../tools/index.html#datetime" class="back">Back</a>
+    </div>
+    <div class="main">
+        <div class="card">
+            <div class="section">
+                <label>Current Unix Timestamp</label>
+                <div style="font-size:2rem; font-family:'JetBrains Mono'; color:#4ade80; margin-bottom:0.5rem" id="now">
+                </div>
+                <button onclick="updateNow()">Refresh</button>
+            </div>
+
+            <div class="section">
+                <label>Timestamp to Date</label>
+                <input type="text" id="ts-in" placeholder="Enter timestamp...">
+                <div class="res-box">
+                    <div class="res-label">GMT</div>
+                    <div class="res-val" id="ts-gmt">-</div>
+                    <div class="res-label" style="margin-top:0.5rem">Local</div>
+                    <div class="res-val" id="ts-local">-</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <label>Date to Timestamp</label>
+                <input type="datetime-local" id="date-in">
+                <div class="res-box">
+                    <div class="res-label">Seconds</div>
+                    <div class="res-val" id="d-sec">-</div>
+                    <div class="res-label" style="margin-top:0.5rem">Milliseconds</div>
+                    <div class="res-val" id="d-ms">-</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Now
+        function updateNow() {
+            document.getElementById('now').textContent = Math.floor(Date.now() / 1000);
+        }
+        setInterval(updateNow, 1000);
+        updateNow();
+
+        // TS to Date
+        const tsIn = document.getElementById('ts-in');
+        tsIn.addEventListener('input', () => {
+            let val = parseInt(tsIn.value);
+            if (!val) return;
+            // Guess if seconds or ms
+            if (tsIn.value.length < 12) val *= 1000;
+
+            const date = new Date(val);
+            document.getElementById('ts-gmt').textContent = date.toUTCString();
+            document.getElementById('ts-local').textContent = date.toString();
+        });
+
+        // Date to TS
+        document.getElementById('date-in').addEventListener('input', e => {
+            if (!e.target.value) return;
+            const d = new Date(e.target.value);
+            const ms = d.getTime();
+            document.getElementById('d-ms').textContent = ms;
+            document.getElementById('d-sec').textContent = Math.floor(ms / 1000);
+        });
+
+        // Set default date
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('date-in').value = now.toISOString().slice(0, 16);
+    </script>
+</body>
+
+</html>

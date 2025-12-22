@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Alarm | Neelakandan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0c0c0c;
+            color: #fff;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #333;
+            align-items: center;
+        }
+
+        .back {
+            color: #aaa;
+            text-decoration: none;
+            border: 1px solid #333;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .main {
+            padding: 2rem;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            background: #161616;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid #333;
+            text-align: center;
+        }
+
+        .current-time {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: #fff;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .controls {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        input[type="time"] {
+            padding: 0.8rem;
+            background: #000;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 6px;
+            font-size: 1.2rem;
+        }
+
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .status {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .active {
+            color: #4ade80;
+        }
+
+        @keyframes ring {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            10% {
+                transform: rotate(-10deg);
+            }
+
+            20% {
+                transform: rotate(10deg);
+            }
+
+            30% {
+                transform: rotate(-10deg);
+            }
+
+            40% {
+                transform: rotate(10deg);
+            }
+
+            50% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(0deg);
+            }
+        }
+
+        .ringing {
+            animation: ring 0.5s infinite;
+            color: #ef4444;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <strong>Mask Alarm</strong>
+        <a href="../../tools/index.html#datetime" class="back">Back</a>
+    </div>
+    <div class="main">
+        <div class="card">
+            <div id="clock" class="current-time">00:00:00</div>
+
+            <div class="controls">
+                <input type="time" id="alarm-time">
+                <button onclick="setAlarm()" id="btn">Set Alarm</button>
+            </div>
+
+            <div id="status" class="status">No alarm set</div>
+
+            <audio id="sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" loop></audio>
+        </div>
+    </div>
+    <script>
+        const clock = document.getElementById('clock');
+        const timeIn = document.getElementById('alarm-time');
+        const btn = document.getElementById('btn');
+        const status = document.getElementById('status');
+        const sound = document.getElementById('sound');
+
+        let alarmTime = null;
+        let isRinging = false;
+
+        function update() {
+            const now = new Date();
+            clock.textContent = now.toLocaleTimeString('en-US', { hour12: false });
+
+            if (alarmTime && !isRinging) {
+                const current = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+                if (current === alarmTime && now.getSeconds() === 0) {
+                    ring();
+                }
+            }
+        }
+
+        function ring() {
+            isRinging = true;
+            sound.play();
+            clock.className = "current-time ringing";
+            status.textContent = "WAKE UP!";
+            status.style.color = "#ef4444";
+            btn.textContent = "Stop Alarm";
+            btn.style.background = "#ef4444";
+        }
+
+        function setAlarm() {
+            if (isRinging) {
+                // Stop
+                isRinging = false;
+                sound.pause();
+                sound.currentTime = 0;
+                clock.className = "current-time";
+                status.textContent = "Alarm stopped";
+                status.style.color = "#888";
+                btn.textContent = "Set Alarm";
+                btn.style.background = "#3b82f6";
+                alarmTime = null;
+                return;
+            }
+
+            if (!timeIn.value) return;
+
+            if (alarmTime) {
+                // Cancel
+                alarmTime = null;
+                status.textContent = "Alarm cancelled";
+                status.classList.remove('active');
+                btn.textContent = "Set Alarm";
+                btn.style.background = "#3b82f6";
+            } else {
+                // Set
+                alarmTime = timeIn.value;
+                status.textContent = "Alarm set for " + alarmTime;
+                status.classList.add('active');
+                btn.textContent = "Cancel Alarm";
+                btn.style.background = "#333";
+            }
+        }
+
+        setInterval(update, 1000);
+        update();
+    </script>
+</body>
+
+</html>

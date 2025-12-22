@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Calendar Generator | Neelakandan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0c0c0c;
+            color: #fff;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #333;
+            align-items: center;
+        }
+
+        .back {
+            color: #aaa;
+            text-decoration: none;
+            border: 1px solid #333;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .main {
+            padding: 2rem;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .card {
+            background: #161616;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 800px;
+            border: 1px solid #333;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        select,
+        input {
+            padding: 0.8rem;
+            background: #000;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 6px;
+        }
+
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .calendar {
+            border: 1px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .cal-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            background: #222;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .cal-header div {
+            padding: 1rem;
+            border-right: 1px solid #333;
+        }
+
+        .cal-header div:last-child {
+            border-right: none;
+        }
+
+        .cal-body {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+        }
+
+        .cal-day {
+            border-top: 1px solid #333;
+            border-right: 1px solid #333;
+            height: 100px;
+            padding: 0.5rem;
+            position: relative;
+        }
+
+        .cal-day:nth-child(7n) {
+            border-right: none;
+        }
+
+        .day-num {
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+
+        .empty {
+            background: #111;
+        }
+
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+
+            .header,
+            .controls {
+                display: none;
+            }
+
+            .card {
+                border: none;
+                padding: 0;
+            }
+
+            .cal-day {
+                border-color: #ccc;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <strong>Calendar Generator</strong>
+        <a href="../../tools/index.html#datetime" class="back">Back</a>
+    </div>
+    <div class="main">
+        <div class="card">
+            <div class="controls">
+                <select id="month"></select>
+                <input type="number" id="year" value="2025" style="width:80px">
+                <button onclick="generate()">Generate</button>
+                <button onclick="window.print()" style="background:#333">Print</button>
+            </div>
+
+            <div class="calendar">
+                <div class="cal-header">
+                    <div>Sun</div>
+                    <div>Mon</div>
+                    <div>Tue</div>
+                    <div>Wed</div>
+                    <div>Thu</div>
+                    <div>Fri</div>
+                    <div>Sat</div>
+                </div>
+                <div class="cal-body" id="body"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const monthSel = document.getElementById('month');
+        const yearIn = document.getElementById('year');
+        const body = document.getElementById('body');
+
+        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+        months.forEach((m, i) => {
+            monthSel.add(new Option(m, i));
+        });
+
+        // Set current
+        const now = new Date();
+        monthSel.value = now.getMonth();
+        yearIn.value = now.getFullYear();
+
+        function generate() {
+            body.innerHTML = '';
+            const year = parseInt(yearIn.value);
+            const month = parseInt(monthSel.value);
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            // Empty slots
+            for (let i = 0; i < firstDay; i++) {
+                const div = document.createElement('div');
+                div.className = 'cal-day empty';
+                body.appendChild(div);
+            }
+
+            // Days
+            for (let i = 1; i <= daysInMonth; i++) {
+                const div = document.createElement('div');
+                div.className = 'cal-day';
+                div.innerHTML = `<div class="day-num">${i}</div>`;
+                body.appendChild(div);
+            }
+        }
+
+        generate();
+    </script>
+</body>
+
+</html>

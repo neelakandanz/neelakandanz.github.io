@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Countdown Timer | Neelakandan</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0c0c0c;
+            color: #fff;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #333;
+            align-items: center;
+        }
+
+        .back {
+            color: #aaa;
+            text-decoration: none;
+            border: 1px solid #333;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .main {
+            padding: 2rem;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            background: #161616;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 700px;
+            border: 1px solid #333;
+            text-align: center;
+        }
+
+        .timer-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 4rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 2rem 0;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .unit-label {
+            font-size: 0.8rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Inter', sans-serif;
+            margin-top: -1rem;
+        }
+
+        .inputs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        input[type="datetime-local"] {
+            padding: 0.8rem;
+            background: #000;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 6px;
+        }
+
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-stop {
+            background: #ef4444;
+        }
+
+        @media (max-width: 600px) {
+            .timer-display {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <strong>Countdown Timer</strong>
+        <a href="../../tools/index.html#datetime" class="back">Back</a>
+    </div>
+    <div class="main">
+        <div class="card">
+            <h3>Countdown To</h3>
+            <div class="inputs">
+                <input type="datetime-local" id="target">
+                <button id="start-btn" onclick="start()">Start</button>
+                <button id="stop-btn" onclick="stop()" class="btn-stop" style="display:none">Stop</button>
+            </div>
+
+            <div class="timer-display">
+                <div>
+                    <div id="d">00</div>
+                    <div class="unit-label">Days</div>
+                </div>
+                <div>:</div>
+                <div>
+                    <div id="h">00</div>
+                    <div class="unit-label">Hours</div>
+                </div>
+                <div>:</div>
+                <div>
+                    <div id="m">00</div>
+                    <div class="unit-label">Mins</div>
+                </div>
+                <div>:</div>
+                <div>
+                    <div id="s">00</div>
+                    <div class="unit-label">Secs</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let interval;
+        const targetIn = document.getElementById('target');
+        const startBtn = document.getElementById('start-btn');
+        const stopBtn = document.getElementById('stop-btn');
+
+        const dEl = document.getElementById('d');
+        const hEl = document.getElementById('h');
+        const mEl = document.getElementById('m');
+        const sEl = document.getElementById('s');
+
+        // Default to tmr
+        const tmr = new Date();
+        tmr.setDate(tmr.getDate() + 1);
+        tmr.setMinutes(tmr.getMinutes() - tmr.getTimezoneOffset());
+        targetIn.value = tmr.toISOString().slice(0, 16);
+
+        function update() {
+            const now = new Date();
+            const target = new Date(targetIn.value);
+            const diff = target - now;
+
+            if (diff <= 0) {
+                stop();
+                dEl.innerText = "00";
+                hEl.innerText = "00";
+                mEl.innerText = "00";
+                sEl.innerText = "00";
+                alert("Times up!");
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            dEl.innerText = String(days).padStart(2, '0');
+            hEl.innerText = String(hours).padStart(2, '0');
+            mEl.innerText = String(minutes).padStart(2, '0');
+            sEl.innerText = String(seconds).padStart(2, '0');
+        }
+
+        function start() {
+            if (!targetIn.value) return;
+            startBtn.style.display = 'none';
+            stopBtn.style.display = 'block';
+            targetIn.disabled = true;
+
+            update();
+            interval = setInterval(update, 1000);
+        }
+
+        function stop() {
+            clearInterval(interval);
+            startBtn.style.display = 'block';
+            stopBtn.style.display = 'none';
+            targetIn.disabled = false;
+        }
+    </script>
+</body>
+
+</html>

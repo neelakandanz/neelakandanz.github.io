@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>World Clock | Neelakandan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0c0c0c;
+            color: #fff;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #333;
+            align-items: center;
+        }
+
+        .back {
+            color: #aaa;
+            text-decoration: none;
+            border: 1px solid #333;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .main {
+            padding: 2rem;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .clock-card {
+            background: #161616;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #333;
+            text-align: center;
+        }
+
+        .city {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.2rem;
+            color: #a5b4fc;
+        }
+
+        .clock-time {
+            font-size: 2.5rem;
+            font-weight: 500;
+            color: #fff;
+            margin: 0.5rem 0;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .date {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .offset {
+            color: #555;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
+        .add-city {
+            background: #111;
+            border: 2px dashed #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 150px;
+            cursor: pointer;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .add-city:hover {
+            border-color: #555;
+            color: #888;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <strong>World Clock</strong>
+        <a href="../../tools/index.html#datetime" class="back">Back</a>
+    </div>
+    <div class="main">
+        <div class="container">
+            <div id="grid" class="grid">
+                <!-- Clocks go here -->
+                <div class="clock-card add-city" onclick="add()">
+                    + Add City (Coming Soon)
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const grid = document.getElementById('grid');
+        const defaultCities = [
+            { name: 'New York', zone: 'America/New_York' },
+            { name: 'London', zone: 'Europe/London' },
+            { name: 'Paris', zone: 'Europe/Paris' },
+            { name: 'Tokyo', zone: 'Asia/Tokyo' },
+            { name: 'Sydney', zone: 'Australia/Sydney' },
+            { name: 'Dubai', zone: 'Asia/Dubai' },
+            { name: 'Local', zone: Intl.DateTimeFormat().resolvedOptions().timeZone }
+        ];
+
+        function createClock(city) {
+            const div = document.createElement('div');
+            div.className = 'clock-card';
+            div.innerHTML = `
+                <div class="city">${city.name}</div>
+                <div class="clock-time" id="t-${city.name.replace(/\s/g, '')}">--:--</div>
+                <div class="date" id="d-${city.name.replace(/\s/g, '')}">--</div>
+                <div class="offset" id="o-${city.name.replace(/\s/g, '')}"></div>
+            `;
+            grid.insertBefore(div, grid.lastElementChild);
+        }
+
+        defaultCities.forEach(createClock);
+
+        function update() {
+            const now = new Date();
+
+            defaultCities.forEach(city => {
+                const id = city.name.replace(/\s/g, '');
+
+                const opts = { timeZone: city.zone, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+                const timeStr = new Intl.DateTimeFormat('en-US', opts).format(now);
+
+                const dateOpts = { timeZone: city.zone, weekday: 'short', month: 'short', day: 'numeric' };
+                const dateStr = new Intl.DateTimeFormat('en-US', dateOpts).format(now);
+
+                document.getElementById(`t-${id}`).textContent = timeStr;
+                document.getElementById(`d-${id}`).textContent = dateStr;
+
+                // Calc offset manually or complex logic?
+                // Simplified: Display zone name
+                document.getElementById(`o-${id}`).textContent = city.zone;
+            });
+        }
+
+        function add() {
+            alert("Custom cities feature coming soon!");
+        }
+
+        setInterval(update, 1000);
+        update();
+    </script>
+</body>
+
+</html>

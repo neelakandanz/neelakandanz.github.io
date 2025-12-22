@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Working Days Calculator | Neelakandan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0c0c0c;
+            color: #fff;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #333;
+            align-items: center;
+        }
+
+        .back {
+            color: #aaa;
+            text-decoration: none;
+            border: 1px solid #333;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .main {
+            padding: 2rem;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .card {
+            background: #161616;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid #333;
+        }
+
+        .inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        label {
+            display: block;
+            color: #aaa;
+            margin-bottom: 0.5rem;
+        }
+
+        input[type="date"] {
+            width: 100%;
+            padding: 0.8rem;
+            background: #000;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        .options {
+            margin-bottom: 1.5rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            width: 100%;
+        }
+
+        .result {
+            margin-top: 2rem;
+            background: #1f2937;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+
+        .res-main {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #4ade80;
+            margin-bottom: 0.5rem;
+        }
+
+        .res-sub {
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <strong>Working Days Calculator</strong>
+        <a href="../../tools/index.html#datetime" class="back">Back</a>
+    </div>
+    <div class="main">
+        <div class="card">
+            <div class="inputs">
+                <div>
+                    <label>Start Date</label>
+                    <input type="date" id="start">
+                </div>
+                <div>
+                    <label>End Date</label>
+                    <input type="date" id="end">
+                </div>
+            </div>
+
+            <div class="options">
+                <label>Exclude Days</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" id="sat" checked> Saturday</label>
+                    <label><input type="checkbox" id="sun" checked> Sunday</label>
+                </div>
+            </div>
+
+            <button onclick="calc()">Calculate Business Days</button>
+
+            <div id="result" class="result">
+                <div class="res-main" id="days">0 Days</div>
+                <div class="res-sub">Excluding selected weekends</div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const startIn = document.getElementById('start');
+        const endIn = document.getElementById('end');
+        const satCheck = document.getElementById('sat');
+        const sunCheck = document.getElementById('sun');
+        const resBox = document.getElementById('result');
+        const daysEl = document.getElementById('days');
+
+        // Defaults
+        const today = new Date();
+        startIn.valueAsDate = today;
+        const nextWeek = new Date(today);
+        nextWeek.setDate(today.getDate() + 7);
+        endIn.valueAsDate = nextWeek;
+
+        function calc() {
+            if (!startIn.value || !endIn.value) return;
+
+            let d1 = new Date(startIn.value);
+            let d2 = new Date(endIn.value);
+
+            if (d1 > d2) [d1, d2] = [d2, d1]; // Swap
+
+            let count = 0;
+            const cur = new Date(d1);
+
+            while (cur <= d2) {
+                const day = cur.getDay();
+                let isWeekend = false;
+                if (day === 6 && satCheck.checked) isWeekend = true;
+                if (day === 0 && sunCheck.checked) isWeekend = true;
+
+                if (!isWeekend) count++;
+                cur.setDate(cur.getDate() + 1);
+            }
+
+            // Subtract 1 if we want "between" but usually business days includes start or end? 
+            // Standard: Inclusive of start and end if they are working days.
+
+            daysEl.textContent = `${count} Days`;
+            resBox.style.display = 'block';
+        }
+    </script>
+</body>
+
+</html>

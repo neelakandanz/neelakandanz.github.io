@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Meeting Time Planner | Neelakandan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0c0c0c;
+            color: #fff;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #333;
+            align-items: center;
+        }
+
+        .back {
+            color: #aaa;
+            text-decoration: none;
+            border: 1px solid #333;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .main {
+            padding: 2rem;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .card {
+            background: #161616;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 900px;
+            border: 1px solid #333;
+        }
+
+        .zone-list {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .zone-item {
+            background: #222;
+            padding: 1rem;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .zone-select {
+            background: #000;
+            color: #fff;
+            border: 1px solid #333;
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .time-grid {
+            display: grid;
+            grid-template-columns: 100px repeat(24, 1fr);
+            gap: 2px;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+        }
+
+        .time-cell {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            border-radius: 2px;
+        }
+
+        .label-cell {
+            justify-content: flex-start;
+            padding-left: 0.5rem;
+            font-weight: 600;
+            font-size: 0.8rem;
+            position: sticky;
+            left: 0;
+            background: #161616;
+            border-right: 1px solid #333;
+            z-index: 10;
+        }
+
+        .good {
+            background: #065f46;
+            color: #a7f3d0;
+        }
+
+        /* Working hours */
+        .bad {
+            background: #7f1d1d;
+            color: #fecaca;
+        }
+
+        /* Night */
+        .ok {
+            background: #92400e;
+            color: #fde68a;
+        }
+
+        /* Evening/Early Morning */
+
+        .legend {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.8rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <strong>Meeting Time Planner</strong>
+        <a href="../../tools/index.html#datetime" class="back">Back</a>
+    </div>
+    <div class="main">
+        <div class="card">
+            <h3>Compare Time Zones</h3>
+
+            <div id="zones" class="zone-list">
+                <!-- Zone rows -->
+            </div>
+
+            <button onclick="addZone()"
+                style="margin-bottom:2rem; background:#333; color:white; border:none; padding:0.5rem 1rem; border-radius:4px; cursor:pointer">+
+                Add Time Zone</button>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="dot" style="background:#065f46"></div> Good (9am-5pm)
+                </div>
+                <div class="legend-item">
+                    <div class="dot" style="background:#92400e"></div> Stretch (7-9am, 5-10pm)
+                </div>
+                <div class="legend-item">
+                    <div class="dot" style="background:#7f1d1d"></div> Night
+                </div>
+            </div>
+
+            <div id="grid" class="time-grid"></div>
+        </div>
+    </div>
+    <script>
+        const zonesContainer = document.getElementById('zones');
+        const grid = document.getElementById('grid');
+        const commonZones = [
+            'UTC', 'America/New_York', 'America/Los_Angeles', 'Europe/London',
+            'Europe/Paris', 'Asia/Tokyo', 'Asia/Dubai', 'Australia/Sydney', 'Asia/Kolkata'
+        ];
+
+        let selectedZones = [
+            Intl.DateTimeFormat().resolvedOptions().timeZone,
+            'UTC',
+            'America/New_York'
+        ];
+
+        function renderZones() {
+            zonesContainer.innerHTML = '';
+            selectedZones.forEach((z, i) => {
+                const div = document.createElement('div');
+                div.className = 'zone-item';
+
+                let opts = '';
+                commonZones.forEach(cz => {
+                    opts += `<option value="${cz}" ${cz === z ? 'selected' : ''}>${cz}</option>`;
+                });
+
+                div.innerHTML = `
+                    <select class="zone-select" onchange="updateZone(${i}, this.value)">
+                        ${opts}
+                    </select>
+                    <button onclick="removeZone(${i})" style="background:none; border:none; color:#ef4444; cursor:pointer">✕</button>
+                `;
+                zonesContainer.appendChild(div);
+            });
+            renderGrid();
+        }
+
+        function updateZone(idx, val) {
+            selectedZones[idx] = val;
+            renderGrid();
+        }
+
+        function removeZone(idx) {
+            selectedZones.splice(idx, 1);
+            renderZones();
+        }
+
+        function addZone() {
+            selectedZones.push('UTC');
+            renderZones();
+        }
+
+        function getStatus(hour) {
+            if (hour >= 9 && hour < 17) return 'good';
+            if ((hour >= 7 && hour < 9) || (hour >= 17 && hour < 22)) return 'ok';
+            return 'bad';
+        }
+
+        function renderGrid() {
+            grid.innerHTML = '';
+
+            // Header row with hours 0-23
+            grid.appendChild(createCell('GMT/UTC', 'label-cell'));
+            for (let i = 0; i < 24; i++) {
+                grid.appendChild(createCell(i, 'time-cell'));
+            }
+
+            // Rows
+            const now = new Date();
+            now.setUTCHours(0, 0, 0, 0);
+
+            selectedZones.forEach(zone => {
+                const nameParts = zone.split('/');
+                const shortName = nameParts[nameParts.length - 1].replace('_', ' ');
+
+                grid.appendChild(createCell(shortName, 'label-cell'));
+
+                for (let i = 0; i < 24; i++) {
+                    const d = new Date(now);
+                    d.setUTCHours(i);
+
+                    const localHour = parseInt(new Intl.DateTimeFormat('en-US', {
+                        timeZone: zone, hour: 'numeric', hour12: false
+                    }).format(d));
+
+                    const status = getStatus(localHour);
+                    grid.appendChild(createCell(localHour, `time-cell ${status}`));
+                }
+            });
+        }
+
+        function createCell(content, className) {
+            const div = document.createElement('div');
+            div.className = className;
+            div.textContent = content;
+            return div;
+        }
+
+        renderZones();
+    </script>
+</body>
+
+</html>
