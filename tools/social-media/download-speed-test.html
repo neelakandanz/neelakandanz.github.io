@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Speed Test - Social Tools | Neelakandan</title>
+    <meta name="description" content="Calculate your internet download speed by downloading a sample file.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <style>
+        .tool-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--color-surface);
+            padding: 3rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            text-align: center;
+        }
+
+        .speed-dial {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            border: 10px solid var(--color-surface-2);
+            border-top-color: var(--color-primary);
+            margin: 0 auto 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            transition: transform 0.2s;
+        }
+
+        .speed-dial.spinning {
+            animation: spin 1s linear infinite;
+            border-color: var(--color-surface-2);
+            border-top-color: var(--color-primary);
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .speed-value {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .speed-unit {
+            font-size: 1rem;
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-start {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.1s;
+        }
+
+        .btn-start:active {
+            transform: scale(0.95);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+            margin-top: 3rem;
+            border-top: 1px solid var(--color-surface-2);
+            padding-top: 2rem;
+        }
+
+        .stat-item h4 {
+            font-size: 0.9rem;
+            color: var(--color-text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-item p {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#social-media">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#social-media" class="back-link">← Back to Social Tools</a>
+                <h1>Download Speed Test</h1>
+                <p>Simple file download test to estimate your internet speed.</p>
+            </div>
+
+            <div class="tool-container">
+                <div class="panel">
+                    <div class="speed-dial" id="dial">
+                        <div class="speed-value" id="speed-display">0</div>
+                        <div class="speed-unit">Mbps</div>
+                    </div>
+
+                    <button class="btn-start" onclick="startTest()" id="start-btn">Start Test</button>
+
+                    <div id="status" style="margin-top: 1rem; color: var(--color-text-muted); height: 20px;"></div>
+
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <h4>Time Taken</h4>
+                            <p id="time-val">-</p>
+                        </div>
+                        <div class="stat-item">
+                            <h4>File Size</h4>
+                            <p id="size-val">-</p>
+                        </div>
+                        <div class="stat-item">
+                            <h4>Status</h4>
+                            <p id="status-val">Ready</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Use a reliable CDN file ~5MB image
+        // unsplash source is good but redirect might mess up timing.
+        // Let's use a large JS lib from CDN like Three.js which is ~1MB compressed, or something larger.
+        // Actually best is to check a few files.
+        // Let's use a 5MB dummy file if exists, or just a large image.
+        // Using a 5MB image from wikimedia or similar.
+        // Or fetch a large blob from a speedtest api? No, keep it simple.
+        // Let's use a 2MB image from Unsplash source but cache bust it.
+        const TEST_URL = "https://images.unsplash.com/photo-1461800919507-79b16743b257?ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80";
+
+        async function startTest() {
+            const btn = document.getElementById('start-btn');
+            const dial = document.getElementById('dial');
+            const speedDisplay = document.getElementById('speed-display');
+            const statusDiv = document.getElementById('status');
+
+            if (btn.disabled) return;
+
+            btn.disabled = true;
+            btn.textContent = "Testing...";
+            dial.classList.add('spinning');
+            statusDiv.textContent = "Downloading sample file...";
+            document.getElementById('status-val').textContent = "Running";
+
+            speedDisplay.textContent = "...";
+
+            const startTime = performance.now();
+
+            try {
+                // Cache busting
+                const url = TEST_URL + "&t=" + new Date().getTime();
+
+                const response = await fetch(url);
+                const reader = response.body.getReader();
+                let receivedLength = 0;
+
+                while (true) {
+                    const { done, value } = await reader.read();
+
+                    if (done) break;
+                    receivedLength += value.length;
+
+                    // Live update? roughly
+                    const liveTime = (performance.now() - startTime) / 1000;
+                    if (liveTime > 0.5) {
+                        const bits = receivedLength * 8;
+                        const mbps = (bits / 1000000 / liveTime).toFixed(2);
+                        speedDisplay.textContent = mbps;
+                    }
+                }
+
+                const endTime = performance.now();
+                const duration = (endTime - startTime) / 1000; // seconds
+
+                const bytes = receivedLength;
+                const bits = bytes * 8;
+                const mbps = (bits / 1000000 / duration).toFixed(2);
+
+                speedDisplay.textContent = mbps;
+                document.getElementById('time-val').textContent = duration.toFixed(2) + 's';
+                document.getElementById('size-val').textContent = (bytes / 1024 / 1024).toFixed(2) + ' MB';
+                document.getElementById('status-val').textContent = "Complete";
+
+            } catch (error) {
+                console.error(error);
+                statusDiv.textContent = "Error: " + error.message;
+                speedDisplay.textContent = "Error";
+                document.getElementById('status-val').textContent = "Failed";
+            } finally {
+                dial.classList.remove('spinning');
+                btn.disabled = false;
+                btn.textContent = "Start Test";
+                statusDiv.textContent = "";
+            }
+        }
+    </script>
+</body>
+
+</html>

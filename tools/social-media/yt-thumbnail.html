@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Thumbnail Downloader - Social Tools | Neelakandan</title>
+    <meta name="description" content="Download YouTube video thumbnails in HD (1080p), SD, and default sizes.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <style>
+        .tool-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--color-surface);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 1rem;
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            color: var(--color-text);
+            font-family: inherit;
+        }
+
+        button {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 0 1.5rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .result-item {
+            display: none;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--color-surface-2);
+            padding-bottom: 2rem;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .thumb-preview {
+            width: 100%;
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .res-badge {
+            display: inline-block;
+            background: var(--color-surface-2);
+            padding: 0.2rem 0.6rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+            color: var(--color-accent);
+        }
+
+        .download-btn {
+            display: inline-block;
+            background: var(--color-secondary);
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 500;
+        }
+
+        @media (max-width: 600px) {
+            .input-group {
+                flex-direction: column;
+            }
+
+            button {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#social-media">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#social-media" class="back-link">← Back to Social Tools</a>
+                <h1>YouTube Thumbnail Downloader</h1>
+                <p>Get high-quality thumbnails from any YouTube video instantly.</p>
+            </div>
+
+            <div class="tool-container">
+                <div class="panel">
+                    <div class="input-group">
+                        <input type="text" id="url" placeholder="Paste YouTube Link (e.g. https://youtu.be/...)">
+                        <button onclick="getThumbs()">Get Thumbnail</button>
+                    </div>
+
+                    <div id="results">
+                        <!-- Max Res -->
+                        <div class="result-item" id="res-max">
+                            <span class="res-badge">HD (1280x720)</span>
+                            <img src="" alt="HD Thumbnail" class="thumb-preview">
+                            <a href="" target="_blank" class="download-btn" download="thumbnail_hd.jpg">Download HD
+                                Image</a>
+                        </div>
+
+                        <!-- High -->
+                        <div class="result-item" id="res-high">
+                            <span class="res-badge">HQ (640x480)</span>
+                            <img src="" alt="HQ Thumbnail" class="thumb-preview">
+                            <a href="" target="_blank" class="download-btn" download="thumbnail_hq.jpg">Download HQ
+                                Image</a>
+                        </div>
+
+                        <!-- Medium -->
+                        <div class="result-item" id="res-med">
+                            <span class="res-badge">MQ (320x180)</span>
+                            <img src="" alt="MQ Thumbnail" class="thumb-preview" style="max-width: 320px;">
+                            <a href="" target="_blank" class="download-btn" download="thumbnail_mq.jpg">Download MQ
+                                Image</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function getThumbs() {
+            const url = document.getElementById('url').value;
+            const videoId = extractVideoId(url);
+
+            if (!videoId) {
+                alert('Invalid YouTube URL');
+                return;
+            }
+
+            showResult('res-max', `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`);
+            showResult('res-high', `https://img.youtube.com/vi/${videoId}/sddefault.jpg`);
+            showResult('res-med', `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`);
+        }
+
+        function showResult(id, imgSrc) {
+            const el = document.getElementById(id);
+            const img = el.querySelector('img');
+            const btn = el.querySelector('a');
+
+            img.src = imgSrc;
+            btn.href = imgSrc;
+            el.style.display = 'block';
+
+            // Optional: Hide max res if it fails (404)
+            // But client-side cross-origin image check is inconsistent.
+            // Generally maxres exists for HD videos.
+        }
+
+        function extractVideoId(url) {
+            const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[7].length == 11) ? match[7] : false;
+        }
+    </script>
+</body>
+
+</html>

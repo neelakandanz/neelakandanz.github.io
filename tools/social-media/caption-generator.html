@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Caption Generator - Social Tools | Neelakandan</title>
+    <meta name="description" content="Generate engaging captions for Instagram, Twitter, and LinkedIn instantly.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <style>
+        .tool-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--color-surface);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--color-text-muted);
+        }
+
+        select,
+        input {
+            width: 100%;
+            padding: 0.8rem;
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            color: var(--color-text);
+        }
+
+        .btn-generate {
+            width: 100%;
+            padding: 1rem;
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-bottom: 2rem;
+            transition: transform 0.1s;
+        }
+
+        .btn-generate:active {
+            transform: scale(0.98);
+        }
+
+        .results {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .caption-card {
+            background: var(--color-surface-2);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-border);
+            position: relative;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .caption-card:hover {
+            border-color: var(--color-primary);
+        }
+
+        .copy-hint {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+            opacity: 0.5;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#social-media">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#social-media" class="back-link">← Back to Social Tools</a>
+                <h1>Caption Generator</h1>
+                <p>Create catchy captions for your social media posts in seconds.</p>
+            </div>
+
+            <div class="tool-container">
+                <div class="panel">
+                    <div class="config-grid">
+                        <div>
+                            <label>Topic / Vibe</label>
+                            <select id="topic">
+                                <option value="travel">Travel & Adventure</option>
+                                <option value="food">Food & Dining</option>
+                                <option value="fitness">Fitness & Gym</option>
+                                <option value="tech">Tech & Coding</option>
+                                <option value="motivation">Motivation & Success</option>
+                                <option value="nature">Nature & Outdoors</option>
+                                <option value="business">Business & Work</option>
+                                <option value="fashion">Fashion & Style</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Tone</label>
+                            <select id="tone">
+                                <option value="fun">Fun & Emoji Heavy</option>
+                                <option value="minimal">Minimal & Short</option>
+                                <option value="professional">Professional</option>
+                                <option value="question">Engaging Question</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button class="btn-generate" onclick="generate()">✨ Generate Captions</button>
+
+                    <div id="results" class="results">
+                        <div style="text-align: center; color: var(--color-text-muted);">Select options and hit
+                            generate!</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const captions = {
+            travel: {
+                fun: [
+                    "Wanderlust mode: ON ✈️🌍✨",
+                    "Catch flights, not feelings 🛫😎",
+                    "Adventure awaits! Where to next? 🗺️🎒",
+                    "Living my best life in paradise 🌴☀️🍹"
+                ],
+                minimal: [
+                    "Wanderlust.",
+                    "Escape.",
+                    "Views.",
+                    "Exploring."
+                ],
+                professional: [
+                    "Expanding horizons and exploring new cultures today.",
+                    "Taking some time to recharge and reflect in this beautiful setting.",
+                    "The journey is just as important as the destination."
+                ],
+                question: [
+                    "Beach or Mountains? Let me know below! 👇",
+                    "What's the one place you want to visit this year? 🌍",
+                    "Rate this view 1-10! 📸"
+                ]
+            },
+            food: {
+                fun: [
+                    "Good food = Good mood 🍕🍟😋",
+                    "Calories don't count on weekends, right? 🍔🍰",
+                    "Taste test passed! ✅🤤",
+                    "Feast mode activated 🍽️🔥"
+                ],
+                minimal: [
+                    "Cravings.",
+                    "Fresh.",
+                    "Tasty.",
+                    "Bon Appetit."
+                ],
+                professional: [
+                    "Exploring local culinary delights.",
+                    "Focusing on nutrition and flavor today.",
+                    "A wonderful dining experience to share."
+                ],
+                question: [
+                    "Sweet or Savory? Vote now! 🍩🥨",
+                    "What's your ultimate comfort food? 🍲",
+                    "Tag a friend you'd share this with! 👯‍♀️"
+                ]
+            },
+            fitness: {
+                fun: [
+                    "Sweat now, shine later! 💪💦✨",
+                    "Gym hair, don't care 🏋️‍♀️🧘‍♂️",
+                    "Do it for the after selfie 📸🔥",
+                    "Beast mode: ON 🦍⚡"
+                ],
+                minimal: [
+                    "Grind.",
+                    "Progress.",
+                    "Focus.",
+                    "No Excuses."
+                ],
+                professional: [
+                    "Consistency is the key to progress.",
+                    "Investing in health and wellness today.",
+                    "Discipline over motivation."
+                ],
+                question: [
+                    "Cardio or Weights? Which team are you? 🏃‍♂️🏋️",
+                    "What motivates you to keep moving? 👇",
+                    "Did you workout today? ✅ or ❌"
+                ]
+            },
+            tech: {
+                fun: [
+                    "Eat. Sleep. Code. Repeat. 💻☕🔁",
+                    "Debugging life one line at a time 🐛🚫",
+                    "My brain has too many tabs open 🤯🌐",
+                    "Hello World! 👋🚀"
+                ],
+                minimal: [
+                    "Code.",
+                    "Build.",
+                    "Ship.",
+                    "Innovation."
+                ],
+                professional: [
+                    "Exploring new technologies and frameworks.",
+                    "Optimizing workflow for better efficiency.",
+                    "Building the future, one commit at a time."
+                ],
+                question: [
+                    "Dark mode or Light mode? 🌑☀️",
+                    "What's your favorite programming language?",
+                    "Mac or Windows for dev? Let's debate! 👇"
+                ]
+            },
+            motivation: {
+                fun: [
+                    "Dream big, sparkle more! ✨💪",
+                    "Making magic happen today 🪄🌟",
+                    "Positive vibes only! ✌️😎",
+                    "You got this! 💯🔥"
+                ],
+                minimal: [
+                    "Believe.",
+                    "Achieve.",
+                    "Hustle.",
+                    "Growth."
+                ],
+                professional: [
+                    "Success is not final, failure is not fatal.",
+                    "Focus on the process, not just the outcome.",
+                    "Embrace the challenges as opportunities."
+                ],
+                question: [
+                    "What is your big goal for this month? 🎯",
+                    "Who inspires you the most? Tag them! 👇",
+                    "One word to describe your mindset today?"
+                ]
+            },
+            // Fallback generic
+            default: {
+                fun: ["Vibes ✨", "Just creating magic 🪄", "Living for this 🙌"],
+                minimal: ["Moments.", "Mood.", "Life."],
+                professional: ["Reflecting on today.", "Moving forward.", "Grateful."],
+                question: ["Thoughts?", "Yes or No?", "What do you think?"]
+            }
+        };
+
+        function generate() {
+            const topic = document.getElementById('topic').value;
+            const tone = document.getElementById('tone').value;
+            const container = document.getElementById('results');
+
+            let data = captions[topic] || captions['default'];
+            let list = data[tone] || data['fun']; // Fallback
+
+            // If topic exists but tone is missing in that topic, fallback to fun
+            if (!captions[topic][tone]) list = captions[topic]['fun'];
+
+            // Add some hashtags
+            const hashtags = getHashtags(topic);
+
+            let html = '';
+            list.forEach(cap => {
+                html += `
+                <div class="caption-card" onclick="copyCaption(this)">
+                    <span class="copy-hint">Click to Copy</span>
+                    <p>${cap}<br><br>${hashtags}</p>
+                </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function getHashtags(topic) {
+            const tags = {
+                travel: "#Wanderlust #TravelGram #Explore",
+                food: "#Foodie #Yum #FoodPorn",
+                fitness: "#FitnessMotivation #GymLife #FitFam",
+                tech: "#Coding #DevLife #TechTrends",
+                motivation: "#Motivation #Success #Mindset",
+                nature: "#NatureLovers #Outdoors #Beautiful",
+                business: "#Entrepreneur #Business #Hustle",
+                fashion: "#OOTD #Style #FashionGram"
+            };
+            return tags[topic] || "#Life #Daily";
+        }
+
+        function copyCaption(el) {
+            const text = el.querySelector('p').innerText;
+            navigator.clipboard.writeText(text);
+
+            const hint = el.querySelector('.copy-hint');
+            const original = hint.innerText;
+            hint.innerText = "Copied!";
+            hint.style.color = "var(--color-primary)";
+            hint.style.opacity = "1";
+
+            setTimeout(() => {
+                hint.innerText = original;
+                hint.style.color = "";
+                hint.style.opacity = "";
+            }, 1000);
+        }
+    </script>
+</body>
+
+</html>

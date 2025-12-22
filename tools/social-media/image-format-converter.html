@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Format Converter - Social Tools | Neelakandan</title>
+    <meta name="description" content="Convert images between JPG, PNG, and WEBP formats instantly in your browser.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <style>
+        .tool-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--color-surface);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            text-align: center;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--color-border);
+            border-radius: var(--radius-md);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .upload-area:hover {
+            border-color: var(--color-primary);
+        }
+
+        .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            align-items: flex-end;
+            margin-bottom: 2rem;
+        }
+
+        .control-group {
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--color-text-muted);
+        }
+
+        select {
+            padding: 0.8rem;
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            color: var(--color-text);
+            min-width: 150px;
+        }
+
+        .btn-convert {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 500;
+            height: 42px;
+        }
+
+        .preview-box {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .preview-img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-border);
+        }
+
+        .download-link {
+            display: inline-block;
+            margin-top: 1rem;
+            background: var(--color-success);
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 2rem;
+            border-radius: var(--radius-md);
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#social-media">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#social-media" class="back-link">← Back to Social Tools</a>
+                <h1>Image Format Converter</h1>
+                <p>Convert images to PNG, JPG, or WEBP effortlessly.</p>
+            </div>
+
+            <div class="tool-container">
+                <div class="panel">
+                    <div class="upload-area" id="drop-zone">
+                        <span style="font-size: 3rem;">🖼️</span>
+                        <h3>Upload Image</h3>
+                        <p id="filename" style="color: var(--color-text-muted);">Supports JPG, PNG, WEBP, GIF</p>
+                        <input type="file" id="file-input" class="file-input" accept="image/*">
+                    </div>
+
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>Target Format</label>
+                            <select id="format">
+                                <option value="image/png">PNG</option>
+                                <option value="image/jpeg">JPG</option>
+                                <option value="image/webp">WEBP</option>
+                            </select>
+                        </div>
+                        <div class="control-group" id="quality-group" style="display:none;">
+                            <label>Quality (0.1 - 1.0)</label>
+                            <select id="quality">
+                                <option value="0.92">High (Default)</option>
+                                <option value="0.8">Medium</option>
+                                <option value="0.6">Low</option>
+                                <option value="1.0">Maximum</option>
+                            </select>
+                        </div>
+                        <button class="btn-convert" onclick="convert()">Convert</button>
+                    </div>
+
+                    <div class="preview-box" id="result-box">
+                        <h3>Converted Image</h3>
+                        <img id="result-img" class="preview-img">
+                        <br>
+                        <a id="download-btn" class="download-link" download>Download Image</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const fileInput = document.getElementById('file-input');
+        const formatSelect = document.getElementById('format');
+        const qualityGroup = document.getElementById('quality-group');
+        let currentFile = null;
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                currentFile = e.target.files[0];
+                document.getElementById('filename').textContent = currentFile.name;
+                document.getElementById('result-box').style.display = 'none';
+            }
+        });
+
+        formatSelect.addEventListener('change', () => {
+            const fmt = formatSelect.value;
+            if (fmt === 'image/jpeg' || fmt === 'image/webp') {
+                qualityGroup.style.display = 'block';
+            } else {
+                qualityGroup.style.display = 'none';
+            }
+        });
+
+        function convert() {
+            if (!currentFile) {
+                alert('Please upload an image first.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+
+                    const ctx = canvas.getContext('2d');
+                    // Fill white background for JPG transparency issue
+                    if (formatSelect.value === 'image/jpeg') {
+                        ctx.fillStyle = '#FFFFFF';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    }
+                    ctx.drawImage(img, 0, 0);
+
+                    const format = formatSelect.value;
+                    const quality = parseFloat(document.getElementById('quality').value);
+
+                    const dataUrl = canvas.toDataURL(format, quality);
+
+                    const resImg = document.getElementById('result-img');
+                    const dlBtn = document.getElementById('download-btn');
+
+                    resImg.src = dataUrl;
+                    dlBtn.href = dataUrl;
+
+                    // Ext
+                    let ext = 'png';
+                    if (format === 'image/jpeg') ext = 'jpg';
+                    if (format === 'image/webp') ext = 'webp';
+
+                    const newName = currentFile.name.split('.')[0] + '_converted.' + ext;
+                    dlBtn.download = newName;
+
+                    document.getElementById('result-box').style.display = 'block';
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(currentFile);
+        }
+    </script>
+</body>
+
+</html>

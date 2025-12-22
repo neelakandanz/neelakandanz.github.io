@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech to Text - Social Tools | Neelakandan</title>
+    <meta name="description" content="Convert your voice into text in real-time. Copy and use for captions or notes.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <style>
+        .tool-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--color-surface);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-record {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-record.recording {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+
+            70% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
+        }
+
+        .lang-select {
+            padding: 0.5rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-border);
+            background: var(--color-surface-2);
+            color: var(--color-text);
+        }
+
+        .text-area {
+            width: 100%;
+            height: 300px;
+            padding: 1.5rem;
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            color: var(--color-text);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            resize: vertical;
+        }
+
+        .status-text {
+            color: var(--color-text-muted);
+            margin-left: auto;
+            align-self: center;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#social-media">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#social-media" class="back-link">← Back to Social Tools</a>
+                <h1>Speech to Text</h1>
+                <p>Dictate text effortlessly using advanced speech recognition.</p>
+            </div>
+
+            <div class="tool-container">
+                <div class="panel">
+                    <div class="controls">
+                        <button id="btn-start" class="btn-record" onclick="toggleRecord()">
+                            <span id="icon">🎙️</span> <span id="btn-text">Start Recording</span>
+                        </button>
+
+                        <select id="lang" class="lang-select">
+                            <option value="en-US">English (US)</option>
+                            <option value="en-GB">English (UK)</option>
+                            <option value="en-IN">English (India)</option>
+                            <option value="es-ES">Spanish</option>
+                            <option value="fr-FR">French</option>
+                            <option value="de-DE">German</option>
+                            <option value="ta-IN">Tamil</option>
+                            <option value="hi-IN">Hindi</option>
+                        </select>
+
+                        <span class="status-text" id="status">Click to speak...</span>
+                    </div>
+
+                    <textarea id="output" class="text-area" placeholder="Your speech will appear here..."></textarea>
+
+                    <div style="margin-top: 1rem; display: flex; gap: 1rem;">
+                        <button onclick="copyText()"
+                            style="padding:0.8rem; background:var(--color-primary); color:white; border:none; border-radius:var(--radius-md); cursor:pointer;">Copy
+                            Text</button>
+                        <button onclick="document.getElementById('output').value=''"
+                            style="padding:0.8rem; background:var(--color-surface-2); color:white; border:1px solid var(--color-border); border-radius:var(--radius-md); cursor:pointer;">Clear</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const btn = document.getElementById('btn-start');
+        const status = document.getElementById('status');
+        const output = document.getElementById('output');
+        const langInfo = document.getElementById('lang');
+        let recognition;
+        let isRecording = false;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+
+            recognition.onstart = () => {
+                isRecording = true;
+                btn.classList.add('recording');
+                document.getElementById('btn-text').textContent = 'Stop Recording';
+                status.textContent = 'Listening...';
+            };
+
+            recognition.onend = () => {
+                isRecording = false;
+                btn.classList.remove('recording');
+                document.getElementById('btn-text').textContent = 'Start Recording';
+                status.textContent = 'Stopped.';
+            };
+
+            recognition.onresult = (event) => {
+                let interimTranscript = '';
+                let finalTranscript = '';
+
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
+                }
+
+                // We append final to existing value, but interim just shows temporarily?
+                // Actually standard pattern is to maintain full text.
+                // Simplified approach: Append meaningful chunks.
+
+                // Better approach for continuous dictation without losing context manually:
+                // Just use the event to append to textarea is tricky because of duplicates.
+                // Let's just update the value.
+
+                // Actually, correct way for simple textarea append:
+                // Only append NEW final results.
+
+                if (finalTranscript) {
+                    const current = output.value;
+                    output.value = current + (current ? ' ' : '') + finalTranscript;
+                }
+            };
+
+            recognition.onerror = (event) => {
+                status.textContent = 'Error: ' + event.error;
+                isRecording = false;
+                btn.classList.remove('recording');
+            };
+
+        } else {
+            btn.disabled = true;
+            status.textContent = 'Browser not supported (Use Chrome/Edge).';
+        }
+
+        function toggleRecord() {
+            if (!recognition) return;
+
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                recognition.lang = langInfo.value;
+                recognition.start();
+            }
+        }
+
+        function copyText() {
+            output.select();
+            document.execCommand('copy');
+            status.textContent = 'Copied to clipboard!';
+            setTimeout(() => status.textContent = isRecording ? 'Listening...' : 'Stopped.', 2000);
+        }
+    </script>
+</body>
+
+</html>

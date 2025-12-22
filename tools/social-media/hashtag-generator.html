@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hashtag Generator - Social Tools | Neelakandan</title>
+    <meta name="description"
+        content="Find the best hashtags for Instagram, TikTok, LinkedIn, and Twitter to boost reach.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <style>
+        .tool-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--color-surface);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+        }
+
+        .search-area {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            padding-right: 120px;
+            font-size: 1.1rem;
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            border-radius: 50px;
+            color: var(--color-text);
+        }
+
+        .btn-search {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            bottom: 5px;
+            border-radius: 40px;
+            padding: 0 1.5rem;
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .platform-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--color-border);
+            padding-bottom: 0.5rem;
+        }
+
+        .plat-tab {
+            background: none;
+            border: none;
+            padding: 0.5rem 1rem;
+            color: var(--color-text-muted);
+            cursor: pointer;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .plat-tab.active {
+            color: var(--color-primary);
+        }
+
+        .plat-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -0.6rem;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--color-primary);
+        }
+
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-bottom: 2rem;
+            min-height: 100px;
+        }
+
+        .tag-chip {
+            background: var(--color-surface-2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 1px solid var(--color-border);
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .tag-chip:hover {
+            border-color: var(--color-primary);
+            transform: translateY(-2px);
+        }
+
+        .tag-chip.selected {
+            background: rgba(var(--color-primary-rgb), 0.1);
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .output-box {
+            width: 100%;
+            padding: 1rem;
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            color: var(--color-text);
+            margin-top: 1rem;
+            min-height: 80px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+        }
+
+        .action-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        .count-badge {
+            font-size: 0.9rem;
+            color: var(--color-text-muted);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#social-media">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#social-media" class="back-link">← Back to Social Tools</a>
+                <h1>Hashtag Generator</h1>
+                <p>Find trending hashtags keyword search.</p>
+            </div>
+
+            <div class="tool-container">
+                <div class="panel">
+                    <div class="search-area">
+                        <input type="text" id="keyword" class="search-input"
+                            placeholder="Enter a keyword (e.g. coffee, travel, crypto)..."
+                            onkeypress="if(event.key==='Enter') generate()">
+                        <button class="btn-search" onclick="generate()">Search</button>
+                    </div>
+
+                    <div class="platform-tabs">
+                        <button class="plat-tab active" onclick="setPlatform('mixed')">All</button>
+                        <button class="plat-tab" onclick="setPlatform('insta')">Instagram</button>
+                        <button class="plat-tab" onclick="setPlatform('twitter')">Twitter</button>
+                        <button class="plat-tab" onclick="setPlatform('linkedin')">LinkedIn</button>
+                    </div>
+
+                    <div id="tag-cloud" class="tag-cloud">
+                        <div style="width:100%; text-align:center; color:var(--color-text-muted); padding-top:2rem;">
+                            Start typing to find hashtags...</div>
+                    </div>
+
+                    <div style="border-top: 1px solid var(--color-border); padding-top: 1.5rem;">
+                        <h3 style="font-size:1.1rem; margin-bottom:0.5rem;">Selected Hashtags</h3>
+                        <textarea id="output" class="output-box" readonly
+                            placeholder="Click tags above to add them here..."></textarea>
+
+                        <div class="action-row">
+                            <span class="count-badge" id="count">0 selected</span>
+                            <div>
+                                <button onclick="copyTags()"
+                                    style="padding:0.6rem 1.2rem; background:var(--color-primary); color:white; border:none; border-radius:var(--radius-md); cursor:pointer;">Copy</button>
+                                <button onclick="clearSelection()"
+                                    style="padding:0.6rem 1.2rem; background:var(--color-surface-2); color:white; border:1px solid var(--color-border); border-radius:var(--radius-md); cursor:pointer; margin-left:0.5rem;">Clear</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Simple client-side database mapping
+        const tagDB = {
+            coffee: ["coffeelover", "coffeetime", "espresso", "latteart", "morningcoffee", "caffeine", "baristalife", "coffeeaddict", "cafe", "brewing", "specialtycoffee", "roasters", "coffeegram", "instacoffee", "coffeeshop"],
+            travel: ["wanderlust", "travelgram", "adventure", "exploring", "travelphotography", "vacation", "holiday", "nature", "tourism", "backpacking", "solotravel", "landscape", "beautifuldestinations", "passportready"],
+            fitness: ["gymrat", "fitnessmotivation", "workout", "bodybuilding", "fitfam", "healthylifestyle", "training", "muscle", "cardio", "crossfit", "yoga", "personaltrainer", "gains", "nutrition", "weightloss"],
+            tech: ["technology", "coding", "developer", "programmer", "softwareengineering", "webdevelopment", "javascript", "python", "ai", "machinelearning", "startup", "innovation", "gadgets", "futuretech", "cybersecurity"],
+            business: ["entrepreneur", "businessowner", "hustle", "marketing", "success", "motivation", "startup", "leadership", "money", "finance", "growthmindset", "branding", "sales", "smallbusiness"],
+            art: ["artist", "drawing", "sketch", "painting", "digitalart", "illustration", "creative", "design", "artwork", "instaart", "artistsoninstagram", "sketchbook", "ink", "gallery"],
+            food: ["foodie", "foodporn", "delicious", "yummy", "instafood", "dinner", "lunch", "breakfast", "homemade", "cooking", "chef", "healthyfood", "vegan", "dessert", "tasty"],
+            nature: ["naturephotography", "wildlife", "forest", "mountains", "beach", "sunset", "sunrise", "flowers", "earth", "climatechange", "conservation", "hiking", "outdoors", "scenery"],
+            love: ["love", "instagood", "happy", "couple", "relationship", "cute", "romance", "forever", "wedding", "family", "friends", "smile", "beautiful", "life"],
+            crypto: ["bitcoin", "ethereum", "blockchain", "cryptocurrency", "nft", "trading", "investing", "altcoins", "defi", "web3", "hodl", "bullrun", "finance", "money"]
+        };
+
+        const platformPrefix = {
+            mixed: "",
+            insta: "",
+            twitter: "",
+            linkedin: ""
+            // Logic could vary (e.g. CamelCase preferred on LinkedIn) but usually tags are same
+        };
+
+        let selectedTags = new Set();
+        let currentPlatform = 'mixed';
+
+        function setPlatform(plat) {
+            currentPlatform = plat;
+            document.querySelectorAll('.plat-tab').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            // Normally would filter/format based on platform logic
+        }
+
+        function generate() {
+            const keyword = document.getElementById('keyword').value.toLowerCase().trim();
+            const container = document.getElementById('tag-cloud');
+
+            if (!keyword) return;
+
+            // Find matching key or partial match
+            let foundTags = [];
+
+            // Exact match logic + related logic could be complex
+            // Simple approach: Check if keyword is in DB keys
+
+            const keys = Object.keys(tagDB);
+            let matchedKey = keys.find(k => keyword.includes(k) || k.includes(keyword));
+
+            if (matchedKey) {
+                foundTags = tagDB[matchedKey];
+            } else {
+                // Fallback / Generative imitation
+                foundTags = [
+                    keyword,
+                    keyword + "life",
+                    keyword + "gram",
+                    "love" + keyword,
+                    "best" + keyword,
+                    keyword + "daily",
+                    "insta" + keyword,
+                    keyword + "lover",
+                    "my" + keyword,
+                    keyword + "world"
+                ];
+            }
+
+            // Render
+            container.innerHTML = '';
+            foundTags.forEach(tag => {
+                const el = document.createElement('div');
+                el.className = 'tag-chip';
+                el.textContent = '#' + tag;
+                el.onclick = () => toggleTag(el, tag);
+                if (selectedTags.has(tag)) el.classList.add('selected');
+                container.appendChild(el);
+            });
+        }
+
+        function toggleTag(el, tag) {
+            if (selectedTags.has(tag)) {
+                selectedTags.delete(tag);
+                el.classList.remove('selected');
+            } else {
+                selectedTags.add(tag);
+                el.classList.add('selected');
+            }
+            updateOutput();
+        }
+
+        function updateOutput() {
+            const tags = Array.from(selectedTags).map(t => '#' + t).join(' ');
+            document.getElementById('output').value = tags;
+            document.getElementById('count').textContent = selectedTags.size + ' selected';
+        }
+
+        function copyTags() {
+            const text = document.getElementById('output').value;
+            if (text) {
+                navigator.clipboard.writeText(text);
+                alert('Hashtags copied!');
+            }
+        }
+
+        function clearSelection() {
+            selectedTags.clear();
+            document.querySelectorAll('.tag-chip').forEach(el => el.classList.remove('selected'));
+            updateOutput();
+        }
+    </script>
+</body>
+
+</html>

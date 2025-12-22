@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internet Speed Test - Social Tools | Neelakandan</title>
+    <meta name="description" content="Check your internet connection speed, ping, and jitter instantly.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <style>
+        .tool-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--color-surface);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+        }
+
+        .gauge-container {
+            position: relative;
+            width: 300px;
+            height: 150px;
+            margin: 0 auto 2rem;
+            overflow: hidden;
+        }
+
+        .gauge-bg {
+            width: 300px;
+            height: 150px;
+            background: var(--color-surface-2);
+            border-top-left-radius: 150px;
+            border-top-right-radius: 150px;
+        }
+
+        .gauge-fill {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--color-primary);
+            transform-origin: center top;
+            transform: rotate(0deg);
+            /* 0 to 180deg */
+            transition: transform 0.5s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .gauge-cover {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 260px;
+            height: 130px;
+            background: var(--color-surface);
+            border-top-left-radius: 130px;
+            border-top-right-radius: 130px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .speed-text {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .primary-val {
+            font-size: 4rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .unit {
+            font-size: 1.2rem;
+            color: var(--color-text-muted);
+            margin-top: 5px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: var(--color-surface-2);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: var(--color-text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-val {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .btn-go {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin: 0 auto;
+            display: block;
+            box-shadow: 0 4px 15px rgba(var(--color-primary-rgb), 0.3);
+            transition: all 0.2s;
+        }
+
+        .btn-go:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-go:disabled {
+            background: var(--color-surface-2);
+            color: var(--color-text-muted);
+            cursor: not-allowed;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#social-media">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#social-media" class="back-link">← Back to Social Tools</a>
+                <h1>Internet Speed Test</h1>
+                <p>Test your Ping, Jitter, and Download speed.</p>
+            </div>
+
+            <div class="tool-container">
+                <div class="panel">
+
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-label">Ping</div>
+                            <div class="metric-val" id="ping">- ms</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Jitter</div>
+                            <div class="metric-val" id="jitter">- ms</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Download</div>
+                            <div class="metric-val" id="down">--</div>
+                        </div>
+                    </div>
+
+                    <div class="gauge-container">
+                        <div class="gauge-bg"></div>
+                        <div class="gauge-fill" id="gauge-fill"></div>
+                        <div class="gauge-cover"></div>
+                    </div>
+
+                    <div class="speed-text">
+                        <div class="primary-val" id="main-val">0.00</div>
+                        <div class="unit">Mbps</div>
+                    </div>
+
+                    <button class="btn-go" onclick="runTest()" id="btn-go">GO</button>
+
+                    <div style="text-align:center; margin-top:1rem; color:var(--color-text-muted);" id="status-msg">
+                        Click GO to start</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const TEST_URL = "https://images.unsplash.com/photo-1558222218-b7b54eede3f3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1500&q=80";
+        // A smaller file for Ping
+        const PING_URL = "../../assets/css/global.css"; // Local check or minimal external
+
+        async function measurePing() {
+            const start = performance.now();
+            await fetch(PING_URL + "?t=" + Date.now(), { cache: "no-store" });
+            const end = performance.now();
+            return end - start;
+        }
+
+        async function runTest() {
+            const btn = document.getElementById('btn-go');
+            if (btn.disabled) return;
+            btn.disabled = true;
+            btn.textContent = "...";
+
+            document.getElementById('status-msg').textContent = "Testing Ping...";
+
+            // 1. PING & JITTER
+            try {
+                let pings = [];
+                for (let i = 0; i < 5; i++) {
+                    const p = await measurePing();
+                    pings.push(p);
+                    await new Promise(r => setTimeout(r, 100)); // gap
+                }
+                const minPing = Math.min(...pings);
+
+                // Jitter: avg deviation
+                const avgPing = pings.reduce((a, b) => a + b, 0) / pings.length;
+                const jitter = pings.reduce((a, b) => a + Math.abs(b - avgPing), 0) / pings.length;
+
+                document.getElementById('ping').textContent = Math.round(minPing) + " ms";
+                document.getElementById('jitter').textContent = Math.round(jitter) + " ms";
+
+                // 2. DOWNLOAD
+                document.getElementById('status-msg').textContent = "Testing Download...";
+
+                const response = await fetch(TEST_URL + "&t=" + Date.now());
+                const reader = response.body.getReader();
+                const totalLength = +response.headers.get('Content-Length') || 2000000;
+
+                let receivedLength = 0;
+                const startTime = performance.now();
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    receivedLength += value.length;
+
+                    // Live Update
+                    const now = performance.now();
+                    const duration = (now - startTime) / 1000;
+                    if (duration > 0.1) {
+                        const bits = receivedLength * 8;
+                        const mbps = (bits / 1000000 / duration);
+                        updateGauge(mbps);
+                    }
+                }
+
+                const endTime = performance.now();
+                const duration = (endTime - startTime) / 1000;
+                const bits = receivedLength * 8;
+                const finalMbps = (bits / 1000000 / duration).toFixed(2);
+
+                updateGauge(finalMbps);
+                document.getElementById('down').textContent = finalMbps + " Mbps";
+                document.getElementById('status-msg').textContent = "Test Complete";
+
+            } catch (e) {
+                console.error(e);
+                document.getElementById('status-msg').textContent = "Test Failed";
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "GO";
+            }
+        }
+
+        function updateGauge(mbps) {
+            document.getElementById('main-val').textContent = parseFloat(mbps).toFixed(2);
+
+            // Map 0-100 Mbps to 0-180 degrees roughly
+            // Log scale is better for speed tests usually, but linear ok for simple tool
+            let deg = (mbps / 100) * 180;
+            if (deg > 180) deg = 180;
+            // But actually rotate starts at -90 effectively if we consider gauge fill logic
+            // My CSS logic: transform: rotate(0deg) is hidden (left). 180 is full (right).
+            // Wait, CSS: 
+            /* 
+               top: 100%; left: 0; transform-origin: center top; 
+               If rotate(0), it points down? No wait.
+               Wait, I need to verify basic gauge CSS.
+               Usually rotate(0) is 3 o clock?
+               Let's assume linear mapping 0-180 for now.
+            */
+            // Fix CSS logic:
+            // To make it fill from left to right in a semi-circle:
+            // The fill needs to rotate.
+            // Actually a simpler gauge is a conic gradient, but let's stick to this div rotation.
+            // Let's assume 0deg is empty (left side hidden?)
+            // Actually with `transform-origin: center top`, and the semi-circle parent...
+            // Let's correct the rotation logic:
+            // Start position: rotation: 0deg.
+            // If I want it to sweep from left (-90) to right (+90)?
+
+            // Let's just use rotation:
+            // 0 Mbps -> 0 deg
+            // 50 Mbps -> 90 deg
+            // 100 Mbps -> 180 deg
+
+            document.getElementById('gauge-fill').style.transform = `rotate(${deg}deg)`;
+        }
+    </script>
+</body>
+
+</html>

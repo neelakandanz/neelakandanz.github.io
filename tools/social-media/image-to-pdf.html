@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to PDF Converter - Social Tools | Neelakandan</title>
+    <meta name="description" content="Convert your images (JPG, PNG) into a single PDF document easily.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        .tool-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--color-surface);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            text-align: center;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--color-border);
+            border-radius: var(--radius-md);
+            padding: 3rem;
+            margin-bottom: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .upload-area:hover {
+            border-color: var(--color-primary);
+            background: rgba(var(--color-primary-rgb), 0.05);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .preview-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .preview-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--color-border);
+        }
+
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .action-btn {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--color-surface-2);
+            border-radius: 3px;
+            margin-top: 1rem;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--color-primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#social-media">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#social-media" class="back-link">← Back to Social Tools</a>
+                <h1>Image to PDF Converter</h1>
+                <p>Combine multiple images into a single PDF document.</p>
+            </div>
+
+            <div class="tool-container">
+                <div class="panel">
+                    <div class="upload-area" id="drop-zone">
+                        <span class="upload-icon">🖼️</span>
+                        <h3>Click to Upload or Drag & Drop</h3>
+                        <p style="color: var(--color-text-muted);">Supports JPG, PNG, WEBP</p>
+                        <input type="file" id="file-input" class="file-input" multiple accept="image/*">
+                    </div>
+
+                    <div class="preview-list" id="preview-list">
+                        <!-- Preview Items -->
+                    </div>
+
+                    <div class="progress-bar" id="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+
+                    <button class="action-btn" id="convert-btn" disabled onclick="convertToPdf()">Convert to
+                        PDF</button>
+                    <button class="action-btn" onclick="clearFiles()"
+                        style="background:var(--color-surface-2); color:var(--color-text); margin-left:1rem;">Clear</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const { jsPDF } = window.jspdf;
+        let images = [];
+        const fileInput = document.getElementById('file-input');
+        const dropZone = document.getElementById('drop-zone');
+        const previewList = document.getElementById('preview-list');
+        const convertBtn = document.getElementById('convert-btn');
+
+        // Handle File Selection
+        fileInput.addEventListener('change', handleFiles);
+
+        // Drag & Drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--color-primary)';
+        });
+
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--color-border)';
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--color-border)';
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                handleFiles({ target: { files: e.dataTransfer.files } });
+            }
+        });
+
+        function handleFiles(e) {
+            const files = Array.from(e.target.files);
+
+            files.forEach(file => {
+                if (!file.type.startsWith('image/')) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const imgData = {
+                        file: file,
+                        src: e.target.result,
+                        id: Date.now() + Math.random()
+                    };
+                    images.push(imgData);
+                    renderPreviews();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function renderPreviews() {
+            previewList.innerHTML = '';
+            images.forEach((img, index) => {
+                const div = document.createElement('div');
+                div.className = 'preview-item';
+                div.innerHTML = `
+                    <img src="${img.src}" alt="preview">
+                    <button class="remove-btn" onclick="removeImage(${index})">×</button>
+                `;
+                previewList.appendChild(div);
+            });
+
+            convertBtn.disabled = images.length === 0;
+
+            // Generate simple draggable sort logic could be added here
+        }
+
+        function removeImage(index) {
+            images.splice(index, 1);
+            renderPreviews();
+        }
+
+        function clearFiles() {
+            images = [];
+            renderPreviews();
+            fileInput.value = '';
+        }
+
+        async function convertToPdf() {
+            if (images.length === 0) return;
+
+            convertBtn.textContent = 'Generating PDF...';
+            convertBtn.disabled = true;
+            document.getElementById('progress-bar').style.display = 'block';
+
+            try {
+                // Initialize PDF (A4 default)
+                const doc = new jsPDF();
+
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+
+                for (let i = 0; i < images.length; i++) {
+                    if (i > 0) doc.addPage();
+
+                    const imgData = images[i].src;
+
+                    // Simple logic: Fit to Width
+                    // To do it properly, we need image dimensions.
+                    // jsPDF handles dataURL quite well.
+
+                    const imgProps = doc.getImageProperties(imgData);
+                    const pdfWidth = pageWidth;
+                    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+                    // If height is larger than page, scale to fit height instead
+                    /* 
+                    if (pdfHeight > pageHeight) {
+                        // Fit to Height logic if desired
+                    }
+                    */
+
+                    doc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+
+                    // Update progress
+                    document.getElementById('progress-fill').style.width = `${((i + 1) / images.length) * 100}%`;
+
+                    // Small delay to allow UI update
+                    await new Promise(r => setTimeout(r, 100));
+                }
+
+                doc.save('converted-images.pdf');
+
+            } catch (err) {
+                console.error(err);
+                alert('An error occurred during PDF generation.');
+            } finally {
+                convertBtn.textContent = 'Convert to PDF';
+                convertBtn.disabled = false;
+                document.getElementById('progress-bar').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+
+</html>
