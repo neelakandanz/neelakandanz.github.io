@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNS Lookup | Neelakandan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-dark: #0c0c0c;
+            --bg-surface: #161616;
+            --bg-card: #1f1f1f;
+            --accent: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.25);
+            --text-primary: #fff;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --border: rgba(255, 255, 255, 0.08);
+            --success: #22c55e;
+            --radius: 16px;
+            --radius-sm: 10px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .header {
+            padding: 0.875rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent), #60a5fa);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .back-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.8125rem;
+            padding: 0.5rem 0.875rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .back-link:hover {
+            border-color: var(--text-primary);
+            color: var(--text-primary);
+        }
+
+        .main {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            min-height: calc(100vh - 73px);
+        }
+
+        .tool-container {
+            width: 100%;
+            max-width: 700px;
+            background: var(--bg-surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .tool-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .tool-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .tool-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .tool-body {
+            padding: 1.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 0.875rem;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: inherit;
+        }
+
+        select.input-field {
+            flex: 0 0 120px;
+            cursor: pointer;
+        }
+
+        .action-button {
+            padding: 0 1.5rem;
+            border-radius: var(--radius-sm);
+            border: none;
+            background: var(--accent);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .result-area {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            font-family: monospace;
+            white-space: pre-wrap;
+            color: var(--text-secondary);
+            min-height: 150px;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <a href="../../index.html" class="logo">
+            <div class="logo-icon">🌐</div>
+            <div class="logo-text">Neelakandan</div>
+        </a>
+        <a href="../../tools/index.html#web-internet" class="back-link">← Back to Tools</a>
+    </header>
+
+    <main class="main">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h1 class="tool-title">DNS Lookup</h1>
+                <p class="tool-subtitle">Perform DNS lookups for any domain (A, MX, NS, etc).</p>
+            </div>
+
+            <div class="tool-body">
+                <div class="input-group">
+                    <input type="text" id="domain-input" class="input-field" placeholder="example.com">
+                    <select id="record-type" class="input-field">
+                        <option value="A">A</option>
+                        <option value="AAAA">AAAA</option>
+                        <option value="MX">MX</option>
+                        <option value="TXT">TXT</option>
+                        <option value="NS">NS</option>
+                        <option value="CNAME">CNAME</option>
+                    </select>
+                    <button class="action-button" onclick="performLookup()">Lookup</button>
+                </div>
+
+                <div id="result" class="result-area">Results will appear here...</div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        async function performLookup() {
+            const domain = document.getElementById('domain-input').value.trim();
+            const type = document.getElementById('record-type').value;
+            const resultDiv = document.getElementById('result');
+
+            if (!domain) {
+                resultDiv.textContent = 'Please enter a domain name';
+                return;
+            }
+
+            resultDiv.textContent = 'Querying DNS...';
+
+            try {
+                // Using Google DNS API
+                const response = await fetch(`https://dns.google/resolve?name=${domain}&type=${type}`);
+                if (!response.ok) throw new Error('Network response was not ok');
+
+                const data = await response.json();
+
+                if (data.Answer) {
+                    const records = data.Answer.map(record => {
+                        return `${record.name} \t ${record.type} \t TTL:${record.TTL} \t ${record.data}`;
+                    }).join('\n');
+                    resultDiv.textContent = records;
+                } else if (data.Authority) {
+                    resultDiv.textContent = "No direct answer suitable. Authority section:\n" + JSON.stringify(data.Authority, null, 2);
+                } else {
+                    resultDiv.textContent = `No ${type} records found for ${domain}.`;
+                }
+            } catch (error) {
+                resultDiv.textContent = 'Error performing lookup: ' + error.message;
+            }
+        }
+    </script>
+</body>
+
+</html>

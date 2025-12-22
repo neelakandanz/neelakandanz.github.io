@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Uptime Checker | Neelakandan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Reusing style from http checker for consistency -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0c0c0c;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-link {
+            color: #a1a1aa;
+            text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        .main {
+            flex: 1;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background: #161616;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 500px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .status-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: #1f1f1f;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            transition: all 0.3s;
+            border: 4px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .status-circle.up {
+            border-color: #22c55e;
+            color: #22c55e;
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.2);
+        }
+
+        .status-circle.down {
+            border-color: #ef4444;
+            color: #ef4444;
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.2);
+        }
+
+        input {
+            width: 100%;
+            padding: 1rem;
+            background: #0c0c0c;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div style="font-weight:700">Website Uptime Checker</div>
+        <a href="../../tools/index.html#web-internet" class="back-link">Back</a>
+    </div>
+    <div class="main">
+        <div class="container">
+            <div id="status-icon" class="status-circle">?</div>
+            <h2 id="status-text">Enter URL</h2>
+            <p style="color:#a1a1aa; margin-bottom:2rem">Check if a website is currently accessible.</p>
+
+            <input type="text" id="url-input" placeholder="example.com">
+            <button onclick="checkStatus()">Check Now</button>
+        </div>
+    </div>
+
+    <script>
+        async function checkStatus() {
+            let url = document.getElementById('url-input').value;
+            const icon = document.getElementById('status-icon');
+            const text = document.getElementById('status-text');
+
+            if (!url) return;
+            if (!url.startsWith('http')) url = 'https://' + url;
+
+            icon.className = 'status-circle';
+            icon.textContent = '...';
+            text.textContent = 'Checking...';
+
+            try {
+                // Try no-cors mode, it resolves if network connection is made
+                await fetch(url, { mode: 'no-cors' });
+                icon.className = 'status-circle up';
+                icon.textContent = '✓';
+                text.textContent = 'It\'s UP!';
+            } catch (e) {
+                icon.className = 'status-circle down';
+                icon.textContent = '✕';
+                text.textContent = 'It seems DOWN';
+            }
+        }
+    </script>
+</body>
+
+</html>

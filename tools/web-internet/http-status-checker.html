@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP Status Checker | Neelakandan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0c0c0c;
+            color: #fff;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-link {
+            color: #a1a1aa;
+            text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        .back-link:hover {
+            color: #fff;
+            border-color: #fff;
+        }
+
+        .main {
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background: #161616;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 600px;
+            padding: 1.5rem;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            color: #a1a1aa;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 0.5rem;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: #71717a;
+            cursor: pointer;
+            font-size: 1rem;
+            padding-bottom: 0.5rem;
+        }
+
+        .tab-btn.active {
+            color: #3b82f6;
+            border-bottom: 2px solid #3b82f6;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            background: #0c0c0c;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        #result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #1f1f1f;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-success {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+
+        .status-error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .status-info {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div style="font-weight:700">HTTP Status Checker</div>
+        <a href="../../tools/index.html#web-internet" class="back-link">Back</a>
+    </div>
+    <div class="main">
+        <div class="container">
+            <h1>HTTP Status Checker</h1>
+            <p>Check a URL's status or look up status code meanings.</p>
+
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('check')">Check URL</button>
+                <button class="tab-btn" onclick="switchTab('lookup')">Code Lookup</button>
+            </div>
+
+            <div id="check-panel">
+                <input type="text" id="url-input" placeholder="Enter URL (e.g., https://example.com)">
+                <button onclick="checkUrl()">Check Status</button>
+            </div>
+
+            <div id="lookup-panel" style="display:none">
+                <input type="number" id="code-input" placeholder="Enter Status Code (e.g., 404)">
+                <button onclick="lookupCode()">Lookup Meaning</button>
+            </div>
+
+            <div id="result"></div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`button[onclick="switchTab('${tab}')"]`).classList.add('active');
+
+            if (tab === 'check') {
+                document.getElementById('check-panel').style.display = 'block';
+                document.getElementById('lookup-panel').style.display = 'none';
+            } else {
+                document.getElementById('check-panel').style.display = 'none';
+                document.getElementById('lookup-panel').style.display = 'block';
+            }
+            document.getElementById('result').style.display = 'none';
+        }
+
+        const codes = {
+            200: "OK - The request succeeded.",
+            301: "Moved Permanently - The URL of the requested resource has been changed permanently.",
+            302: "Found - The URI of requested resource has been changed temporarily.",
+            400: "Bad Request - The server could not understand the request due to invalid syntax.",
+            401: "Unauthorized - Authentication is needed to get requested response.",
+            403: "Forbidden - The client does not have access rights to the content.",
+            404: "Not Found - The server can not find the requested resource.",
+            500: "Internal Server Error - The server has encountered a situation it doesn't know how to handle.",
+            502: "Bad Gateway - The server got an invalid response while acting as a gateway.",
+            503: "Service Unavailable - The server is not ready to handle the request."
+        };
+
+        function lookupCode() {
+            const code = document.getElementById('code-input').value;
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+
+            if (codes[code]) {
+                resultDiv.innerHTML = `<div class="status-badge status-info">${code}</div><p style="margin:0;color:#fff">${codes[code]}</p>`;
+            } else {
+                resultDiv.innerHTML = `<div class="status-badge status-info">${code}</div><p style="margin:0;color:#fff">Unknown or generic status code.</p>`;
+            }
+        }
+
+        async function checkUrl() {
+            let url = document.getElementById('url-input').value;
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = 'Checking...';
+
+            if (!url.startsWith('http')) {
+                url = 'https://' + url;
+            }
+
+            try {
+                const response = await fetch(url, { method: 'HEAD', mode: 'cors' });
+                const cls = response.ok ? 'status-success' : 'status-error';
+                resultDiv.innerHTML = `
+                    <div class="status-badge ${cls}">${response.status} ${response.statusText}</div>
+                    <p style="margin:0;color:#fff">Headers received successfully.</p>
+                `;
+            } catch (error) {
+                // If fetch fails heavily, try no-cors to at least see if it's up
+                try {
+                    await fetch(url, { method: 'HEAD', mode: 'no-cors' });
+                    resultDiv.innerHTML = `
+                        <div class="status-badge status-success">Live (Opaque)</div>
+                        <p style="margin:0;color:#fff">Site is reachable, but full status code is hiden by CORS policies.</p>
+                    `;
+                } catch (e) {
+                    resultDiv.innerHTML = `
+                        <div class="status-badge status-error">Error</div>
+                        <p style="margin:0;color:#fff">Could not reach site. It might be down or blocking cross-origin requests.</p>
+                    `;
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
