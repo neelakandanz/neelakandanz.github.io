@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Size Converter | Neelakandan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-dark: #0c0c0c;
+            --bg-surface: #161616;
+            --bg-card: #1f1f1f;
+            --accent: #a855f7;
+            --text-primary: #fff;
+            --text-secondary: #a1a1aa;
+            --border: rgba(255, 255, 255, 0.08);
+            --radius: 16px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .app {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 0.875rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent), #ec4899);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .back-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.8125rem;
+            padding: 0.5rem 0.875rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+
+        .back-link:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        .main {
+            flex: 1;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tool-container {
+            width: 100%;
+            max-width: 600px;
+            padding: 2rem;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+
+        .tool-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .converter-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1rem;
+        }
+
+        input,
+        select {
+            padding: 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: var(--accent);
+        }
+
+        .equals {
+            text-align: center;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <header class="header">
+            <a href="#" class="logo">
+                <div class="logo-icon">KB</div><span>Size Converter</span>
+            </a>
+            <a href="../../tools/#file-data" class="back-link">← Back</a>
+        </header>
+        <main class="main">
+            <div class="tool-container">
+                <div class="tool-header">
+                    <h1>File Size Converter</h1>
+                    <p>Convert between Bytes, KB, MB, GB, TB, PB</p>
+                </div>
+
+                <div class="converter-grid">
+                    <div class="input-group">
+                        <label>From</label>
+                        <div class="row">
+                            <input type="number" id="fromVal" placeholder="0" oninput="convert()">
+                            <select id="fromUnit" onchange="convert()">
+                                <option value="0">Bytes</option>
+                                <option value="1">KB</option>
+                                <option value="2" selected>MB</option>
+                                <option value="3">GB</option>
+                                <option value="4">TB</option>
+                                <option value="5">PB</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="equals">=</div>
+
+                    <div class="input-group">
+                        <label>To</label>
+                        <div class="row">
+                            <input type="number" id="toVal" readonly>
+                            <select id="toUnit" onchange="convert()">
+                                <option value="0">Bytes</option>
+                                <option value="1" selected>KB</option>
+                                <option value="2">MB</option>
+                                <option value="3">GB</option>
+                                <option value="4">TB</option>
+                                <option value="5">PB</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        function convert() {
+            const val = parseFloat(document.getElementById('fromVal').value);
+            if (isNaN(val)) {
+                document.getElementById('toVal').value = '';
+                return;
+            }
+
+            const fromExp = parseInt(document.getElementById('fromUnit').value);
+            const toExp = parseInt(document.getElementById('toUnit').value);
+
+            // Convert to bytes first
+            const bytes = val * Math.pow(1024, fromExp);
+
+            // Convert to target unit
+            const result = bytes / Math.pow(1024, toExp);
+
+            // Format output - max 6 decimal places, remove trailing zeros
+            document.getElementById('toVal').value = parseFloat(result.toFixed(6));
+        }
+    </script>
+</body>
+
+</html>

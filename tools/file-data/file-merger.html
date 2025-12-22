@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text File Merger | Neelakandan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-dark: #0c0c0c;
+            --bg-surface: #161616;
+            --bg-card: #1f1f1f;
+            --accent: #a855f7;
+            --text-primary: #fff;
+            --text-secondary: #a1a1aa;
+            --border: rgba(255, 255, 255, 0.08);
+            --radius: 16px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .app {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 0.875rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent), #ec4899);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .back-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.8125rem;
+            padding: 0.5rem 0.875rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+
+        .back-link:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        .main {
+            flex: 1;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .tool-container {
+            width: 100%;
+            max-width: 800px;
+            padding: 2rem;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .tool-header {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .file-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            min-height: 100px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: var(--bg-card);
+            border-radius: 8px;
+        }
+
+        .upload-btn {
+            display: inline-block;
+            background: var(--bg-card);
+            border: 1px dashed var(--border);
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .upload-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: white;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <header class="header">
+            <a href="#" class="logo">
+                <div class="logo-icon">+</div><span>Text Merger</span>
+            </a>
+            <a href="../../tools/#file-data" class="back-link">← Back</a>
+        </header>
+        <main class="main">
+            <div class="tool-container">
+                <div class="tool-header">
+                    <h1>Text File Merger</h1>
+                    <p>Merge multiple text files into one</p>
+                </div>
+
+                <label class="upload-btn">
+                    + Add Text Files
+                    <input type="file" id="files" multiple accept=".txt,.csv,.json,.xml,.md,.html,.css,.js"
+                        style="display: none;" onchange="handleFiles()">
+                </label>
+
+                <div class="file-list" id="fileList">
+                    <p style="text-align: center; color: var(--text-secondary); font-size: 0.9rem;">No files added yet
+                    </p>
+                </div>
+
+                <button class="btn" onclick="mergeFiles()">Merge Files</button>
+
+                <textarea id="output" readonly placeholder="Merged content will appear here..."></textarea>
+                <button class="btn" style="background: var(--bg-card); border: 1px solid var(--border);"
+                    onclick="downloadMerged()">Download Merged File</button>
+            </div>
+        </main>
+    </div>
+    <script>
+        let selectedFiles = [];
+
+        function handleFiles() {
+            const input = document.getElementById('files');
+            const newFiles = Array.from(input.files);
+            selectedFiles = [...selectedFiles, ...newFiles];
+            updateList();
+        }
+
+        function updateList() {
+            const list = document.getElementById('fileList');
+            if (selectedFiles.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No files added yet</p>';
+                return;
+            }
+            list.innerHTML = '';
+            selectedFiles.forEach((f, i) => {
+                const div = document.createElement('div');
+                div.className = 'file-item';
+                div.innerHTML = `<span>${f.name}</span> <span style="cursor: pointer; color: #ef4444;" onclick="removeFile(${i})">×</span>`;
+                list.appendChild(div);
+            });
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateList();
+        }
+
+        async function mergeFiles() {
+            if (selectedFiles.length === 0) return;
+
+            let merged = '';
+            for (const file of selectedFiles) {
+                const text = await file.text();
+                merged += `--- Start of ${file.name} ---\n${text}\n\n`;
+            }
+
+            document.getElementById('output').value = merged;
+        }
+
+        function downloadMerged() {
+            const content = document.getElementById('output').value;
+            if (!content) return;
+
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'merged.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+    </script>
+</body>
+
+</html>
