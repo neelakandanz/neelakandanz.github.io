@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Splitter - Office Tools | Neelakandan</title>
+    <meta name="description" content="Split shared expenses among friends or colleagues. See who owes whom.">
+    <!-- Common Header Includes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <style>
+        .split-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 768px) {
+            .split-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--color-surface);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+        }
+
+        .list-item {
+            background: var(--color-surface-2);
+            padding: 0.75rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .remove-btn {
+            color: #ef4444;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        .btn-add {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .input-row-mini {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        input,
+        select {
+            padding: 0.5rem;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            background: var(--color-surface-2);
+            color: var(--color-text);
+            width: 100%;
+        }
+
+        .result-card {
+            background: var(--color-surface-2);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 0.5rem;
+            border-left: 4px solid var(--color-primary);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#business">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#business" class="back-link">← Back to Business Tools</a>
+                <h1>Expense Splitter</h1>
+                <p>Calculate shared expenses and settle debts easily.</p>
+            </div>
+
+            <div class="split-container">
+                <!-- Inputs -->
+                <div class="panel">
+                    <h3>1. Add People</h3>
+                    <div class="input-row-mini">
+                        <input type="text" id="person-name" placeholder="Name (e.g. Alice)">
+                        <button class="btn-add" onclick="addPerson()">Add</button>
+                    </div>
+                    <div id="people-list" style="margin-bottom: 2rem;"></div>
+
+                    <h3>2. Add Expenses</h3>
+                    <div class="input-row-mini">
+                        <input type="text" id="exp-desc" placeholder="Description (e.g. Dinner)">
+                        <input type="number" id="exp-amount" placeholder="Amount" style="width: 100px;">
+                    </div>
+                    <div class="input-row-mini">
+                        <select id="paid-by"></select>
+                        <button class="btn-add" onclick="addExpense()">Add Expense</button>
+                    </div>
+                    <div id="expense-list"></div>
+                </div>
+
+                <!-- Results -->
+                <div class="panel">
+                    <h3>Settlement Plan</h3>
+                    <div id="results-area">
+                        <p style="color: var(--color-text-muted);">Add people and expenses to see who owes whom.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let people = [];
+        let expenses = [];
+
+        function addPerson() {
+            const nameInput = document.getElementById('person-name');
+            const name = nameInput.value.trim();
+            if (name && !people.includes(name)) {
+                people.push(name);
+                nameInput.value = '';
+                renderPeople();
+                updateDropdown();
+                calculateSplit();
+            }
+        }
+
+        function removePerson(name) {
+            people = people.filter(p => p !== name);
+            // Also remove expenses paid by this person
+            expenses = expenses.filter(e => e.paidBy !== name);
+            renderPeople();
+            renderExpenses();
+            updateDropdown();
+            calculateSplit();
+        }
+
+        function renderPeople() {
+            const list = document.getElementById('people-list');
+            list.innerHTML = '';
+            people.forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = `<span>${p}</span> <button class="remove-btn" onclick="removePerson('${p}')">×</button>`;
+                list.appendChild(div);
+            });
+        }
+
+        function updateDropdown() {
+            const select = document.getElementById('paid-by');
+            select.innerHTML = '<option value="" disabled selected>Paid By...</option>';
+            people.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p;
+                opt.textContent = p;
+                select.appendChild(opt);
+            });
+        }
+
+        function addExpense() {
+            const desc = document.getElementById('exp-desc').value.trim();
+            const amount = parseFloat(document.getElementById('exp-amount').value);
+            const paidBy = document.getElementById('paid-by').value;
+
+            if (desc && amount > 0 && paidBy) {
+                expenses.push({ desc, amount, paidBy });
+                document.getElementById('exp-desc').value = '';
+                document.getElementById('exp-amount').value = '';
+                renderExpenses();
+                calculateSplit();
+            }
+        }
+
+        function renderExpenses() {
+            const list = document.getElementById('expense-list');
+            list.innerHTML = '';
+            expenses.forEach((e, index) => {
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = `
+                    <span><b>${e.desc}</b>: $${e.amount} (by ${e.paidBy})</span>
+                    <button class="remove-btn" onclick="removeExpense(${index})">×</button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function removeExpense(index) {
+            expenses.splice(index, 1);
+            renderExpenses();
+            calculateSplit();
+        }
+
+        function calculateSplit() {
+            if (people.length < 2 || expenses.length === 0) {
+                document.getElementById('results-area').innerHTML = '<p style="color: var(--color-text-muted);">Add at least 2 people and 1 expense.</p>';
+                return;
+            }
+
+            const total = expenses.reduce((sum, e) => sum + e.amount, 0);
+            const splitAmount = total / people.length;
+
+            const balances = {};
+            people.forEach(p => balances[p] = 0);
+
+            expenses.forEach(e => {
+                balances[e.paidBy] += e.amount;
+            });
+
+            people.forEach(p => {
+                balances[p] -= splitAmount;
+            });
+
+            const debtors = [];
+            const creditors = [];
+
+            for (const [person, amount] of Object.entries(balances)) {
+                if (amount < -0.01) debtors.push({ person, amount });
+                else if (amount > 0.01) creditors.push({ person, amount });
+            }
+
+            debtors.sort((a, b) => a.amount - b.amount);
+            creditors.sort((a, b) => b.amount - a.amount);
+
+            let resultHTML = `<p style="margin-bottom: 1rem;">Total: <b>$${total.toFixed(2)}</b> (<b>$${splitAmount.toFixed(2)}</b> / person)</p>`;
+
+            let i = 0;
+            let j = 0;
+
+            while (i < debtors.length && j < creditors.length) {
+                let debtor = debtors[i];
+                let creditor = creditors[j];
+
+                let amount = Math.min(Math.abs(debtor.amount), creditor.amount);
+
+                resultHTML += `
+                    <div class="result-card">
+                        <b>${debtor.person}</b> pays <b>${creditor.person}</b>: $${amount.toFixed(2)}
+                    </div>
+                `;
+
+                debtor.amount += amount;
+                creditor.amount -= amount;
+
+                if (Math.abs(debtor.amount) < 0.01) i++;
+                if (creditor.amount < 0.01) j++;
+            }
+
+            if (debtors.length === 0 && creditors.length === 0) {
+                resultHTML += '<p>Everything is settled!</p>';
+            }
+
+            document.getElementById('results-area').innerHTML = resultHTML;
+        }
+    </script>
+</body>
+
+</html>

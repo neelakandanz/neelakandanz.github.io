@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salary Slip Generator - Office Tools | Neelakandan</title>
+    <meta name="description" content="Generate monthly salary slips for employees with earnings and deductions.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        .tool-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .tool-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .input-panel {
+            background: var(--color-surface);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            color: var(--color-primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--color-text-muted);
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            color: var(--color-text);
+        }
+
+        .preview-panel {
+            background: #525659;
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            overflow-x: auto;
+            position: sticky;
+            top: 2rem;
+        }
+
+        #slip-preview {
+            background: white;
+            color: #1f2937;
+            width: 210mm;
+            min-height: 297mm;
+            padding: 20mm;
+            margin: 0 auto;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .slip-header {
+            text-align: center;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .slip-company {
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .slip-title {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: #4b5563;
+        }
+
+        .slip-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .slip-label {
+            font-size: 0.85rem;
+            color: #6b7280;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+
+        .slip-val {
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .slip-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        .slip-table th {
+            background: #f9fafb;
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 600;
+        }
+
+        .slip-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .slip-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .slip-total-row {
+            background: #f3f4f6;
+            font-weight: 700;
+        }
+
+        .net-pay-box {
+            border: 2px solid #111827;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+            border-radius: 8px;
+        }
+
+        .download-btn {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 1rem;
+            width: 100%;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .download-btn:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#business">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#business" class="back-link">← Back to Business Tools</a>
+                <h1>Salary Slip Generator</h1>
+                <p>Generate monthly payslips for employees.</p>
+            </div>
+
+            <div class="tool-container">
+                <div class="input-panel">
+                    <h3 class="section-title">Company & Employee</h3>
+                    <div class="input-group">
+                        <label>Company Name</label>
+                        <input type="text" id="company" placeholder="Tech Solutions Inc." oninput="updatePreview()">
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>Employee Name</label>
+                            <input type="text" id="emp-name" placeholder="John Doe" oninput="updatePreview()">
+                        </div>
+                        <div class="input-group">
+                            <label>Designation</label>
+                            <input type="text" id="emp-role" placeholder="Senior Developer" oninput="updatePreview()">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>Month & Year</label>
+                            <input type="text" id="period" placeholder="December 2025" oninput="updatePreview()">
+                        </div>
+                        <div class="input-group">
+                            <label>Employee ID</label>
+                            <input type="text" id="emp-id" placeholder="EMP-001" oninput="updatePreview()">
+                        </div>
+                    </div>
+
+                    <h3 class="section-title">Earnings</h3>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>Basic Salary</label>
+                            <input type="number" id="basic" value="0" oninput="updatePreview()">
+                        </div>
+                        <div class="input-group">
+                            <label>HRA</label>
+                            <input type="number" id="hra" value="0" oninput="updatePreview()">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>Allowances</label>
+                            <input type="number" id="allowance" value="0" oninput="updatePreview()">
+                        </div>
+                        <div class="input-group">
+                            <label>Bonus</label>
+                            <input type="number" id="bonus" value="0" oninput="updatePreview()">
+                        </div>
+                    </div>
+
+                    <h3 class="section-title">Deductions</h3>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>Provident Fund</label>
+                            <input type="number" id="pf" value="0" oninput="updatePreview()">
+                        </div>
+                        <div class="input-group">
+                            <label>Tax</label>
+                            <input type="number" id="tax" value="0" oninput="updatePreview()">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="preview-panel">
+                    <button class="download-btn" onclick="downloadPDF()">⬇️ Download Payslip</button>
+
+                    <div id="slip-preview">
+                        <div class="slip-header">
+                            <div class="slip-company" id="prev-company">Company Name</div>
+                            <div class="slip-title">Payslip for the month of <span id="prev-period">Month Year</span>
+                            </div>
+                        </div>
+
+                        <div class="slip-grid">
+                            <div>
+                                <div class="slip-label">Employee Name</div>
+                                <div class="slip-val" id="prev-name">John Doe</div>
+                            </div>
+                            <div>
+                                <div class="slip-label">Designation</div>
+                                <div class="slip-val" id="prev-role">Designation</div>
+                            </div>
+                            <div>
+                                <div class="slip-label">Employee ID</div>
+                                <div class="slip-val" id="prev-id">ID</div>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <!-- Earnings Table -->
+                            <table class="slip-table">
+                                <thead>
+                                    <tr>
+                                        <th colspan="2">Earnings</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Basic Salary</td>
+                                        <td class="text-right" id="prev-basic">0.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>HRA</td>
+                                        <td class="text-right" id="prev-hra">0.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Allowances</td>
+                                        <td class="text-right" id="prev-allowance">0.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Bonus</td>
+                                        <td class="text-right" id="prev-bonus">0.00</td>
+                                    </tr>
+                                    <tr class="slip-total-row">
+                                        <td>Total Earnings</td>
+                                        <td class="text-right" id="prev-total-earn">0.00</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- Deductions Table -->
+                            <table class="slip-table">
+                                <thead>
+                                    <tr>
+                                        <th colspan="2">Deductions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Provident Fund</td>
+                                        <td class="text-right" id="prev-pf">0.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tax</td>
+                                        <td class="text-right" id="prev-tax">0.00</td>
+                                    </tr>
+                                    <!-- Spacer rows to match height -->
+                                    <tr>
+                                        <td colspan="2" style="color:transparent">.</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" style="color:transparent">.</td>
+                                    </tr>
+
+                                    <tr class="slip-total-row">
+                                        <td>Total Deductions</td>
+                                        <td class="text-right" id="prev-total-ded">0.00</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="net-pay-box">
+                            <div
+                                style="font-size: 1.1rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">
+                                Net Pay</div>
+                            <div style="font-size: 2.5rem; font-weight: 800;" id="prev-net">0.00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function updatePreview() {
+            // Text Fields
+            const set = (id, prevId) => document.getElementById(prevId).textContent = document.getElementById(id).value || '-';
+            set('company', 'prev-company');
+            set('emp-name', 'prev-name');
+            set('emp-role', 'prev-role');
+            set('period', 'prev-period');
+            set('emp-id', 'prev-id');
+
+            // Calcs
+            const getVal = (id) => parseFloat(document.getElementById(id).value) || 0;
+            const basic = getVal('basic');
+            const hra = getVal('hra');
+            const allowance = getVal('allowance');
+            const bonus = getVal('bonus');
+            const pf = getVal('pf');
+            const tax = getVal('tax');
+
+            const totalEarn = basic + hra + allowance + bonus;
+            const totalDed = pf + tax;
+            const net = totalEarn - totalDed;
+
+            document.getElementById('prev-basic').textContent = basic.toFixed(2);
+            document.getElementById('prev-hra').textContent = hra.toFixed(2);
+            document.getElementById('prev-allowance').textContent = allowance.toFixed(2);
+            document.getElementById('prev-bonus').textContent = bonus.toFixed(2);
+            document.getElementById('prev-total-earn').textContent = totalEarn.toFixed(2);
+
+            document.getElementById('prev-pf').textContent = pf.toFixed(2);
+            document.getElementById('prev-tax').textContent = tax.toFixed(2);
+            document.getElementById('prev-total-ded').textContent = totalDed.toFixed(2);
+
+            document.getElementById('prev-net').textContent = net.toFixed(2);
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('slip-preview');
+            const name = document.getElementById('emp-name').value || 'payslip';
+
+            const opt = {
+                margin: 0,
+                filename: `payslip-${name}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            const originalShadow = element.style.boxShadow;
+            element.style.boxShadow = 'none';
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.style.boxShadow = originalShadow;
+            });
+        }
+    </script>
+</body>
+
+</html>

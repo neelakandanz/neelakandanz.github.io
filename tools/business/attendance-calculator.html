@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Calculator - Office Tools | Neelakandan</title>
+    <meta name="description"
+        content="Calculate your current attendance percentage and plan how many classes to attend.">
+    <!-- Common Header Includes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <style>
+        .calc-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--color-surface);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--color-text-muted);
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            color: var(--color-text);
+        }
+
+        .result-box {
+            background: var(--color-surface-2);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .result-val {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin: 0.5rem 0;
+        }
+
+        .result-status {
+            font-size: 1.1rem;
+            color: var(--color-text);
+            margin-bottom: 0.5rem;
+        }
+
+        .result-advice {
+            font-size: 0.95rem;
+            color: var(--color-text-muted);
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#business">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#business" class="back-link">← Back to Business Tools</a>
+                <h1>Attendance Calculator</h1>
+                <p>Track your attendance and plan ahead to meet your target percentage.</p>
+            </div>
+
+            <div class="calc-container">
+                <div class="input-group">
+                    <label>Total Classes Held</label>
+                    <input type="number" id="total" placeholder="50" oninput="calculate()">
+                </div>
+                <div class="input-group">
+                    <label>Classes Attended</label>
+                    <input type="number" id="attended" placeholder="40" oninput="calculate()">
+                </div>
+                <div class="input-group">
+                    <label>Target Percentage (%)</label>
+                    <input type="number" id="target" value="75" oninput="calculate()">
+                </div>
+
+                <div class="result-box">
+                    <div style="font-size: 0.9rem; text-transform: uppercase; color: var(--color-text-muted);">Current
+                        Attendance</div>
+                    <div class="result-val" id="current-pct">0%</div>
+                    <div class="result-status" id="status-text"></div>
+                    <div class="result-advice" id="advice-text"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function calculate() {
+            const total = parseFloat(document.getElementById('total').value) || 0;
+            const attended = parseFloat(document.getElementById('attended').value) || 0;
+            const target = parseFloat(document.getElementById('target').value) || 75;
+
+            if (total === 0) {
+                document.getElementById('current-pct').textContent = '0%';
+                document.getElementById('status-text').textContent = '';
+                document.getElementById('advice-text').textContent = '';
+                return;
+            }
+
+            const current = (attended / total) * 100;
+            document.getElementById('current-pct').textContent = current.toFixed(2) + '%';
+            document.getElementById('current-pct').style.color = current >= target ? '#10b981' : '#ef4444';
+
+            const status = document.getElementById('status-text');
+            const advice = document.getElementById('advice-text');
+
+            if (current >= target) {
+                // How many can modify
+                // Need current >= target
+                // (attended) / (total + x) >= target/100
+                // attended >= (total + x) * (target/100)
+                // attended / (target/100) >= total + x
+                // (attended * 100 / target) - total >= x
+
+                const margin = Math.floor((attended * 100 / target) - total);
+                status.textContent = "You are safe! 🎉";
+                if (margin > 0) {
+                    advice.textContent = `You can skip the next ${margin} classes and still maintain ${target}%.`;
+                } else {
+                    advice.textContent = `Don't miss the next class to maintain ${target}%.`;
+                }
+
+            } else {
+                // How many to attend
+                // (attended + x) / (total + x) >= target/100
+                // 100(attended + x) >= target(total + x)
+                // 100att + 100x >= target*total + target*x
+                // 100x - target*x >= target*total - 100att
+                // x(100 - target) >= target*total - 100att
+                // x >= (target*total - 100att) / (100 - target)
+
+                if (target >= 100) {
+                    status.textContent = "Impossible Target";
+                    advice.textContent = "You cannot reach 100% or more once you've missed a class.";
+                } else {
+                    const required = Math.ceil((target * total - 100 * attended) / (100 - target));
+                    status.textContent = "Short on attendance! ⚠️";
+                    if (required > 0) {
+                        advice.textContent = `You need to attend the next ${required} classes to reach ${target}%.`;
+                    } else {
+                        // Should be covered by >= target case, but safe fallback
+                        advice.textContent = "You are close to the target.";
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

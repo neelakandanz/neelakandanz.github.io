@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Break-Even Calculator - Office Tools | Neelakandan</title>
+    <meta name="description" content="Calculate the break-even point for your business products.">
+    <!-- Common Header Includes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <style>
+        .calc-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--color-surface);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--color-text-muted);
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            color: var(--color-text);
+        }
+
+        .result-box {
+            background: var(--color-surface-2);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .result-val {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-top: 0.5rem;
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            color: var(--color-text-muted);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#business">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#business" class="back-link">← Back to Business Tools</a>
+                <h1>Break-Even Calculator</h1>
+                <p>Find out when your business will start making a profit.</p>
+            </div>
+
+            <div class="calc-container">
+                <div class="input-group">
+                    <label>Fixed Costs ($)</label>
+                    <input type="number" id="fixed-costs" placeholder="10000" oninput="calculate()">
+                </div>
+                <div class="input-group">
+                    <label>Variable Cost per Unit ($)</label>
+                    <input type="number" id="variable-cost" placeholder="10" oninput="calculate()">
+                </div>
+                <div class="input-group">
+                    <label>Price per Unit ($)</label>
+                    <input type="number" id="price" placeholder="25" oninput="calculate()">
+                </div>
+
+                <div class="result-box">
+                    <div class="result-label">Units to Break-Even</div>
+                    <div class="result-val" id="break-even-units">-</div>
+                    <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--color-text-muted);">
+                        Revenue to Break-Even: <span id="break-even-revenue"
+                            style="color: var(--color-text); font-weight: 600;">$0.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function calculate() {
+            const fixedCosts = parseFloat(document.getElementById('fixed-costs').value) || 0;
+            const variableCost = parseFloat(document.getElementById('variable-cost').value) || 0;
+            const price = parseFloat(document.getElementById('price').value) || 0;
+
+            const contributionMargin = price - variableCost;
+
+            if (contributionMargin > 0) {
+                const breakEvenUnits = fixedCosts / contributionMargin;
+                const breakEvenRevenue = breakEvenUnits * price;
+
+                document.getElementById('break-even-units').textContent = Math.ceil(breakEvenUnits).toLocaleString();
+                document.getElementById('break-even-revenue').textContent = '$' + breakEvenRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            } else {
+                document.getElementById('break-even-units').textContent = '∞';
+                document.getElementById('break-even-revenue').textContent = 'Price must be > Variable Cost';
+            }
+        }
+    </script>
+</body>
+
+</html>
