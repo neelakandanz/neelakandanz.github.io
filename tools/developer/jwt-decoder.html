@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT Decoder - Developer Tools | Neelakandan</title>
+    <meta name="description"
+        content="Decode JSON Web Tokens (JWT) to view header and payload claims. Client-side only.">
+    <!-- Common Header Includes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <style>
+        .tool-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .tool-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .input-panel {
+            grid-column: 1 / -1;
+            margin-bottom: 2rem;
+        }
+
+        .jwt-input {
+            width: 100%;
+            height: 120px;
+            padding: 1rem;
+            background: var(--color-surface);
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            color: var(--color-primary);
+            font-family: 'Fira Code', monospace;
+            font-size: 1rem;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .jwt-input:focus {
+            border-color: var(--color-primary);
+        }
+
+        .jwt-input::placeholder {
+            color: var(--color-text-muted);
+            opacity: 0.5;
+        }
+
+        .output-panel {
+            background: var(--color-surface);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+        }
+
+        .panel-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            color: var(--color-text-muted);
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .code-block {
+            background: var(--color-surface-2);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            min-height: 100px;
+        }
+
+        .error-msg {
+            color: #ef4444;
+            font-weight: 500;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            text-align: center;
+            display: none;
+        }
+
+        /* Color coding parts of JWT */
+        .jwt-part-1 {
+            color: #f87171;
+        }
+
+        .jwt-part-2 {
+            color: #c084fc;
+        }
+
+        .jwt-part-3 {
+            color: #60a5fa;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#developer">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#developer" class="back-link">← Back to Developer Tools</a>
+                <h1>JWT Decoder</h1>
+                <p>Paste a JWT to decode its header and payload. No data is sent to server.</p>
+            </div>
+
+            <div class="tool-container">
+                <div class="input-panel">
+                    <textarea id="jwt-input" class="jwt-input" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                        oninput="decodeJWT()"></textarea>
+                    <div id="error-msg" class="error-msg">Invalid JWT Format</div>
+                </div>
+
+                <div class="output-panel">
+                    <div class="panel-title">
+                        <span>Header</span>
+                        <span style="color: #f87171;">ALGORITHM & TOKEN TYPE</span>
+                    </div>
+                    <div id="header-output" class="code-block" style="color: #f87171;"></div>
+                </div>
+
+                <div class="output-panel">
+                    <div class="panel-title">
+                        <span>Payload</span>
+                        <span style="color: #c084fc;">DATA</span>
+                    </div>
+                    <div id="payload-output" class="code-block" style="color: #c084fc;"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function decodeJWT() {
+            const input = document.getElementById('jwt-input').value.trim();
+            const errorMsg = document.getElementById('error-msg');
+            const headerOut = document.getElementById('header-output');
+            const payloadOut = document.getElementById('payload-output');
+
+            if (!input) {
+                headerOut.textContent = '';
+                payloadOut.textContent = '';
+                errorMsg.style.display = 'none';
+                return;
+            }
+
+            const parts = input.split('.');
+            if (parts.length !== 3) {
+                errorMsg.style.display = 'block';
+                errorMsg.textContent = 'Invalid JWT format (must have 3 parts)';
+                return;
+            }
+
+            try {
+                const header = JSON.parse(atob(parts[0]));
+                const payload = JSON.parse(atob(parts[1]));
+
+                headerOut.textContent = JSON.stringify(header, null, 2);
+                payloadOut.textContent = JSON.stringify(payload, null, 2);
+                errorMsg.style.display = 'none';
+
+                // Colorize input text if simple textarea supported rich text (it doesn't easily),
+                // so we just keep it simple.
+
+            } catch (e) {
+                errorMsg.style.display = 'block';
+                errorMsg.textContent = 'Error decoding Base64: ' + e.message;
+            }
+        }
+    </script>
+</body>
+
+</html>

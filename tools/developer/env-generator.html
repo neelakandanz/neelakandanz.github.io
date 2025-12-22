@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Env Generator - Developer Tools | Neelakandan</title>
+    <meta name="description" content="Generate secure random keys for your .env files (Secrets, Passwords, etc).">
+    <!-- Common Header Includes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <style>
+        .tool-container {
+            max-width: 800px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .tool-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .setup-panel {
+            background: var(--color-surface);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+        }
+
+        .preset-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .preset-btn {
+            text-align: left;
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            padding: 0.75rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .preset-btn:hover {
+            border-color: var(--color-primary);
+        }
+
+        .preset-btn span {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+        }
+
+        .output-panel {
+            background: var(--color-surface);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .output-area {
+            flex: 1;
+            min-height: 400px;
+            background: #1e1e1e;
+            color: #fff;
+            font-family: 'Fira Code', monospace;
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            border: none;
+            outline: none;
+            resize: none;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .add-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#developer">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#developer" class="back-link">← Back to Developer Tools</a>
+                <h1>Env Generator</h1>
+                <p>Generate secure keys for common environment variables.</p>
+            </div>
+
+            <div class="tool-container">
+                <div class="setup-panel">
+                    <h3 style="margin-bottom: 1rem;">Add Key</h3>
+                    <div class="preset-list">
+                        <button class="preset-btn" onclick="addKey('JWT_SECRET', 64)">
+                            <span>JWT_SECRET</span> ➕
+                        </button>
+                        <button class="preset-btn" onclick="addKey('DB_PASSWORD', 32)">
+                            <span>DB_PASSWORD</span> ➕
+                        </button>
+                        <button class="preset-btn" onclick="addKey('API_KEY', 48)">
+                            <span>API_KEY</span> ➕
+                        </button>
+                        <button class="preset-btn" onclick="addKey('SESSION_SECRET', 64)">
+                            <span>SESSION_SECRET</span> ➕
+                        </button>
+                        <button class="preset-btn" onclick="addKey('ENCRYPTION_KEY', 32)">
+                            <span>ENCRYPTION_KEY</span> ➕
+                        </button>
+                        <button class="preset-btn" onclick="addKey('ADMIN_PASSWORD', 24)">
+                            <span>ADMIN_PASSWORD</span> ➕
+                        </button>
+                    </div>
+
+                    <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--color-border);">
+                        <label style="display:block; margin-bottom:0.5rem;">Custom Key</label>
+                        <input type="text" id="custom-key" placeholder="MY_KEY"
+                            style="width:100%; padding:0.5rem; margin-bottom:0.5rem; background: var(--color-surface-2); border:1px solid var(--color-border); border-radius: var(--radius-md); color: var(--color-text);">
+                        <button class="preset-btn" style="width:100%; justify-content:center;"
+                            onclick="addCustom()">Add</button>
+                    </div>
+                </div>
+
+                <div class="output-panel">
+                    <div style="display:flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="color: var(--color-text-muted);">.env file content</span>
+                        <button onclick="clearAll()"
+                            style="background:none; border:none; color:#ef4444; cursor:pointer;">Clear All</button>
+                    </div>
+                    <textarea id="output" class="output-area" spellcheck="false"></textarea>
+                    <div class="action-row">
+                        <button class="preset-btn" onclick="regenerateAll()">🔄 Regenerate Values</button>
+                        <button class="preset-btn"
+                            style="background: var(--color-primary); color: white; border-color: var(--color-primary);"
+                            onclick="copyAll()">📋 Copy Content</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Store structure: [{ key: 'KEY', length: 32 }]
+        let envItems = [];
+
+        function generateSecret(length = 32) {
+            const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+';
+            let result = '';
+            const values = crypto.getRandomValues(new Uint8Array(length));
+            for (let i = 0; i < length; i++) {
+                result += charset[values[i] % charset.length];
+            }
+            // For hex-like keys (simpler, no symbols)
+            if (length > 40) {
+                // Switch to hex for very long tokens usually
+                return Array.from(crypto.getRandomValues(new Uint8Array(length / 2)))
+                    .map(b => b.toString(16).padStart(2, '0')).join('');
+            }
+            return result;
+        }
+
+        function render() {
+            const textarea = document.getElementById('output');
+            const lines = envItems.map(item => `${item.key}=${item.value}`);
+            textarea.value = lines.join('\n');
+        }
+
+        function addKey(key, length) {
+            envItems.push({ key, length, value: generateSecret(length) });
+            render();
+        }
+
+        function addCustom() {
+            const input = document.getElementById('custom-key');
+            let key = input.value.trim().toUpperCase().replace(/ /g, '_');
+            if (key) {
+                addKey(key, 32);
+                input.value = '';
+            }
+        }
+
+        function regenerateAll() {
+            envItems = envItems.map(item => ({ ...item, value: generateSecret(item.length) }));
+            render();
+        }
+
+        function clearAll() {
+            envItems = [];
+            render();
+        }
+
+        function copyAll() {
+            const text = document.getElementById('output').value;
+            navigator.clipboard.writeText(text);
+            alert('Copied to clipboard!');
+        }
+
+        // Default initial
+        addKey('PORT', 3000);
+        // PORT special case
+        envItems[0].value = '3000'; // Override random for PORT
+        render();
+
+    </script>
+</body>
+
+</html>

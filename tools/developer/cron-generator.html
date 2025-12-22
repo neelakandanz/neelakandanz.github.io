@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cron Generator - Developer Tools | Neelakandan</title>
+    <meta name="description" content="Generate Cron schedule expressions easily with a visual interface.">
+    <!-- Common Header Includes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <style>
+        .tool-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cron-display {
+            background: var(--color-surface);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .cron-expression {
+            font-family: 'Fira Code', monospace;
+            font-size: 2rem;
+            color: var(--color-primary);
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .cron-readable {
+            color: var(--color-text-muted);
+            font-size: 1.1rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .tab-btn {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+            color: var(--color-text-muted);
+        }
+
+        .tab-btn.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .editor-panel {
+            background: var(--color-surface);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+        }
+
+        .option-group {
+            display: none;
+        }
+
+        .option-group.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .radio-group {
+            margin-bottom: 1rem;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: background 0.2s;
+        }
+
+        .radio-label:hover {
+            background: var(--color-surface-2);
+        }
+
+        .grid-select {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            margin-left: 1.5rem;
+        }
+
+        .chk-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+            padding: 0.5rem;
+            background: var(--color-surface-2);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .chk-label input:checked+span {
+            color: var(--color-primary);
+            font-weight: 600;
+        }
+
+        .input-num {
+            width: 60px;
+            padding: 0.25rem;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-sm);
+            background: var(--color-surface-2);
+            color: var(--color-text);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#developer">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#developer" class="back-link">← Back to Developer Tools</a>
+                <h1>Cron Generator</h1>
+                <p>Create cron expressions for scheduling tasks.</p>
+            </div>
+
+            <div class="tool-container">
+                <div class="cron-display">
+                    <div id="cron-val" class="cron-expression">* * * * *</div>
+                    <div id="cron-text" class="cron-readable">Every minute</div>
+                    <button class="btn" style="margin-top: 1rem; padding: 0.5rem 1rem; cursor: pointer;"
+                        onclick="copyCron()">Copy</button>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="setTab('minute')">Minute</button>
+                    <button class="tab-btn" onclick="setTab('hour')">Hour</button>
+                    <button class="tab-btn" onclick="setTab('day')">Day</button>
+                    <button class="tab-btn" onclick="setTab('month')">Month</button>
+                    <button class="tab-btn" onclick="setTab('week')">Week</button>
+                </div>
+
+                <div class="editor-panel">
+                    <!-- MINUTE -->
+                    <div id="opt-minute" class="option-group active">
+                        <label class="radio-label">
+                            <input type="radio" name="minute-opt" value="*" checked onchange="update()">
+                            Every minute
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="minute-opt" value="even" onchange="update()">
+                            Even minutes
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="minute-opt" value="odd" onchange="update()">
+                            Odd minutes
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="minute-opt" value="every-n" onchange="update()">
+                            Every <input type="number" id="min-step" class="input-num" value="5" min="1" max="59"
+                                oninput="update()"> minutes
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="minute-opt" value="select" onchange="update()">
+                            Specific minutes
+                        </label>
+                        <div class="grid-select" id="min-select-grid">
+                            <!-- JS Generated -->
+                        </div>
+                    </div>
+
+                    <!-- HOUR -->
+                    <div id="opt-hour" class="option-group">
+                        <label class="radio-label">
+                            <input type="radio" name="hour-opt" value="*" checked onchange="update()">
+                            Every hour
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="hour-opt" value="even" onchange="update()">
+                            Even hours
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="hour-opt" value="odd" onchange="update()">
+                            Odd hours
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="hour-opt" value="every-n" onchange="update()">
+                            Every <input type="number" id="hour-step" class="input-num" value="2" min="1" max="23"
+                                oninput="update()"> hours
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="hour-opt" value="select" onchange="update()">
+                            Specific hours
+                        </label>
+                        <div class="grid-select" id="hour-select-grid"></div>
+                    </div>
+
+                    <!-- DAY -->
+                    <div id="opt-day" class="option-group">
+                        <label class="radio-label">
+                            <input type="radio" name="day-opt" value="*" checked onchange="update()">
+                            Every day
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="day-opt" value="select" onchange="update()">
+                            Specific days
+                        </label>
+                        <div class="grid-select" id="day-select-grid"></div>
+                    </div>
+
+                    <!-- MONTH -->
+                    <div id="opt-month" class="option-group">
+                        <label class="radio-label">
+                            <input type="radio" name="month-opt" value="*" checked onchange="update()">
+                            Every month
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="month-opt" value="select" onchange="update()">
+                            Specific months
+                        </label>
+                        <div class="grid-select" id="month-select-grid"></div>
+                    </div>
+
+                    <!-- WEEK -->
+                    <div id="opt-week" class="option-group">
+                        <label class="radio-label">
+                            <input type="radio" name="week-opt" value="*" checked onchange="update()">
+                            Every day of the week
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="week-opt" value="select" onchange="update()">
+                            Specific days of week
+                        </label>
+                        <div class="grid-select" id="week-select-grid"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- Init Generators ---
+        function generateChecks(id, count, start = 0, names = null) {
+            const container = document.getElementById(id);
+            let html = '';
+            for (let i = start; i < start + count; i++) {
+                const label = names ? names[i - start] : i.toString().padStart(2, '0');
+                const val = i;
+                html += `<label class="chk-label"><input type="checkbox" data-val="${val}" onchange="update()"> <span>${label}</span></label>`;
+            }
+            container.innerHTML = html;
+        }
+
+        generateChecks('min-select-grid', 60);
+        generateChecks('hour-select-grid', 24);
+        generateChecks('day-select-grid', 31, 1);
+        generateChecks('month-select-grid', 12, 1, ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']);
+        generateChecks('week-select-grid', 7, 0, ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
+
+        function setTab(name) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.option-group').forEach(g => g.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(`opt-${name}`).classList.add('active');
+        }
+
+        function getVal(type, checkboxesId) {
+            const opt = document.querySelector(`input[name="${type}-opt"]:checked`).value;
+
+            if (opt === '*') return '*';
+            if (opt === 'even') return type === 'month' ? '*/2' : (type === 'minute' || type === 'hour' ? '0-59/2' : '*/2'); // simplified
+            if (opt === 'odd') return '1-59/2'; // simplified
+
+            if (opt === 'every-n') {
+                const step = document.getElementById(type === 'minute' ? 'min-step' : 'hour-step').value;
+                return `*/${step}`;
+            }
+
+            if (opt === 'select') {
+                // Determine implicit 'all' if none selected? No, standard cron needs at least one.
+                const checked = Array.from(document.querySelectorAll(`#${checkboxesId} input:checked`)).map(c => c.dataset.val);
+                if (checked.length === 0) return '*'; // Default to * if selection empty
+                if (type === 'week' && checked.length === 7) return '*';
+                if (type === 'month' && checked.length === 12) return '*';
+                if (type === 'day' && checked.length === 31) return '*';
+                return checked.join(',');
+            }
+            return '*';
+        }
+
+        function update() {
+            const min = getVal('minute', 'min-select-grid');
+            const hour = getVal('hour', 'hour-select-grid');
+            const day = getVal('day', 'day-select-grid');
+            const month = getVal('month', 'month-select-grid');
+            const week = getVal('week', 'week-select-grid');
+
+            // Logic conflict: day of month vs day of week
+            // In standard cron, if both are specified (not *), both are adhered to.
+            // But usually users want one or the other. We won't enforce complex logic here, just output string.
+
+            // Refinement: Even/Odd logic
+            let minStr = min;
+            let hourStr = hour;
+
+            // Simple visual update
+            if (document.querySelector('input[name="minute-opt"]:checked').value === 'even') minStr = '0/2';
+            if (document.querySelector('input[name="minute-opt"]:checked').value === 'odd') minStr = '1/2';
+
+            if (document.querySelector('input[name="hour-opt"]:checked').value === 'even') hourStr = '0/2';
+            if (document.querySelector('input[name="hour-opt"]:checked').value === 'odd') hourStr = '1/2';
+
+            const cron = `${minStr} ${hourStr} ${day} ${month} ${week}`;
+            document.getElementById('cron-val').textContent = cron;
+
+            // Generate Readable Text (Simple)
+            let text = "At ";
+            // This is hard to do perfectly on client without a lib like cronstrue.
+            // We will just do a basic description.
+
+            const parts = [];
+            if (minStr === '*') parts.push('every minute');
+            else if (minStr.includes('/')) parts.push(`every ${minStr.split('/')[1]} minutes`);
+            else parts.push(`minute ${minStr}`);
+
+            if (hourStr === '*') parts.push('past every hour');
+            else if (hourStr.includes('/')) parts.push(`past every ${hourStr.split('/')[1]} hours`);
+            else parts.push(`past hour ${hourStr}`);
+
+            if (day !== '*') parts.push(`on day ${day}`);
+            if (month !== '*') parts.push(`in month ${month}`);
+            if (week !== '*') parts.push(`on ${week}`);
+
+            document.getElementById('cron-text').textContent = parts.join(', ');
+        }
+
+        function copyCron() {
+            navigator.clipboard.writeText(document.getElementById('cron-val').textContent);
+            const btn = document.querySelector('.btn');
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = 'Copy', 1500);
+        }
+    </script>
+</body>
+
+</html>

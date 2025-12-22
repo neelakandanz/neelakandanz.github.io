@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Beautifier - Developer Tools | Neelakandan</title>
+    <meta name="description" content="Format and beautify JavaScript, CSS, and HTML code.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/global.css">
+    <link rel="stylesheet" href="../../assets/css/components/header.css">
+    <link rel="stylesheet" href="../../assets/css/components/tools.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.7/beautify-html.min.js"></script>
+    <style>
+        .tool-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            height: calc(100vh - 200px);
+            min-height: 600px;
+        }
+
+        @media (max-width: 768px) {
+            .tool-container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+        }
+
+        .panel {
+            display: flex;
+            flex-direction: column;
+            background: var(--color-surface);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .editor-area {
+            flex: 1;
+            min-height: 300px;
+            padding: 1rem;
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            font-family: 'Fira Code', monospace;
+            resize: none;
+            color: var(--color-text);
+            outline: none;
+            white-space: pre;
+            overflow: auto;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn-action {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../../" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../#developer">Tools</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="tools-page">
+        <div class="container">
+            <div class="tool-header">
+                <a href="../#developer" class="back-link">← Back to Developer Tools</a>
+                <h1>Code Beautifier</h1>
+                <p>Format messy code to make it readable.</p>
+            </div>
+
+            <div class="controls">
+                <select id="lang" style="padding: 0.5rem; border-radius: var(--radius-md);">
+                    <option value="js">JavaScript</option>
+                    <option value="css">CSS</option>
+                    <option value="html">HTML</option>
+                </select>
+                <div style="flex:1"></div>
+                <button class="btn-action" onclick="format()">Beautify</button>
+            </div>
+
+            <div class="tool-container">
+                <div class="panel">
+                    <div class="panel-header">Input Code</div>
+                    <textarea id="input" class="editor-area" placeholder="Paste your code here..."></textarea>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <span>Formatted Output</span>
+                    </div>
+                    <textarea id="output" class="editor-area" readonly></textarea>
+                    <button class="btn-action" style="margin-top: 1rem; width: 100%;" onclick="copy()">Copy
+                        Output</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function format() {
+            const input = document.getElementById('input').value;
+            const lang = document.getElementById('lang').value;
+            let output = '';
+
+            const opts = { indent_size: 2, space_in_empty_paren: true };
+
+            if (lang === 'js') {
+                output = js_beautify(input, opts);
+            } else if (lang === 'css') {
+                output = css_beautify(input, opts);
+            } else if (lang === 'html') {
+                output = html_beautify(input, opts);
+            }
+
+            document.getElementById('output').value = output;
+        }
+
+        function copy() {
+            navigator.clipboard.writeText(document.getElementById('output').value);
+        }
+    </script>
+</body>
+
+</html>
