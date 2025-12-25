@@ -3,6 +3,18 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Portfolio Loaded');
 
+    // ===== HEADER SCROLL EFFECT =====
+    const header = document.querySelector('header');
+    if (header) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+    }
+
     // Smooth Scroll for Anchor Links (with header offset)
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
