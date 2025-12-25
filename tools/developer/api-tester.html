@@ -20,9 +20,112 @@
     <link rel="stylesheet" href="../../assets/css/components/tools.css">
 
     <style>
+        :root {
+            --color-border: rgba(0, 0, 0, 0.1);
+        }
+
         .tool-container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            gap: 1.5rem;
+        }
+
+        /* Sidebar / History */
+        .sidebar {
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            padding: 1rem;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .sidebar h3 {
+            font-size: 0.9rem;
+            color: var(--color-text-muted);
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar h3 button {
+            background: none;
+            border: none;
+            color: var(--color-text-muted);
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        .history-list {
+            list-style: none;
+        }
+
+        .history-item {
+            padding: 0.5rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            margin-bottom: 0.25rem;
+            font-size: 0.8rem;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .history-item:hover {
+            background: var(--color-surface-2);
+        }
+
+        .history-method {
+            font-weight: 700;
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .history-method.GET {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .history-method.POST {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .history-method.PUT {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .history-method.DELETE {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .history-method.PATCH {
+            background: #f3e8ff;
+            color: #9333ea;
+        }
+
+        .history-url {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: var(--color-text);
+        }
+
+        /* Main Panel */
+        .main-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
         }
 
         .request-panel {
@@ -30,7 +133,6 @@
             padding: 1.5rem;
             border-radius: var(--radius-lg);
             border: 1px solid var(--color-border);
-            margin-bottom: 2rem;
         }
 
         .url-bar {
@@ -40,7 +142,7 @@
         }
 
         .method-select {
-            width: 100px;
+            width: 110px;
             padding: 0.75rem;
             background: var(--color-surface-2);
             border: 1px solid var(--color-border);
@@ -80,20 +182,22 @@
             cursor: not-allowed;
         }
 
+        /* Tabs */
         .tabs {
             display: flex;
-            gap: 1rem;
+            gap: 0.5rem;
             border-bottom: 1px solid var(--color-border);
             margin-bottom: 1rem;
+            flex-wrap: wrap;
         }
 
         .tab-btn {
             background: none;
             border: none;
             color: var(--color-text-muted);
-            padding: 0.5rem 0;
+            padding: 0.5rem 1rem;
             cursor: pointer;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             border-bottom: 2px solid transparent;
             transition: all 0.2s;
         }
@@ -111,9 +215,112 @@
             display: block;
         }
 
+        /* Key-Value Pairs */
+        .kv-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            align-items: center;
+        }
+
+        .kv-row input {
+            flex: 1;
+            padding: 0.5rem;
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+        }
+
+        .kv-row input::placeholder {
+            color: var(--color-text-muted);
+        }
+
+        .kv-row button {
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .add-row-btn {
+            background: var(--color-surface-2);
+            border: 1px dashed var(--color-border);
+            color: var(--color-text-muted);
+            padding: 0.5rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            width: 100%;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        .add-row-btn:hover {
+            background: var(--color-surface);
+            color: var(--color-text);
+        }
+
+        /* Auth Section */
+        .auth-type-select {
+            padding: 0.5rem;
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+            border-radius: var(--radius-sm);
+            margin-bottom: 1rem;
+            width: 100%;
+            max-width: 200px;
+        }
+
+        .auth-fields {
+            display: none;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .auth-fields.active {
+            display: flex;
+        }
+
+        .auth-fields input {
+            padding: 0.5rem;
+            background: var(--color-surface-2);
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+            border-radius: var(--radius-sm);
+            flex: 1;
+            min-width: 150px;
+        }
+
+        /* Body Type */
+        .body-type-bar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .body-type-bar label {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+            cursor: pointer;
+        }
+
+        .body-type-bar input[type="radio"] {
+            accent-color: var(--color-primary);
+        }
+
         .code-editor {
             width: 100%;
-            min-height: 150px;
+            min-height: 120px;
             background: var(--color-surface-2);
             border: 1px solid var(--color-border);
             color: var(--color-text);
@@ -124,22 +331,35 @@
             resize: vertical;
         }
 
+        /* Response Panel */
         .response-panel {
             background: var(--color-surface);
             padding: 1.5rem;
             border-radius: var(--radius-lg);
             border: 1px solid var(--color-border);
-            position: relative;
+        }
+
+        .response-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .response-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
         }
 
         .status-badge {
-            position: absolute;
-            top: 1.5rem;
-            right: 1.5rem;
             padding: 0.25rem 0.75rem;
             border-radius: 9999px;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
         .status-success {
@@ -152,29 +372,83 @@
             color: #ef4444;
         }
 
-        .response-info {
-            color: var(--color-text-muted);
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-            display: flex;
-            gap: 1rem;
+        .response-body-container {
+            background: #1e1e1e;
+            border-radius: var(--radius-md);
+            min-height: 250px;
+            max-height: 400px;
+            overflow: auto;
+            padding: 1rem;
         }
 
-        /* JSON Syntax Highlighting Simple */
+        .response-body-container pre {
+            margin: 0;
+            color: #d4d4d4;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* JSON Syntax */
         .json-key {
-            color: #93c5fd;
+            color: #9cdcfe;
         }
 
         .json-string {
-            color: #86efac;
+            color: #ce9178;
         }
 
         .json-number {
-            color: #fca5a5;
+            color: #b5cea8;
         }
 
         .json-boolean {
-            color: #fcd34d;
+            color: #569cd6;
+        }
+
+        /* Response Headers Table */
+        .headers-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .headers-table th,
+        .headers-table td {
+            text-align: left;
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .headers-table th {
+            color: var(--color-text-muted);
+            font-weight: 600;
+        }
+
+        .btn-download {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-download:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 900px) {
+            .tool-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                max-height: 200px;
+            }
         }
     </style>
 </head>
@@ -197,112 +471,323 @@
             <div class="tool-header">
                 <a href="../#developer" class="back-link">← Back to Developer Tools</a>
                 <h1>API Tester</h1>
-                <p>Send HTTP requests and view responses. Useful for testing REST APIs.</p>
+                <p>A lightweight HTTP client. Test REST APIs directly from your browser.</p>
             </div>
 
             <div class="tool-container">
-                <div class="request-panel">
-                    <div class="url-bar">
-                        <select id="method" class="method-select">
-                            <option value="GET">GET</option>
-                            <option value="POST">POST</option>
-                            <option value="PUT">PUT</option>
-                            <option value="DELETE">DELETE</option>
-                            <option value="PATCH">PATCH</option>
-                        </select>
-                        <input type="text" id="url" class="url-input" placeholder="https://api.example.com/users"
-                            value="https://jsonplaceholder.typicode.com/todos/1">
-                        <button id="send-btn" class="btn-send" onclick="sendRequest()">Send</button>
+                <!-- Sidebar: History -->
+                <aside class="sidebar">
+                    <h3>History <button onclick="clearHistory()">Clear</button></h3>
+                    <ul id="history-list" class="history-list">
+                        <!-- History items will be injected here -->
+                    </ul>
+                </aside>
+
+                <!-- Main Panel -->
+                <div class="main-panel">
+                    <div class="request-panel">
+                        <!-- URL Bar -->
+                        <div class="url-bar">
+                            <select id="method" class="method-select">
+                                <option value="GET">GET</option>
+                                <option value="POST">POST</option>
+                                <option value="PUT">PUT</option>
+                                <option value="DELETE">DELETE</option>
+                                <option value="PATCH">PATCH</option>
+                                <option value="HEAD">HEAD</option>
+                                <option value="OPTIONS">OPTIONS</option>
+                            </select>
+                            <input type="text" id="url" class="url-input" placeholder="https://api.example.com/users"
+                                value="https://jsonplaceholder.typicode.com/posts/1">
+                            <button id="send-btn" class="btn-send" onclick="sendRequest()">Send</button>
+                        </div>
+
+                        <!-- Request Tabs -->
+                        <div class="tabs" id="request-tabs">
+                            <button class="tab-btn active" data-tab="params">Params</button>
+                            <button class="tab-btn" data-tab="auth">Authorization</button>
+                            <button class="tab-btn" data-tab="headers">Headers</button>
+                            <button class="tab-btn" data-tab="body">Body</button>
+                        </div>
+
+                        <!-- Params Tab -->
+                        <div id="tab-params" class="tab-content active">
+                            <div id="params-container">
+                                <div class="kv-row">
+                                    <input type="text" placeholder="Key" class="param-key">
+                                    <input type="text" placeholder="Value" class="param-value">
+                                    <button onclick="removeRow(this)">×</button>
+                                </div>
+                            </div>
+                            <button class="add-row-btn" onclick="addParamRow()">+ Add Parameter</button>
+                        </div>
+
+                        <!-- Authorization Tab -->
+                        <div id="tab-auth" class="tab-content">
+                            <select id="auth-type" class="auth-type-select" onchange="toggleAuthFields()">
+                                <option value="none">No Auth</option>
+                                <option value="bearer">Bearer Token</option>
+                                <option value="basic">Basic Auth</option>
+                                <option value="apikey">API Key</option>
+                            </select>
+
+                            <div id="auth-bearer" class="auth-fields">
+                                <input type="text" id="bearer-token" placeholder="Enter Bearer Token">
+                            </div>
+
+                            <div id="auth-basic" class="auth-fields">
+                                <input type="text" id="basic-user" placeholder="Username">
+                                <input type="password" id="basic-pass" placeholder="Password">
+                            </div>
+
+                            <div id="auth-apikey" class="auth-fields">
+                                <input type="text" id="apikey-key" placeholder="Header Name (e.g., X-API-Key)">
+                                <input type="text" id="apikey-value" placeholder="API Key Value">
+                            </div>
+                        </div>
+
+                        <!-- Headers Tab -->
+                        <div id="tab-headers" class="tab-content">
+                            <div id="headers-container">
+                                <div class="kv-row">
+                                    <input type="text" placeholder="Header Name" class="header-key"
+                                        value="Content-Type">
+                                    <input type="text" placeholder="Header Value" class="header-value"
+                                        value="application/json">
+                                    <button onclick="removeRow(this)">×</button>
+                                </div>
+                            </div>
+                            <button class="add-row-btn" onclick="addHeaderRow()">+ Add Header</button>
+                        </div>
+
+                        <!-- Body Tab -->
+                        <div id="tab-body" class="tab-content">
+                            <div class="body-type-bar">
+                                <label><input type="radio" name="bodyType" value="none" checked> none</label>
+                                <label><input type="radio" name="bodyType" value="raw"> raw</label>
+                                <label><input type="radio" name="bodyType" value="form-urlencoded">
+                                    x-www-form-urlencoded</label>
+                            </div>
+
+                            <div id="body-raw" style="display: none;">
+                                <textarea id="req-body" class="code-editor" placeholder='{ "key": "value" }'></textarea>
+                            </div>
+
+                            <div id="body-form" style="display: none;">
+                                <div id="form-container">
+                                    <div class="kv-row">
+                                        <input type="text" placeholder="Key" class="form-key">
+                                        <input type="text" placeholder="Value" class="form-value">
+                                        <button onclick="removeRow(this)">×</button>
+                                    </div>
+                                </div>
+                                <button class="add-row-btn" onclick="addFormRow()">+ Add Field</button>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="tabs">
-                        <button class="tab-btn active" onclick="switchTab('body')">Body</button>
-                        <button class="tab-btn" onclick="switchTab('headers')">Headers</button>
+                    <!-- Response Panel -->
+                    <div class="response-panel">
+                        <div class="response-header">
+                            <h3>Response</h3>
+                            <div class="response-meta">
+                                <span id="status-badge" class="status-badge" style="display:none"></span>
+                                <span id="res-time">Time: -</span>
+                                <span id="res-size">Size: -</span>
+                                <button id="download-btn" class="btn-download" style="display:none"
+                                    onclick="downloadResponse()">⬇ Download</button>
+                            </div>
+                        </div>
+
+                        <!-- Response Tabs -->
+                        <div class="tabs" id="response-tabs">
+                            <button class="tab-btn active" data-tab="res-body">Body</button>
+                            <button class="tab-btn" data-tab="res-headers">Headers</button>
+                        </div>
+
+                        <div id="tab-res-body" class="tab-content active">
+                            <div class="response-body-container">
+                                <pre id="res-body-content">Send a request to see the response.</pre>
+                            </div>
+                        </div>
+
+                        <div id="tab-res-headers" class="tab-content">
+                            <table class="headers-table">
+                                <thead>
+                                    <tr>
+                                        <th>Header</th>
+                                        <th>Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="res-headers-tbody">
+                                    <tr>
+                                        <td colspan="2" style="color: var(--color-text-muted);">No headers yet.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-
-                    <div id="tab-body" class="tab-content active">
-                        <textarea id="req-body" class="code-editor"
-                            placeholder="{ &quot;key&quot;: &quot;value&quot; }"></textarea>
-                        <div style="margin-top:0.5rem; font-size:0.8rem; color: var(--color-text-muted);">JSON format
-                            recommended for API testing.</div>
-                    </div>
-
-                    <div id="tab-headers" class="tab-content">
-                        <textarea id="req-headers" class="code-editor"
-                            placeholder="Authorization: Bearer token&#10;Content-Type: application/json">Content-Type: application/json</textarea>
-                    </div>
-                </div>
-
-                <div class="response-panel">
-                    <h3 style="margin-bottom: 1rem;">Response</h3>
-                    <div id="status-badge" class="status-badge" style="display:none"></div>
-
-                    <div class="response-info">
-                        <span id="res-time">Time: -</span>
-                        <span id="res-size">Size: -</span>
-                    </div>
-
-                    <pre id="res-body" class="code-editor"
-                        style="background: #1e1e1e; min-height: 300px; overflow: auto;"></pre>
                 </div>
             </div>
         </div>
     </main>
 
     <script>
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        // ===== Tab Switching =====
+        document.querySelectorAll('.tabs').forEach(tabContainer => {
+            tabContainer.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabName = btn.dataset.tab;
+                    const parent = btn.closest('.request-panel, .response-panel');
 
-            event.target.classList.add('active');
-            document.getElementById(`tab-${tabName}`).classList.add('active');
+                    parent.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    parent.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                    btn.classList.add('active');
+                    document.getElementById(`tab-${tabName}`).classList.add('active');
+                });
+            });
+        });
+
+        // ===== Key-Value Row Management =====
+        function addParamRow() {
+            addKvRow('params-container', 'param-key', 'param-value');
         }
 
+        function addHeaderRow() {
+            addKvRow('headers-container', 'header-key', 'header-value');
+        }
+
+        function addFormRow() {
+            addKvRow('form-container', 'form-key', 'form-value');
+        }
+
+        function addKvRow(containerId, keyClass, valueClass) {
+            const container = document.getElementById(containerId);
+            const row = document.createElement('div');
+            row.className = 'kv-row';
+            row.innerHTML = `
+                <input type="text" placeholder="Key" class="${keyClass}">
+                <input type="text" placeholder="Value" class="${valueClass}">
+                <button onclick="removeRow(this)">×</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function removeRow(btn) {
+            btn.closest('.kv-row').remove();
+        }
+
+        // ===== Auth Fields Toggle =====
+        function toggleAuthFields() {
+            const authType = document.getElementById('auth-type').value;
+            document.querySelectorAll('.auth-fields').forEach(f => f.classList.remove('active'));
+            if (authType !== 'none') {
+                document.getElementById(`auth-${authType}`).classList.add('active');
+            }
+        }
+
+        // ===== Body Type Toggle =====
+        document.querySelectorAll('input[name="bodyType"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                document.getElementById('body-raw').style.display = 'none';
+                document.getElementById('body-form').style.display = 'none';
+
+                if (radio.value === 'raw') {
+                    document.getElementById('body-raw').style.display = 'block';
+                } else if (radio.value === 'form-urlencoded') {
+                    document.getElementById('body-form').style.display = 'block';
+                }
+            });
+        });
+
+        // ===== Collect Key-Value Pairs =====
+        function collectKV(keyClass, valueClass) {
+            const pairs = {};
+            document.querySelectorAll(`.${keyClass}`).forEach((keyInput, i) => {
+                const valInput = document.querySelectorAll(`.${valueClass}`)[i];
+                const key = keyInput.value.trim();
+                const val = valInput ? valInput.value.trim() : '';
+                if (key) pairs[key] = val;
+            });
+            return pairs;
+        }
+
+        // ===== Build URL with Params =====
+        function buildUrl() {
+            let url = document.getElementById('url').value.trim();
+            const params = collectKV('param-key', 'param-value');
+            const queryStr = new URLSearchParams(params).toString();
+            if (queryStr) {
+                url += (url.includes('?') ? '&' : '?') + queryStr;
+            }
+            return url;
+        }
+
+        // ===== Build Headers =====
+        function buildHeaders() {
+            const headers = collectKV('header-key', 'header-value');
+
+            // Add auth headers
+            const authType = document.getElementById('auth-type').value;
+            if (authType === 'bearer') {
+                const token = document.getElementById('bearer-token').value.trim();
+                if (token) headers['Authorization'] = `Bearer ${token}`;
+            } else if (authType === 'basic') {
+                const user = document.getElementById('basic-user').value.trim();
+                const pass = document.getElementById('basic-pass').value.trim();
+                if (user) headers['Authorization'] = `Basic ${btoa(user + ':' + pass)}`;
+            } else if (authType === 'apikey') {
+                const key = document.getElementById('apikey-key').value.trim();
+                const val = document.getElementById('apikey-value').value.trim();
+                if (key && val) headers[key] = val;
+            }
+
+            return headers;
+        }
+
+        // ===== Build Body =====
+        function buildBody() {
+            const bodyType = document.querySelector('input[name="bodyType"]:checked').value;
+            if (bodyType === 'none') return null;
+
+            if (bodyType === 'raw') {
+                return document.getElementById('req-body').value || null;
+            } else if (bodyType === 'form-urlencoded') {
+                const formData = collectKV('form-key', 'form-value');
+                return new URLSearchParams(formData).toString() || null;
+            }
+            return null;
+        }
+
+        // ===== Send Request =====
         async function sendRequest() {
             const btn = document.getElementById('send-btn');
             const method = document.getElementById('method').value;
-            const url = document.getElementById('url').value;
-            const bodyStr = document.getElementById('req-body').value;
-            const headersStr = document.getElementById('req-headers').value;
+            const url = buildUrl();
+            const headers = buildHeaders();
+            const body = buildBody();
 
-            const resBodyEl = document.getElementById('res-body');
+            const resBody = document.getElementById('res-body-content');
             const statusBadge = document.getElementById('status-badge');
+            const resHeadersTbody = document.getElementById('res-headers-tbody');
+            const downloadBtn = document.getElementById('download-btn');
 
             if (!url) {
-                resBodyEl.textContent = 'Please enter a URL';
+                resBody.textContent = 'Please enter a URL';
                 return;
             }
 
             btn.disabled = true;
             btn.textContent = 'Sending...';
-            resBodyEl.innerHTML = '';
+            resBody.innerHTML = '';
             statusBadge.style.display = 'none';
+            downloadBtn.style.display = 'none';
+            window.lastResponseText = null;
 
-            // Parse Headers
-            const headers = {};
-            headersStr.split('\n').forEach(line => {
-                const parts = line.split(':');
-                if (parts.length >= 2) {
-                    const key = parts[0].trim();
-                    const val = parts.slice(1).join(':').trim();
-                    if (key) headers[key] = val;
-                }
-            });
-
-            const options = {
-                method,
-                headers
-            };
-
-            if (['POST', 'PUT', 'PATCH'].includes(method) && bodyStr.trim()) {
-                try {
-                    // Try to parse as JSON first to minify/validate? No, send raw but maybe stringify if user didn't
-                    // For now assume user types what they want to send. 
-                    // But if content-type is json, it should be a string.
-                    options.body = bodyStr;
-                } catch (e) {
-                    options.body = bodyStr;
-                }
+            const options = { method, headers };
+            if (['POST', 'PUT', 'PATCH'].includes(method) && body) {
+                options.body = body;
             }
 
             const startTime = performance.now();
@@ -312,45 +797,63 @@
                 const endTime = performance.now();
 
                 const time = (endTime - startTime).toFixed(0);
-                const size = response.headers.get('content-length');
 
                 document.getElementById('res-time').textContent = `Time: ${time}ms`;
-                document.getElementById('res-size').textContent = `Size: ${size ? (size / 1024).toFixed(2) + 'KB' : 'Unknown'}`;
 
-                // Status Badge
                 statusBadge.textContent = `${response.status} ${response.statusText}`;
                 statusBadge.className = 'status-badge ' + (response.ok ? 'status-success' : 'status-error');
-                statusBadge.style.display = 'block';
+                statusBadge.style.display = 'inline-block';
 
+                // Populate Response Headers
+                resHeadersTbody.innerHTML = '';
+                response.headers.forEach((value, key) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${key}</td><td>${value}</td>`;
+                    resHeadersTbody.appendChild(row);
+                });
+
+                // Response Body
                 const contentType = response.headers.get('content-type');
                 let text = await response.text();
+
+                // Calculate and display size from text
+                const sizeBytes = new Blob([text]).size;
+                document.getElementById('res-size').textContent = `Size: ${(sizeBytes / 1024).toFixed(2)} KB`;
+
+                // Store for download
+                window.lastResponseText = text;
+                downloadBtn.style.display = 'inline-block';
 
                 if (contentType && contentType.includes('json')) {
                     try {
                         const json = JSON.parse(text);
-                        resBodyEl.innerHTML = syntaxHighlight(JSON.stringify(json, null, 2));
+                        resBody.innerHTML = syntaxHighlight(JSON.stringify(json, null, 2));
                     } catch (e) {
-                        resBodyEl.textContent = text;
+                        resBody.textContent = text;
                     }
                 } else {
-                    resBodyEl.textContent = text;
+                    resBody.textContent = text;
                 }
+
+                // Save to History
+                saveToHistory(method, document.getElementById('url').value);
 
             } catch (error) {
                 statusBadge.textContent = 'Error';
                 statusBadge.className = 'status-badge status-error';
-                statusBadge.style.display = 'block';
-                resBodyEl.textContent = `Error: ${error.message}\n\nNote: This tool runs in the browser. Cross-Origin (CORS) requests to restricted servers may fail.`;
+                statusBadge.style.display = 'inline-block';
+                resBody.textContent = `Error: ${error.message}\n\nNote: Cross-Origin (CORS) requests to restricted servers may fail in browser.`;
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Send';
             }
         }
 
+        // ===== Syntax Highlighting =====
         function syntaxHighlight(json) {
             json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
-                var cls = 'json-number';
+            return json.replace(new RegExp('("(\\\\u[a-zA-Z0-9]{4}|\\\\[^u]|[^\\\\"])*"(\\s*:)?|\\b(true|false|null)\\b|-?\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d+)?)', 'g'), function (match) {
+                let cls = 'json-number';
                 if (/^"/.test(match)) {
                     if (/:$/.test(match)) {
                         cls = 'json-key';
@@ -360,11 +863,92 @@
                 } else if (/true|false/.test(match)) {
                     cls = 'json-boolean';
                 } else if (/null/.test(match)) {
-                    cls = 'json-boolean'; // null
+                    cls = 'json-boolean';
                 }
                 return '<span class="' + cls + '">' + match + '</span>';
             });
         }
+
+        // ===== History Management =====
+        const HISTORY_KEY = 'api_tester_history';
+
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+            const list = document.getElementById('history-list');
+            list.innerHTML = '';
+
+            history.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.className = 'history-item';
+                li.innerHTML = `
+                    <span class="history-method ${item.method}">${item.method}</span>
+                    <span class="history-url">${item.url}</span>
+                `;
+                li.onclick = () => loadFromHistory(item);
+                list.appendChild(li);
+            });
+        }
+
+        function saveToHistory(method, url) {
+            let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+
+            // Avoid duplicates at top
+            history = history.filter(h => !(h.method === method && h.url === url));
+            history.unshift({ method, url });
+
+            // Keep only last 20
+            history = history.slice(0, 20);
+
+            localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+            loadHistory();
+        }
+
+        function loadFromHistory(item) {
+            document.getElementById('method').value = item.method;
+            document.getElementById('url').value = item.url;
+        }
+
+        function clearHistory() {
+            localStorage.removeItem(HISTORY_KEY);
+            loadHistory();
+        }
+
+        // ===== Download Response =====
+        function downloadResponse() {
+            if (!window.lastResponseText) return;
+
+            let filename = 'api_response.json';
+            let mimeType = 'application/json';
+
+            // Try to format as JSON if possible
+            let content = window.lastResponseText;
+            try {
+                const json = JSON.parse(content);
+                content = JSON.stringify(json, null, 2);
+            } catch (e) {
+                // Not JSON, download as plain text
+                filename = 'api_response.txt';
+                mimeType = 'text/plain';
+            }
+
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+
+            // Cleanup after a short delay
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 100);
+        }
+
+        // Initialize
+        loadHistory();
     </script>
 </body>
 
