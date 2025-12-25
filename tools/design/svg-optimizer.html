@@ -145,7 +145,7 @@
                 .replace(/\t/g, ' ')           // Tabs to space
                 .replace(/\s+/g, ' ')          // Multiple spaces to single
                 .replace(/>\s+</g, '><')       // Space between tags
-                .replace(/<!--[\s\S]*?-->/g, '') // Comments
+                .replace(new RegExp('<!--[\\s\\S]*?-->', 'g'), '') // Comments
                 .trim();
 
             document.getElementById('output').value = min;
