@@ -7,6 +7,7 @@
     <title>JSON Formatter & Validator | Neelakandan</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Existing styles... */
         *,
         *::before,
         *::after {
@@ -138,6 +139,7 @@
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
+            position: relative;
         }
 
         .editor-label {
@@ -210,6 +212,12 @@
             box-shadow: 0 4px 12px var(--accent-glow);
         }
 
+        .btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
         /* Message/Status */
         .status-msg {
             text-align: center;
@@ -223,6 +231,101 @@
 
         .status-error {
             color: var(--error);
+        }
+
+        /* Tree View Styles */
+        .json-tree-container {
+            width: 100%;
+            height: 100%;
+            padding: 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+            overflow: auto;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            display: none;
+            /* Hidden by default */
+        }
+
+        .json-tree-container.visible {
+            display: block;
+        }
+
+        .json-node {
+            margin-left: 1.5rem;
+        }
+
+        .json-key {
+            color: #9cdcfe;
+            margin-right: 5px;
+        }
+
+        .json-string {
+            color: #ce9178;
+        }
+
+        .json-number {
+            color: #b5cea8;
+        }
+
+        .json-boolean {
+            color: #569cd6;
+        }
+
+        .json-null {
+            color: #569cd6;
+        }
+
+        .json-toggler {
+            cursor: pointer;
+            user-select: none;
+            display: inline-block;
+            width: 1rem;
+            margin-left: -1rem;
+            color: var(--text-muted);
+            transition: transform 0.1s;
+        }
+
+        .json-toggler::before {
+            content: '▼';
+            font-size: 0.7rem;
+            display: inline-block;
+        }
+
+        .json-collapsed>.json-toggler::before {
+            transform: rotate(-90deg);
+        }
+
+        .json-collapsed>.json-children {
+            display: none;
+        }
+
+        .view-toggles {
+            display: flex;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 2px;
+            margin-left: auto;
+        }
+
+        .view-toggle-btn {
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            border-radius: 6px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+        }
+
+        .view-toggle-btn.active {
+            background: var(--bg-surface);
+            color: var(--text-primary);
+            font-weight: 600;
         }
 
         @media (max-width: 768px) {
@@ -249,7 +352,7 @@
             <div class="tool-container">
                 <div class="tool-header">
                     <h1>JSON Formatter & Validator</h1>
-                    <p>Format, validate, and minify your JSON data</p>
+                    <p>Format, validate, and minify your JSON data with interactive Tree View</p>
                 </div>
 
                 <div class="actions-bar">
@@ -270,9 +373,21 @@
                         <textarea id="input-json" class="text-area" placeholder="Paste your JSON here..."></textarea>
                     </div>
                     <div class="editor-box">
-                        <div class="editor-label">Output</div>
+                        <div class="editor-label">
+                            Output
+                            <div class="view-toggles">
+                                <button class="view-toggle-btn active" id="btn-text"
+                                    onclick="switchView('text')">Text</button>
+                                <button class="view-toggle-btn" id="btn-tree" onclick="switchView('tree')">Tree</button>
+                            </div>
+                        </div>
+
+                        <!-- Text Output -->
                         <textarea id="output-json" class="text-area" readonly
                             placeholder="Result will appear here..."></textarea>
+
+                        <!-- Tree Output -->
+                        <div id="output-tree" class="json-tree-container"></div>
                     </div>
                 </div>
             </div>
@@ -280,8 +395,12 @@
     </div>
     <script>
         const input = document.getElementById('input-json');
-        const output = document.getElementById('output-json');
+        const outputText = document.getElementById('output-json');
+        const outputTree = document.getElementById('output-tree');
         const status = document.getElementById('status-msg');
+
+        let currentView = 'text'; // 'text' or 'tree'
+        let currentObj = null;
 
         function showStatus(msg, type) {
             status.textContent = msg;
@@ -289,12 +408,47 @@
             setTimeout(() => { status.textContent = ''; status.className = 'status-msg'; }, 3000);
         }
 
+        function switchView(view) {
+            currentView = view;
+
+            // Toggle classes for buttons
+            document.getElementById('btn-text').classList.toggle('active', view === 'text');
+            document.getElementById('btn-tree').classList.toggle('active', view === 'tree');
+
+            // Toggle visibility
+            if (view === 'text') {
+                outputText.style.display = 'block';
+                outputTree.classList.remove('visible');
+            } else {
+                outputText.style.display = 'none';
+                outputTree.classList.add('visible');
+                // If we have an object but empty tree, render it
+                if (currentObj && outputTree.innerHTML === '') {
+                    renderTree(currentObj);
+                } else if (!currentObj && input.value.trim()) {
+                    // Try to parse input if switch happens without formatting first
+                    try {
+                        currentObj = JSON.parse(input.value);
+                        renderTree(currentObj);
+                    } catch (e) {
+                        outputTree.innerHTML = '<div style="color:var(--error); padding:1rem;">Invalid JSON</div>';
+                    }
+                }
+            }
+        }
+
         function formatJSON() {
             try {
                 const val = input.value;
                 if (!val.trim()) return;
-                const obj = JSON.parse(val);
-                output.value = JSON.stringify(obj, null, 4);
+                currentObj = JSON.parse(val);
+
+                // Update Text View
+                outputText.value = JSON.stringify(currentObj, null, 4);
+
+                // Update Tree View
+                renderTree(currentObj);
+
                 showStatus('JSON formatted successfully', 'success');
             } catch (e) {
                 showStatus('Invalid JSON: ' + e.message, 'error');
@@ -305,8 +459,14 @@
             try {
                 const val = input.value;
                 if (!val.trim()) return;
-                const obj = JSON.parse(val);
-                output.value = JSON.stringify(obj);
+                currentObj = JSON.parse(val);
+
+                // Update Text View
+                outputText.value = JSON.stringify(currentObj);
+
+                // Switch to text view for minify as tree is inherently expanded/structured
+                if (currentView === 'tree') switchView('text');
+
                 showStatus('JSON minified successfully', 'success');
             } catch (e) {
                 showStatus('Invalid JSON: ' + e.message, 'error');
@@ -317,7 +477,7 @@
             try {
                 const val = input.value;
                 if (!val.trim()) { showStatus('Please enter JSON to validate', 'error'); return; }
-                JSON.parse(val);
+                currentObj = JSON.parse(val);
                 showStatus('Valid JSON', 'success');
             } catch (e) {
                 showStatus('Invalid JSON: ' + e.message, 'error');
@@ -325,19 +485,122 @@
         }
 
         function copyOutput() {
-            if (!output.value) return;
-            navigator.clipboard.writeText(output.value);
+            let content = '';
+            if (currentView === 'text') {
+                content = outputText.value;
+            } else {
+                // If in tree view, copy pretty printed version of current object
+                content = currentObj ? JSON.stringify(currentObj, null, 4) : '';
+            }
+
+            if (!content) return;
+            navigator.clipboard.writeText(content);
             showStatus('Copied to clipboard', 'success');
         }
 
         function clearAll() {
             input.value = '';
-            output.value = '';
+            outputText.value = '';
+            outputTree.innerHTML = '';
             status.textContent = '';
+            currentObj = null;
         }
 
         function loadSample() {
-            input.value = '{\n    "name": "Neelakandan",\n    "role": "Developer",\n    "skills": ["HTML", "CSS", "JS"],\n    "active": true\n}';
+            input.value = '{\n    "name": "Neelakandan",\n    "role": "Developer",\n    "skills": ["HTML", "CSS", "JS"],\n    "projects": [\n        {"name": "Tools", "status": "Active"},\n        {"name": "Portfolio", "status": "Completed"}\n    ],\n    "active": true,\n    "meta": null\n}';
+            formatJSON(); // Auto format on load
+        }
+
+        // Tree View Logic
+        function renderTree(obj) {
+            outputTree.innerHTML = '';
+            outputTree.appendChild(createTreeNode('root', obj, true));
+        }
+
+        function createTreeNode(key, value, isRoot = false) {
+            const node = document.createElement('div');
+            node.className = 'json-node';
+
+            if (isRoot) node.style.marginLeft = '0';
+
+            const type = value === null ? 'null' : typeof value;
+
+            if (type === 'object' && value !== null) {
+                const isArray = Array.isArray(value);
+                const isEmpty = isArray ? value.length === 0 : Object.keys(value).length === 0;
+
+                // Toggler
+                if (!isEmpty) {
+                    const toggler = document.createElement('span');
+                    toggler.className = 'json-toggler';
+                    toggler.onclick = function (e) {
+                        e.stopPropagation();
+                        node.classList.toggle('json-collapsed');
+                    };
+                    node.appendChild(toggler);
+                }
+
+                // Key
+                if (!isRoot && key !== undefined) {
+                    const keySpan = document.createElement('span');
+                    keySpan.className = 'json-key';
+                    keySpan.textContent = `"${key}":`;
+                    node.appendChild(keySpan);
+                }
+
+                // Opening Brace/Bracket
+                const openSpan = document.createElement('span');
+                openSpan.textContent = isArray ? '[' : '{';
+                openSpan.style.color = '#ffd700'; // Gold color for brackets
+                node.appendChild(openSpan);
+
+                if (!isEmpty) {
+                    // Children Container
+                    const childrenDiv = document.createElement('div');
+                    childrenDiv.className = 'json-children';
+
+                    if (isArray) {
+                        value.forEach((item, index) => {
+                            childrenDiv.appendChild(createTreeNode(undefined, item));
+                        });
+                    } else {
+                        Object.keys(value).forEach(k => {
+                            childrenDiv.appendChild(createTreeNode(k, value[k]));
+                        });
+                    }
+                    node.appendChild(childrenDiv);
+                }
+
+                // Closing Brace/Bracket
+                const closeSpan = document.createElement('span');
+                closeSpan.textContent = isArray ? ']' : '}';
+                closeSpan.style.color = '#ffd700';
+                node.appendChild(closeSpan);
+
+                // Comma (if needed, simplified logic here, strict comma not critical for view)
+            } else {
+                // Primitive
+                // Key
+                if (!isRoot && key !== undefined) {
+                    const keySpan = document.createElement('span');
+                    keySpan.className = 'json-key';
+                    keySpan.textContent = `"${key}":`;
+                    node.appendChild(keySpan);
+                }
+
+                const valSpan = document.createElement('span');
+                valSpan.className = `json-${type}`;
+
+                if (type === 'string') {
+                    valSpan.textContent = `"${value}"`;
+                } else {
+                    valSpan.textContent = String(value);
+                }
+
+                node.appendChild(valSpan);
+            }
+
+            return node;
         }
     </script>
 </body>
