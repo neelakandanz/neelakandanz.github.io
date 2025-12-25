@@ -50,11 +50,10 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--color-primary);
+            background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
             transform-origin: center top;
             transform: rotate(0deg);
-            /* 0 to 180deg */
-            transition: transform 0.5s cubic-bezier(0.1, 0.9, 0.2, 1);
+            transition: transform 0.3s ease-out;
         }
 
         .gauge-cover {
@@ -91,9 +90,15 @@
 
         .metrics-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: repeat(4, 1fr);
             gap: 1rem;
             margin-bottom: 2rem;
+        }
+
+        @media (max-width: 600px) {
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
         .metric-card {
@@ -154,6 +159,29 @@
                 opacity: 1;
             }
         }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--color-surface-2);
+            border-radius: 3px;
+            margin-top: 1.5rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .server-info {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+        }
     </style>
 </head>
 
@@ -175,7 +203,7 @@
             <div class="tool-header">
                 <a href="../#social-media" class="back-link">← Back to Social Tools</a>
                 <h1>Internet Speed Test</h1>
-                <p>Test your Ping, Jitter, and Download speed.</p>
+                <p>Test your Ping, Jitter, Download, and Upload speed.</p>
             </div>
 
             <div class="tool-container">
@@ -194,6 +222,10 @@
                             <div class="metric-label">Download</div>
                             <div class="metric-val" id="down">--</div>
                         </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Upload</div>
+                            <div class="metric-val" id="up">--</div>
+                        </div>
                     </div>
 
                     <div class="gauge-container">
@@ -209,126 +241,239 @@
 
                     <button class="btn-go" onclick="runTest()" id="btn-go">GO</button>
 
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+
                     <div style="text-align:center; margin-top:1rem; color:var(--color-text-muted);" id="status-msg">
                         Click GO to start</div>
+
+                    <div class="server-info" id="server-info">
+                        Using Cloudflare Edge Network
+                    </div>
                 </div>
             </div>
         </div>
     </main>
 
     <script>
-        const TEST_URL = "https://images.unsplash.com/photo-1558222218-b7b54eede3f3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1500&q=80";
-        // A smaller file for Ping
-        const PING_URL = "../../assets/css/global.css"; // Local check or minimal external
+        // Test endpoints - Using Cloudflare's speed test endpoints
+        const CLOUDFLARE_DOWN = 'https://speed.cloudflare.com/__down?bytes=';
+        const CLOUDFLARE_UP = 'https://speed.cloudflare.com/__up';
+
+        // Test file sizes for progressive testing
+        const DOWNLOAD_SIZES = [
+            100000,      // 100 KB - warmup
+            1000000,     // 1 MB
+            5000000,     // 5 MB
+            10000000,    // 10 MB
+            25000000,    // 25 MB
+        ];
+
+        const UPLOAD_SIZES = [
+            100000,      // 100 KB - warmup
+            500000,      // 500 KB
+            1000000,     // 1 MB
+            2000000,     // 2 MB
+        ];
+
+        let isRunning = false;
 
         async function measurePing() {
-            const start = performance.now();
-            await fetch(PING_URL + "?t=" + Date.now(), { cache: "no-store" });
-            const end = performance.now();
-            return end - start;
+            const results = [];
+            for (let i = 0; i < 10; i++) {
+                const start = performance.now();
+                try {
+                    await fetch(CLOUDFLARE_DOWN + '0&r=' + Math.random(), {
+                        cache: 'no-store',
+                        mode: 'cors'
+                    });
+                    const end = performance.now();
+                    results.push(end - start);
+                } catch (e) {
+                    console.error('Ping error:', e);
+                }
+                await sleep(50);
+            }
+            return results;
         }
 
-        async function runTest() {
-            const btn = document.getElementById('btn-go');
-            if (btn.disabled) return;
-            btn.disabled = true;
-            btn.textContent = "...";
+        async function measureDownload(bytes) {
+            const url = CLOUDFLARE_DOWN + bytes + '&r=' + Math.random();
+            const start = performance.now();
 
-            document.getElementById('status-msg').textContent = "Testing Ping...";
-
-            // 1. PING & JITTER
             try {
-                let pings = [];
-                for (let i = 0; i < 5; i++) {
-                    const p = await measurePing();
-                    pings.push(p);
-                    await new Promise(r => setTimeout(r, 100)); // gap
-                }
-                const minPing = Math.min(...pings);
-
-                // Jitter: avg deviation
-                const avgPing = pings.reduce((a, b) => a + b, 0) / pings.length;
-                const jitter = pings.reduce((a, b) => a + Math.abs(b - avgPing), 0) / pings.length;
-
-                document.getElementById('ping').textContent = Math.round(minPing) + " ms";
-                document.getElementById('jitter').textContent = Math.round(jitter) + " ms";
-
-                // 2. DOWNLOAD
-                document.getElementById('status-msg').textContent = "Testing Download...";
-
-                const response = await fetch(TEST_URL + "&t=" + Date.now());
+                const response = await fetch(url, { cache: 'no-store', mode: 'cors' });
                 const reader = response.body.getReader();
-                const totalLength = +response.headers.get('Content-Length') || 2000000;
-
-                let receivedLength = 0;
-                const startTime = performance.now();
+                let receivedBytes = 0;
 
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
-                    receivedLength += value.length;
-
-                    // Live Update
-                    const now = performance.now();
-                    const duration = (now - startTime) / 1000;
-                    if (duration > 0.1) {
-                        const bits = receivedLength * 8;
-                        const mbps = (bits / 1000000 / duration);
-                        updateGauge(mbps);
-                    }
+                    receivedBytes += value.length;
                 }
 
-                const endTime = performance.now();
-                const duration = (endTime - startTime) / 1000;
-                const bits = receivedLength * 8;
-                const finalMbps = (bits / 1000000 / duration).toFixed(2);
+                const end = performance.now();
+                const duration = (end - start) / 1000; // seconds
+                const bitsReceived = receivedBytes * 8;
+                const mbps = (bitsReceived / 1000000) / duration;
 
-                updateGauge(finalMbps);
-                document.getElementById('down').textContent = finalMbps + " Mbps";
-                document.getElementById('status-msg').textContent = "Test Complete";
-
+                return { mbps, duration, bytes: receivedBytes };
             } catch (e) {
-                console.error(e);
-                document.getElementById('status-msg').textContent = "Test Failed";
-            } finally {
-                btn.disabled = false;
-                btn.textContent = "GO";
+                console.error('Download error:', e);
+                return null;
             }
         }
 
+        async function measureUpload(bytes) {
+            const data = new Uint8Array(bytes);
+            const start = performance.now();
+
+            try {
+                await fetch(CLOUDFLARE_UP + '?r=' + Math.random(), {
+                    method: 'POST',
+                    body: data,
+                    mode: 'cors'
+                });
+
+                const end = performance.now();
+                const duration = (end - start) / 1000;
+                const bitsUploaded = bytes * 8;
+                const mbps = (bitsUploaded / 1000000) / duration;
+
+                return { mbps, duration, bytes };
+            } catch (e) {
+                console.error('Upload error:', e);
+                return null;
+            }
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
         function updateGauge(mbps) {
-            document.getElementById('main-val').textContent = parseFloat(mbps).toFixed(2);
-
-            // Map 0-100 Mbps to 0-180 degrees roughly
-            // Log scale is better for speed tests usually, but linear ok for simple tool
-            let deg = (mbps / 100) * 180;
-            if (deg > 180) deg = 180;
-            // But actually rotate starts at -90 effectively if we consider gauge fill logic
-            // My CSS logic: transform: rotate(0deg) is hidden (left). 180 is full (right).
-            // Wait, CSS: 
-            /* 
-               top: 100%; left: 0; transform-origin: center top; 
-               If rotate(0), it points down? No wait.
-               Wait, I need to verify basic gauge CSS.
-               Usually rotate(0) is 3 o clock?
-               Let's assume linear mapping 0-180 for now.
-            */
-            // Fix CSS logic:
-            // To make it fill from left to right in a semi-circle:
-            // The fill needs to rotate.
-            // Actually a simpler gauge is a conic gradient, but let's stick to this div rotation.
-            // Let's assume 0deg is empty (left side hidden?)
-            // Actually with `transform-origin: center top`, and the semi-circle parent...
-            // Let's correct the rotation logic:
-            // Start position: rotation: 0deg.
-            // If I want it to sweep from left (-90) to right (+90)?
-
-            // Let's just use rotation:
-            // 0 Mbps -> 0 deg
-            // 50 Mbps -> 90 deg
-            // 100 Mbps -> 180 deg
-
+            let deg;
+            if (mbps <= 0) {
+                deg = 0;
+            } else if (mbps >= 200) {
+                deg = 180;
+            } else {
+                // Logarithmic scale for better visualization
+                deg = (Math.log10(mbps + 1) / Math.log10(201)) * 180;
+            }
             document.getElementById('gauge-fill').style.transform = `rotate(${deg}deg)`;
+        }
+
+        function updateProgress(percent) {
+            document.getElementById('progress-fill').style.width = percent + '%';
+        }
+
+        async function runTest() {
+            if (isRunning) return;
+
+            const btn = document.getElementById('btn-go');
+            isRunning = true;
+            btn.disabled = true;
+            btn.textContent = "...";
+
+            // Reset UI
+            document.getElementById('ping').textContent = '- ms';
+            document.getElementById('jitter').textContent = '- ms';
+            document.getElementById('down').textContent = '--';
+            document.getElementById('up').textContent = '--';
+            document.getElementById('main-val').textContent = '0.00';
+            updateProgress(0);
+            updateGauge(0);
+
+            const totalSteps = 2 + DOWNLOAD_SIZES.length + UPLOAD_SIZES.length;
+            let currentStep = 0;
+
+            try {
+                // STEP 1: Measure Ping & Jitter
+                document.getElementById('status-msg').textContent = 'Testing Latency...';
+                const pings = await measurePing();
+                currentStep++;
+                updateProgress((currentStep / totalSteps) * 100);
+
+                if (pings.length > 0) {
+                    const minPing = Math.min(...pings);
+                    const avgPing = pings.reduce((a, b) => a + b, 0) / pings.length;
+                    const jitter = pings.reduce((a, b) => a + Math.abs(b - avgPing), 0) / pings.length;
+
+                    document.getElementById('ping').textContent = Math.round(minPing) + ' ms';
+                    document.getElementById('jitter').textContent = Math.round(jitter) + ' ms';
+                }
+                currentStep++;
+                updateProgress((currentStep / totalSteps) * 100);
+
+                // STEP 2: Measure Download Speed (progressive)
+                document.getElementById('status-msg').textContent = 'Testing Download...';
+                let downloadSpeeds = [];
+
+                for (const size of DOWNLOAD_SIZES) {
+                    const result = await measureDownload(size);
+                    if (result && result.duration > 0.3) { // Only count if test ran long enough
+                        downloadSpeeds.push(result.mbps);
+
+                        // Update UI with current best estimate
+                        const currentMbps = Math.max(...downloadSpeeds);
+                        document.getElementById('down').textContent = currentMbps.toFixed(2) + ' Mbps';
+                        document.getElementById('main-val').textContent = currentMbps.toFixed(2);
+                        updateGauge(currentMbps);
+                    }
+                    currentStep++;
+                    updateProgress((currentStep / totalSteps) * 100);
+
+                    // If we have enough data, stop early for faster results
+                    if (result && result.duration > 2) break;
+                }
+
+                // Calculate final download speed (median of valid results)
+                if (downloadSpeeds.length > 0) {
+                    downloadSpeeds.sort((a, b) => a - b);
+                    const medianDown = downloadSpeeds[Math.floor(downloadSpeeds.length / 2)];
+                    document.getElementById('down').textContent = medianDown.toFixed(2) + ' Mbps';
+                    document.getElementById('main-val').textContent = medianDown.toFixed(2);
+                    updateGauge(medianDown);
+                }
+
+                // STEP 3: Measure Upload Speed (progressive)
+                document.getElementById('status-msg').textContent = 'Testing Upload...';
+                let uploadSpeeds = [];
+
+                for (const size of UPLOAD_SIZES) {
+                    const result = await measureUpload(size);
+                    if (result && result.duration > 0.3) {
+                        uploadSpeeds.push(result.mbps);
+
+                        const currentMbps = Math.max(...uploadSpeeds);
+                        document.getElementById('up').textContent = currentMbps.toFixed(2) + ' Mbps';
+                    }
+                    currentStep++;
+                    updateProgress((currentStep / totalSteps) * 100);
+
+                    if (result && result.duration > 2) break;
+                }
+
+                // Calculate final upload speed
+                if (uploadSpeeds.length > 0) {
+                    uploadSpeeds.sort((a, b) => a - b);
+                    const medianUp = uploadSpeeds[Math.floor(uploadSpeeds.length / 2)];
+                    document.getElementById('up').textContent = medianUp.toFixed(2) + ' Mbps';
+                }
+
+                updateProgress(100);
+                document.getElementById('status-msg').textContent = 'Test Complete';
+
+            } catch (e) {
+                console.error('Speed test error:', e);
+                document.getElementById('status-msg').textContent = 'Error: ' + e.message;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "GO";
+                isRunning = false;
+            }
         }
     </script>
 </body>
