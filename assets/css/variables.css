@@ -6,10 +6,10 @@
   /* Slate 50 - Light gray */
   --color-surface-2: #e2e8f0;
   /* Slate 200 */
-  --color-text: #1e293b;
-  /* Slate 800 - Dark text */
-  --color-text-muted: #64748b;
-  /* Slate 500 */
+  --color-text: #0f172a;
+  /* Slate 900 - Darker text for contrast */
+  --color-text-muted: #1e293b;
+  /* Slate 800 - Much darker for better readability */
 
   /* Brand Colors - Professional Blue */
   --color-primary: #2563eb;
