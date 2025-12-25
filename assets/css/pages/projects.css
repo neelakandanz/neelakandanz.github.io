@@ -1,0 +1,183 @@
+/* Projects Page Specific Styles */
+
+.page-header {
+    text-align: center;
+    padding-top: 120px;
+    padding-bottom: 2rem;
+}
+
+.filter-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    background: transparent;
+    border: 1px solid var(--color-surface-2);
+    color: var(--color-text-muted);
+    padding: 0.5rem 1.5rem;
+    border-radius: 2rem;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover,
+.filter-btn.active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+}
+
+/* Reduce gap between header and grid */
+.projects-section {
+    padding-top: 1rem !important;
+    /* Override global section-padding */
+}
+
+.projects-grid-full {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 2rem;
+}
+
+.project-card-large {
+    position: relative;
+    /* Essential for stretched-link */
+    background: var(--color-surface);
+    border: 1px solid var(--color-surface-2);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: grid;
+    /* For layout */
+    grid-template-rows: 300px 1fr;
+    /* Increased height for visual */
+}
+
+.project-card-large:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    border-color: var(--color-primary-light);
+}
+
+.project-visual {
+    background: var(--color-surface-2);
+    /* Fallback/Base */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    padding: 20px 0;
+    /* Vertical padding only */
+}
+
+/* Mobile Frame Style - Transparent Background variant */
+.project-visual.mobile-frame {
+    background: transparent;
+    /* No dark box */
+    /* Add a subtle gradient or pattern if needed, but keeping it clean for now */
+    background: radial-gradient(circle at center, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
+}
+
+/* 
+   We treat the IMG itself as the screen content.
+   We add a border/shadow to simulate the phone frame.
+*/
+.project-visual.mobile-frame img {
+    width: auto;
+    height: 100%;
+    /* max-height: 260px; Removed constraint to let it fill the area better */
+    aspect-ratio: 9/19.5;
+    /* Typical phone aspect ratio */
+    object-fit: cover;
+    border-radius: 14px;
+    /* Slightly rounder */
+    box-shadow:
+        0 0 0 6px #222,
+        /* Inner bezel */
+        0 0 0 8px #444,
+        /* Outer frame */
+        0 20px 40px rgba(0, 0, 0, 0.2);
+    /* Soft shadow */
+    transition: transform 0.5s ease;
+}
+
+.project-card-large:hover .project-visual.mobile-frame img {
+    transform: scale(1.05) translateY(-5px);
+    box-shadow:
+        0 0 0 6px #222,
+        0 0 0 8px #444,
+        0 30px 60px rgba(0, 0, 0, 0.3);
+    /* Enhanced shadow on hover */
+}
+
+
+.project-info {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.project-tags {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.tag {
+    font-size: 0.75rem;
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--color-primary-light);
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.project-info h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-text);
+}
+
+.project-info p {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    flex-grow: 1;
+}
+
+.project-links {
+    margin-top: auto;
+    /* removed position: relative to allow stretched-link to target the card parent */
+}
+
+/* Actually, for stretched link to work, the covering element needs to be clickable. */
+/* Standard bootstrap stretched-link implementation: */
+.stretched-link::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    content: "";
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .projects-grid-full {
+        grid-template-columns: 1fr;
+    }
+}
