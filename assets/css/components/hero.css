@@ -131,7 +131,8 @@ h1 {
     }
 
     .hero-visual {
-        height: 400px;
+        height: 540px;
+        margin-top: 2rem;
     }
 }
 
