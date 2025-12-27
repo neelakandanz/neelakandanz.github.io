@@ -33,14 +33,24 @@ header.scrolled {
     font-weight: 700;
     letter-spacing: -0.02em;
     color: var(--color-text);
-    /* Dark color for visibility on bright bg */
-    transition: opacity 0.3s;
-    text-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
-    /* White halo */
+    transition: all 0.3s ease;
+    text-shadow: none;
+
+    /* Glass Chip Style */
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 0.25rem 1rem;
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .logo:hover {
-    opacity: 0.8;
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* Desktop Navigation */
@@ -54,30 +64,34 @@ header.scrolled {
     font-weight: 500;
     font-size: 0.95rem;
     color: var(--color-text);
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
     position: relative;
-    text-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
-    /* White halo */
+    text-shadow: none;
+    /* Removed for clean glass look */
+
+    /* Glass Chip Style */
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .nav-menu a:hover,
 .nav-menu a.active {
     color: var(--color-primary);
+    background: rgba(255, 255, 255, 0.5);
+    /* More opaque on hover */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 
-.nav-menu a::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: var(--color-primary);
-    transition: width 0.3s ease;
-}
-
+/* Removed old underline effect */
+.nav-menu a::after,
 .nav-menu a:hover::after {
-    width: 100%;
+    display: none;
 }
 
 /* Mobile Toggle */
