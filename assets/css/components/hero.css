@@ -10,22 +10,26 @@
     min-height: 100vh;
     display: flex;
     align-items: center;
-    color: white;
+    color: var(--color-text);
+    /* Dark text */
     /* Ensure text is readable */
 }
 
 /* Ensure text colors override global dark text if needed */
 #hero h1,
 #hero .hero-description {
-    color: white;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    color: var(--color-text);
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+    /* Strong white glow/halo */
 }
 
 #hero .badge {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #fff;
+    background: rgba(255, 255, 255, 0.7);
+    /* Brighter bg for badge */
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: var(--color-primary);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .hero-layout {
@@ -70,7 +74,7 @@ h1 {
 
 .hero-description {
     font-size: 1.125rem;
-    color: var(--color-text-muted);
+    color: var(--color-text);
     max-width: 500px;
     margin-bottom: 2.5rem;
     margin-left: auto;
