@@ -1,14 +1,42 @@
 /* Hero Section */
+#hero {
+    position: relative;
+    background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
+        url('../../images/hero_bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    color: white;
+    /* Ensure text is readable */
+}
+
+/* Ensure text colors override global dark text if needed */
+#hero h1,
+#hero .hero-description {
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+#hero .badge {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
 .hero-layout {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    min-height: 80vh;
-    /* Slightly reduced height for better centered feel */
+    width: 100%;
     position: relative;
-    padding-top: 2rem;
+    z-index: 2;
 }
 
 .hero-content {
