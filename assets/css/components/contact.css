@@ -303,3 +303,58 @@
         height: 50px;
     }
 }
+
+/* Height-based Compact Mode for Laptops/Smaller Screens */
+@media (max-height: 850px) {
+    #contact {
+        padding: 1rem 0;
+        /* Minimal padding */
+    }
+
+    .contact-container {
+        max-width: 600px;
+        /* Slightly narrower */
+    }
+
+    .contact-card {
+        padding: 2rem 1.5rem;
+        /* Reduced card padding */
+    }
+
+    .contact-badge {
+        margin-bottom: 1rem;
+        padding: 0.4rem 1rem;
+        font-size: 0.8rem;
+    }
+
+    .contact-title {
+        font-size: clamp(1.75rem, 3vw, 2.25rem);
+        margin-bottom: 0.75rem;
+    }
+
+    .contact-subtitle {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+    }
+
+    .contact-email-link {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+    }
+
+    .contact-divider {
+        margin: 1.5rem 0;
+    }
+
+    .social-link {
+        width: 45px;
+        height: 45px;
+        font-size: 1.1rem;
+    }
+
+    .availability-tag {
+        margin-top: 1.5rem;
+        padding: 0.4rem 0.8rem;
+    }
+}
