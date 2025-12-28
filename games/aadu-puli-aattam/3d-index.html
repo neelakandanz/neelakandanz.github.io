@@ -709,17 +709,20 @@
                     y: 0.4,
                     z: goatWorldPos.z
                 }, 400, () => {
-                    // Step 2: When tiger reaches goat, goat dies
+                    // Step 2: When tiger reaches goat, create POP effect!
+                    createPopEffect(goatWorldPos.x, 0.35, goatWorldPos.z);
+
+                    // Goat dies with flash
                     goatMesh.material.color.setHex(0xef4444);
                     goatMesh.material.emissive.setHex(0xff0000);
-                    goatMesh.material.emissiveIntensity = 0.8;
+                    goatMesh.material.emissiveIntensity = 1.0;
 
                     addAnimation(goatMesh, {
-                        scaleX: 0.05,
-                        scaleY: 0.05,
-                        scaleZ: 0.05,
+                        scaleX: 0.01,
+                        scaleY: 0.01,
+                        scaleZ: 0.01,
                         opacity: 0
-                    }, 300, () => {
+                    }, 200, () => {
                         // Remove goat from scene
                         piecesGroup.remove(goatMesh);
                     });
@@ -735,6 +738,76 @@
                     });
                 });
             });
+        }
+
+        // Create pop/burst particle effect
+        function createPopEffect(x, y, z) {
+            const particleCount = 12;
+            const particles = [];
+
+            for (let i = 0; i < particleCount; i++) {
+                const geometry = new THREE.SphereGeometry(0.08, 8, 8);
+                const material = new THREE.MeshBasicMaterial({
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 1
+                });
+                const particle = new THREE.Mesh(geometry, material);
+                particle.position.set(x, y, z);
+
+                // Random direction
+                const angle = (i / particleCount) * Math.PI * 2;
+                const speed = 0.8 + Math.random() * 0.5;
+                particle.userData.vx = Math.cos(angle) * speed;
+                particle.userData.vy = 0.5 + Math.random() * 0.8;
+                particle.userData.vz = Math.sin(angle) * speed;
+                particle.userData.life = 0;
+
+                piecesGroup.add(particle);
+                particles.push(particle);
+            }
+
+            // Animate particles
+            const animateParticles = () => {
+                let allDead = true;
+                particles.forEach(p => {
+                    if (p.userData.life < 1) {
+                        allDead = false;
+                        p.userData.life += 0.03;
+
+                        // Move outward
+                        p.position.x += p.userData.vx * 0.05;
+                        p.position.y += p.userData.vy * 0.05;
+                        p.position.z += p.userData.vz * 0.05;
+
+                        // Gravity
+                        p.userData.vy -= 0.02;
+
+                        // Fade and shrink
+                        p.material.opacity = 1 - p.userData.life;
+                        const scale = 1 - p.userData.life * 0.8;
+                        p.scale.set(scale, scale, scale);
+
+                        // Color shift: white -> orange -> red
+                        if (p.userData.life < 0.3) {
+                            p.material.color.setHex(0xffffff);
+                        } else if (p.userData.life < 0.6) {
+                            p.material.color.setHex(0xffa500);
+                        } else {
+                            p.material.color.setHex(0xff4444);
+                        }
+                    }
+                });
+
+                if (!allDead) {
+                    requestAnimationFrame(animateParticles);
+                } else {
+                    // Remove all particles
+                    particles.forEach(p => piecesGroup.remove(p));
+                }
+            };
+
+            animateParticles();
         }
 
         // Animate piece movement (for non-kill moves)
