@@ -1,111 +1,162 @@
-/* Projects Section */
+/* Projects Section Redesign - Reduce Size & Minimalist */
+#projects {
+    background-color: transparent;
+    position: relative;
+    overflow: visible;
+    color: var(--color-text);
+}
+
+/* Remove decorative background glow */
+#projects::before {
+    display: none;
+}
+
+#projects .section-header h2 {
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    border-radius: 0;
+}
+
+#projects .section-header p {
+    color: var(--color-text-muted);
+}
+
 .projects-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2.5rem;
+    /* Increase minmax to prevent too-small columns, but control image size via .project-image */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 3rem 2rem;
     margin-top: 3rem;
+    position: relative;
+    z-index: 1;
 }
 
 .project-card {
-    background: var(--color-surface);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    /* Full card clickable set up requires relative positioning */
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    overflow: visible;
+    transition: transform 0.3s ease;
+    height: auto;
+    display: flex;
+    flex-direction: column;
     position: relative;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    /* Crucial for stretched link */
+    cursor: pointer;
+    /* Indicate clickability */
 }
 
 .project-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
-    border-color: var(--color-primary);
-    z-index: 2;
+    transform: translateY(-8px);
+}
+
+.project-card::after {
+    display: none;
 }
 
 .project-image {
-    height: 220px;
-    background: var(--color-surface-2);
+    /* Reduce size constraint here */
+    height: 180px;
+    /* Force smaller height as requested */
+    width: 100%;
+    /* Remove aspect ratio lock so it flows better with smaller height */
+    background: transparent;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    /* Remove padding to maximize image within the smaller height */
+    border-radius: 20px;
+    margin-bottom: 1rem;
 }
 
-.project-image::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.project-card:hover .project-image::after {
-    opacity: 1;
+.project-card .project-image {
+    background: transparent;
 }
 
 .project-image img {
-    width: 100%;
+    /* Contain within the smaller dimensions */
+    width: auto;
     height: 100%;
+    max-width: 100%;
     object-fit: contain;
-    transition: transform 0.6s ease;
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1));
+    /* Subtler shadow */
+    border-radius: 12px;
 }
 
 .project-card:hover .project-image img {
-    transform: scale(1.1);
+    transform: scale(1.05);
+    filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.15));
 }
 
 .project-content {
-    padding: 2rem;
-    position: relative;
+    padding: 0;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
 }
 
 .project-content h3 {
     font-family: var(--font-display);
-    font-size: 1.5rem;
-    margin-bottom: 0.75rem;
-    background: var(--gradient-text);
-    -webkit-background-clip: text;
-    background-clip: text;
-    /* color: transparent;  <-- Optional: makes title gradient always. Kept text for readability */
+    font-size: 1.25rem;
+    /* Slightly smaller title */
+    font-weight: 700;
+    margin-bottom: 0.5rem;
     color: var(--color-text);
-    transition: color 0.3s;
-}
-
-.project-card:hover .project-content h3 {
-    color: var(--color-primary);
+    background: none;
+    -webkit-text-fill-color: initial;
 }
 
 .project-content p {
     color: var(--color-text-muted);
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     font-size: 0.95rem;
-    line-height: 1.6;
+    /* Smaller text */
+    line-height: 1.5;
+    max-width: 90%;
 }
 
 .project-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 600;
+    align-self: center;
+    font-size: 0.9rem;
     color: var(--color-primary);
-    padding: 0.5rem 0;
-    position: relative;
+    position: static;
+    /* Reset static so pseudo element works relative to card */
 }
 
-.project-link span {
-    transition: transform 0.3s ease;
+/* Stretched Link Technique - Make entire card clickable */
+.project-link::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    /* No background, just a hit area */
 }
 
-.project-link:hover span {
-    transform: translateX(5px);
+.project-link:hover {
+    color: var(--color-accent);
 }
 
-/* Specific styling for Tools if needed, sharing the same card for now but with slightly different grid if we want */
-#tools .projects-grid {
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+.project-link:hover::after {
+    /* Override standard link hover line because we are now capturing the whole card */
+    background: transparent;
+    width: 100%;
 }
 
-/* ===== NEW TOOL CARDS (Clean, Icon-based) ===== */
+/* Tool Cards - Keep consistent */
 .tools-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -115,108 +166,41 @@
 
 .tool-card {
     background: var(--color-surface);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: var(--radius-lg);
-    padding: 2rem;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 16px;
+    padding: 1.5rem;
     transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.tool-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--gradient-text);
-    opacity: 0;
-    transition: opacity 0.3s ease;
 }
 
 .tool-card:hover {
-    transform: translateY(-6px);
+    transform: translateY(-4px);
     border-color: var(--color-primary);
-    box-shadow: 0 20px 40px -15px rgba(99, 102, 241, 0.3);
-}
-
-.tool-card:hover::before {
-    opacity: 1;
-}
-
-.tool-icon {
-    width: 56px;
-    height: 56px;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15));
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.75rem;
-    margin-bottom: 1.25rem;
-    transition: transform 0.3s ease;
-}
-
-.tool-card:hover .tool-icon {
-    transform: scale(1.1);
 }
 
 .tool-card h3 {
-    font-family: var(--font-display);
-    font-size: 1.25rem;
-    font-weight: 700;
     color: var(--color-text);
-    margin-bottom: 0.625rem;
-    transition: color 0.3s ease;
-}
-
-.tool-card:hover h3 {
-    color: var(--color-primary);
 }
 
 .tool-card p {
     color: var(--color-text-muted);
-    font-size: 0.9rem;
-    line-height: 1.6;
-    margin-bottom: 1.25rem;
 }
 
-.tool-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 600;
-    font-size: 0.9rem;
+.tool-icon {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
     color: var(--color-primary);
-    transition: gap 0.3s ease;
+    background: rgba(37, 99, 235, 0.1);
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.tool-link span {
-    transition: transform 0.3s ease;
-}
-
-.tool-link:hover {
-    gap: 0.75rem;
-}
-
-.tool-link:hover span {
-    transform: translateX(4px);
-}
-
-@media (max-width: 640px) {
-    .tools-grid {
+@media (max-width: 768px) {
+    .projects-grid {
         grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-
-    .tool-card {
-        padding: 1.5rem;
-    }
-
-    .tool-icon {
-        width: 48px;
-        height: 48px;
-        font-size: 1.5rem;
+        gap: 3rem;
     }
 }
