@@ -1,48 +1,165 @@
-/* Skills Section */
-.skills-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2rem;
-    margin-top: 3rem;
+/* Skills Section - Tech Badge Layout */
+.skills-container {
+    max-width: 1000px;
+    margin: 3rem auto 0;
 }
 
-.skill-card {
+.tech-stack {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.25rem;
+    padding: 1rem;
+}
+
+/* Base Badge Style */
+.tech-badge {
     background: var(--color-surface);
-    border: 1px solid var(--color-surface-2);
-    padding: 2rem;
-    border-radius: var(--radius-lg);
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 50px;
+    /* Pill shape for modern look */
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: default;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* Bouncy transition */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    opacity: 0;
+    /* Hidden initially for animation */
+    animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
-.skill-card:hover {
-    transform: translateY(-5px);
+/* Stagger Animations */
+.tech-badge:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.tech-badge:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.tech-badge:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+.tech-badge:nth-child(4) {
+    animation-delay: 0.25s;
+}
+
+.tech-badge:nth-child(5) {
+    animation-delay: 0.3s;
+}
+
+.tech-badge:nth-child(6) {
+    animation-delay: 0.35s;
+}
+
+.tech-badge:nth-child(n+7) {
+    animation-delay: 0.4s;
+}
+
+@keyframes popIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.tech-badge:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+    /* Softer, larger shadow */
     border-color: var(--color-primary);
-    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.3);
+    background: #fff;
 }
 
-.skill-icon {
-    width: 50px;
-    height: 50px;
-    background: var(--color-surface-2);
-    border-radius: 12px;
+.tech-badge:hover .tech-icon {
+    transform: scale(1.2) rotate(5deg);
+}
+
+/* Icon Styling */
+.tech-icon {
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 1.5rem;
-    font-size: 1.5rem;
-    color: var(--color-accent);
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
 }
 
-.skill-card h3 {
-    font-size: 1.25rem;
+.tech-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+}
+
+.tech-name {
     font-weight: 600;
-    margin-bottom: 0.5rem;
     color: var(--color-text);
+    font-size: 0.95rem;
 }
 
-.skill-card p {
-    font-size: 0.95rem;
-    color: var(--color-text-muted);
+/* Specific Brand Colors for Icons (simulated) */
+.icon-html {
+    color: #e34f26;
+}
+
+.icon-css {
+    color: #1572b6;
+}
+
+.icon-js {
+    color: #f7df1e;
+}
+
+.icon-ts {
+    color: #3178c6;
+}
+
+.icon-react {
+    color: #61dafb;
+}
+
+.icon-nodes {
+    color: #339933;
+}
+
+.icon-flutter {
+    color: #02569b;
+}
+
+.icon-kotlin {
+    color: #7f52ff;
+}
+
+.icon-firebase {
+    color: #ffca28;
+}
+
+.icon-docker {
+    color: #2496ed;
+}
+
+.icon-git {
+    color: #f05032;
+}
+
+@media (max-width: 768px) {
+    .tech-stack {
+        gap: 0.75rem;
+    }
+
+    .tech-badge {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+    }
 }

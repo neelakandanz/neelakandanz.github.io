@@ -12,6 +12,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap"
         rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
 
     <!-- Styles -->
     <link rel="stylesheet" href="assets/css/variables.css">
@@ -111,36 +112,78 @@
                     <h2 class="gradient-text">Technical Arsenal</h2>
                     <p>The tools and technologies I use to bring ideas to life.</p>
                 </div>
-                <div class="skills-grid">
-                    <div class="skill-card animate-on-scroll delay-100">
-                        <div class="skill-icon">F</div>
-                        <h3>Flutter</h3>
-                        <p>Cross-platform apps with Dart, Provider/Bloc state management, and Firebase.</p>
-                    </div>
-                    <div class="skill-card animate-on-scroll delay-200">
-                        <div class="skill-icon">K</div>
-                        <h3>Kotlin</h3>
-                        <p>Native Android dev, Jetpack components, Coroutines, MVVM.</p>
-                    </div>
-                    <div class="skill-card animate-on-scroll delay-300">
-                        <div class="skill-icon">UI</div>
-                        <h3>UI/UX Design</h3>
-                        <p>Intuitive interfaces following Material Design guidelines.</p>
-                    </div>
-                    <div class="skill-card animate-on-scroll delay-100">
-                        <div class="skill-icon">API</div>
-                        <h3>RESTful APIs</h3>
-                        <p>Integration with backend services & secure authentication.</p>
-                    </div>
-                    <div class="skill-card animate-on-scroll delay-200">
-                        <div class="skill-icon">FB</div>
-                        <h3>Firebase</h3>
-                        <p>Auth, Firestore, Real-time DB, and Cloud Functions.</p>
-                    </div>
-                    <div class="skill-card animate-on-scroll delay-300">
-                        <div class="skill-icon">CI</div>
-                        <h3>CI/CD</h3>
-                        <p>Automated pipelines using GitHub Actions and Fastlane.</p>
+                <div class="skills-container">
+                    <div class="tech-stack">
+                        <!-- Priority Skills -->
+                        <div class="tech-badge animate-on-scroll delay-100">
+                            <span class="tech-icon icon-flutter">
+                                <img src="https://avatars.githubusercontent.com/u/14101776?s=200&v=4" alt="F"
+                                    onerror="this.style.display='none';this.parentElement.innerText='F'">
+                            </span>
+                            <span class="tech-name">Flutter</span>
+                        </div>
+                        <div class="tech-badge animate-on-scroll delay-100">
+                            <span class="tech-icon icon-kotlin">K</span>
+                            <span class="tech-name">Kotlin</span>
+                        </div>
+                        <div class="tech-badge animate-on-scroll delay-100">
+                            <span class="tech-icon icon-nodes"><i class="fa-brands fa-node-js"></i></span>
+                            <span class="tech-name">Node.js</span>
+                        </div>
+                        <div class="tech-badge animate-on-scroll delay-100">
+                            <span class="tech-icon icon-firebase"><i class="fa-solid fa-fire"></i></span>
+                            <span class="tech-name">Firebase</span>
+                        </div>
+
+                        <!-- Frontend -->
+                        <div class="tech-badge animate-on-scroll delay-200">
+                            <span class="tech-icon icon-react"><i class="fa-brands fa-react"></i></span>
+                            <span class="tech-name">React</span>
+                        </div>
+                        <div class="tech-badge animate-on-scroll delay-200">
+                            <span class="tech-icon icon-ts"><i class="fa-brands fa-js"></i></span>
+                            <!-- Typescript Icon often uses JS or simple T -->
+                            <span class="tech-name">TypeScript</span>
+                        </div>
+                        <div class="tech-badge animate-on-scroll delay-200">
+                            <span class="tech-icon icon-js"><i class="fa-brands fa-js"></i></span>
+                            <span class="tech-name">JavaScript</span>
+                        </div>
+                        <div class="tech-badge animate-on-scroll delay-200">
+                            <span class="tech-icon icon-html"><i class="fa-brands fa-html5"></i></span>
+                            <span class="tech-name">HTML5</span>
+                        </div>
+                        <div class="tech-badge animate-on-scroll delay-200">
+                            <span class="tech-icon icon-css"><i class="fa-brands fa-css3-alt"></i></span>
+                            <span class="tech-name">CSS3</span>
+                        </div>
+
+                        <!-- Backend & Tools -->
+                        <div class="tech-badge animate-on-scroll delay-300">
+                            <span class="tech-icon">Ex</span>
+                            <span class="tech-name">Express</span>
+                        </div>
+                        <div class="tech-badge animate-on-scroll delay-300">
+                            <span class="tech-icon"><i class="fa-solid fa-leaf"></i></span>
+                            <span class="tech-name">MongoDB</span>
+                        </div>
+
+                        <div class="tech-badge animate-on-scroll delay-300">
+                            <span class="tech-icon icon-docker"><i class="fa-brands fa-docker"></i></span>
+                            <span class="tech-name">Docker</span>
+                        </div>
+
+                        <!-- Others -->
+
+                        <div class="tech-badge animate-on-scroll delay-300">
+                            <span class="tech-icon"><i class="fa-brands fa-github"></i></span>
+                            <span class="tech-name">GitHub</span>
+                        </div>
+
+                        <div class="tech-badge animate-on-scroll delay-300">
+                            <span class="tech-icon"><i class="fa-solid fa-palette"></i></span>
+                            <span class="tech-name">UI/UX</span>
+                        </div>
                     </div>
                 </div>
             </div>
