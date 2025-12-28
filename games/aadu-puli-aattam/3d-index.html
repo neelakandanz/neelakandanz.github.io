@@ -619,6 +619,146 @@
         let turn = 'TIGER';
         let selectedPiece = null;
         let isDemo = false;
+        let isAnimating = false; // Prevent clicks during animation
+
+        // Animation helpers
+        const animations = [];
+
+        function addAnimation(mesh, targetProps, duration, onComplete) {
+            animations.push({
+                mesh,
+                startProps: {
+                    x: mesh.position.x,
+                    y: mesh.position.y,
+                    z: mesh.position.z,
+                    scaleX: mesh.scale.x,
+                    scaleY: mesh.scale.y,
+                    scaleZ: mesh.scale.z,
+                    opacity: mesh.material.opacity !== undefined ? mesh.material.opacity : 1
+                },
+                targetProps,
+                duration,
+                elapsed: 0,
+                onComplete
+            });
+        }
+
+        function updateAnimations(delta) {
+            for (let i = animations.length - 1; i >= 0; i--) {
+                const anim = animations[i];
+                anim.elapsed += delta;
+                const t = Math.min(anim.elapsed / anim.duration, 1);
+                const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; // easeInOutQuad
+
+                if (anim.targetProps.x !== undefined) {
+                    anim.mesh.position.x = anim.startProps.x + (anim.targetProps.x - anim.startProps.x) * ease;
+                }
+                if (anim.targetProps.y !== undefined) {
+                    anim.mesh.position.y = anim.startProps.y + (anim.targetProps.y - anim.startProps.y) * ease;
+                }
+                if (anim.targetProps.z !== undefined) {
+                    anim.mesh.position.z = anim.startProps.z + (anim.targetProps.z - anim.startProps.z) * ease;
+                }
+                if (anim.targetProps.scaleX !== undefined) {
+                    anim.mesh.scale.x = anim.startProps.scaleX + (anim.targetProps.scaleX - anim.startProps.scaleX) * ease;
+                    anim.mesh.scale.y = anim.startProps.scaleY + (anim.targetProps.scaleY - anim.startProps.scaleY) * ease;
+                    anim.mesh.scale.z = anim.startProps.scaleZ + (anim.targetProps.scaleZ - anim.startProps.scaleZ) * ease;
+                }
+                if (anim.targetProps.opacity !== undefined && anim.mesh.material) {
+                    anim.mesh.material.transparent = true;
+                    anim.mesh.material.opacity = anim.startProps.opacity + (anim.targetProps.opacity - anim.startProps.opacity) * ease;
+                }
+
+                if (t >= 1) {
+                    animations.splice(i, 1);
+                    if (anim.onComplete) anim.onComplete();
+                }
+            }
+        }
+
+        // Animate a kill: tiger travels along the line through the goat
+        async function animateKill(tigerFrom, goatPos, tigerTo) {
+            isAnimating = true;
+
+            // Find the tiger mesh and goat mesh
+            let tigerMesh = null;
+            let goatMesh = null;
+
+            piecesGroup.children.forEach(child => {
+                if (child.userData.index === tigerFrom && child.userData.isPiece) {
+                    tigerMesh = child;
+                }
+                if (child.userData.index === goatPos && child.userData.isPiece) {
+                    goatMesh = child;
+                }
+            });
+
+            if (!tigerMesh || !goatMesh) {
+                isAnimating = false;
+                return;
+            }
+
+            const targetPos = board3D[tigerTo];
+            const goatWorldPos = board3D[goatPos];
+
+            // Tiger travels along the line - first to goat position
+            return new Promise(resolve => {
+                // Step 1: Tiger moves to goat position (along the line)
+                addAnimation(tigerMesh, {
+                    x: goatWorldPos.x,
+                    y: 0.4,
+                    z: goatWorldPos.z
+                }, 400, () => {
+                    // Step 2: When tiger reaches goat, goat dies
+                    goatMesh.material.color.setHex(0xef4444);
+                    goatMesh.material.emissive.setHex(0xff0000);
+                    goatMesh.material.emissiveIntensity = 0.8;
+
+                    addAnimation(goatMesh, {
+                        scaleX: 0.05,
+                        scaleY: 0.05,
+                        scaleZ: 0.05,
+                        opacity: 0
+                    }, 300, () => {
+                        // Remove goat from scene
+                        piecesGroup.remove(goatMesh);
+                    });
+
+                    // Step 3: Tiger continues to destination (along the line)
+                    addAnimation(tigerMesh, {
+                        x: targetPos.x,
+                        y: 0.4,
+                        z: targetPos.z
+                    }, 400, () => {
+                        isAnimating = false;
+                        resolve();
+                    });
+                });
+            });
+        }
+
+        // Animate piece movement (for non-kill moves)
+        async function animateMove(mesh, toIdx) {
+            isAnimating = true;
+            const targetPos = board3D[toIdx];
+
+            return new Promise(resolve => {
+                // Small hop animation
+                const startY = mesh.position.y;
+                addAnimation(mesh, {
+                    x: targetPos.x,
+                    y: startY + 0.3,
+                    z: targetPos.z
+                }, 150, () => {
+                    addAnimation(mesh, {
+                        y: startY
+                    }, 150, () => {
+                        isAnimating = false;
+                        resolve();
+                    });
+                });
+            });
+        }
 
         const rules = {
             EN: `<h3>Goal</h3><p><strong>Goats (Aadu):</strong> Encircle all 3 Tigers so they cannot move.</p><p><strong>Tigers (Puli):</strong> Kill 5 Goats to win.</p><h3>How to Play</h3><ul><li><strong>Placement:</strong> First, the Goat player places 15 goats one by one on empty spots.</li><li><strong>Movement:</strong> Once all goats are placed, they can move to adjacent empty spots.</li><li><strong>Tigers:</strong> Can move to adjacent spots OR jump over a goat to kill it.</li></ul>`,
@@ -682,8 +822,8 @@
 
         function wait(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
-        function handleClick(idx) {
-            if (isDemo) return;
+        async function handleClick(idx) {
+            if (isDemo || isAnimating) return;
 
             if (turn === 'GOAT') {
                 if (goatsToPlace > 0) {
@@ -715,6 +855,7 @@
                 if (selectedPiece !== null) {
                     if (boardState[idx] === 0) {
                         if (adj[selectedPiece].includes(idx)) {
+                            // Regular tiger move
                             boardState[selectedPiece] = 0;
                             boardState[idx] = 1;
                             selectedPiece = null;
@@ -723,7 +864,12 @@
                         } else {
                             const killed = getJumpKill(selectedPiece, idx);
                             if (killed !== -1) {
-                                boardState[selectedPiece] = 0;
+                                // Animate the kill!
+                                const tigerFrom = selectedPiece;
+                                await animateKill(tigerFrom, killed, idx);
+
+                                // Update game state after animation
+                                boardState[tigerFrom] = 0;
                                 boardState[idx] = 1;
                                 boardState[killed] = 0;
                                 deadGoats++;
@@ -851,8 +997,19 @@
             }
         }
 
-        function animate() {
+        let lastTime = 0;
+        function animate(time) {
             requestAnimationFrame(animate);
+
+            // Calculate delta time for animations
+            const delta = time - lastTime;
+            lastTime = time;
+
+            // Update animations
+            if (animations.length > 0) {
+                updateAnimations(delta);
+            }
+
             controls.update();
             renderer.render(scene, camera);
         }
