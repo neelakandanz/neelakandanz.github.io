@@ -85,6 +85,54 @@
             border-radius: 6px;
             font-size: 14px;
         }
+
+        /* Mobile Controls */
+        #mobile-controls {
+            display: none;
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            justify-content: space-between;
+            padding: 0 40px;
+            box-sizing: border-box;
+            pointer-events: none;
+            /* Let clicks pass through if not on buttons */
+        }
+
+        .control-btn {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            color: white;
+            font-size: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+            /* Re-enable clicks for buttons */
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+            /* KEY OPTIMIZATION: Disables browser zoom/scroll delay */
+        }
+
+        .control-btn:active {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0.95);
+        }
+
+        @media (max-width: 768px) {
+            #mobile-controls {
+                display: flex;
+            }
+
+            #instructions {
+                display: none;
+                /* Hide keyboard instructions on mobile */
+            }
+        }
     </style>
 </head>
 
@@ -100,6 +148,12 @@
         <h1>GAME OVER</h1>
         <p>Your Score: <span id="final-score">0</span></p>
         <button onclick="resetGame()">Play Again</button>
+    </div>
+
+    <!-- Mobile Controls -->
+    <div id="mobile-controls">
+        <div class="control-btn" id="btn-left">←</div>
+        <div class="control-btn" id="btn-right">→</div>
     </div>
 
     <div id="instructions">Use LEFT / RIGHT arrows to steer</div>
@@ -241,16 +295,41 @@
         }
 
         // --- CONTROLS ---
-        window.addEventListener('keydown', (e) => {
+        function moveLeft() {
             if (!gameActive) return;
-            if (e.key === 'ArrowLeft' && carPos > -1) {
+            if (carPos > -1) {
                 carPos--;
+                targetX = carPos * laneWidth;
             }
-            if (e.key === 'ArrowRight' && carPos < 1) {
+        }
+
+        function moveRight() {
+            if (!gameActive) return;
+            if (carPos < 1) {
                 carPos++;
+                targetX = carPos * laneWidth;
             }
-            targetX = carPos * laneWidth;
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') moveLeft();
+            if (e.key === 'ArrowRight') moveRight();
         });
+
+        // Touch Controls (Optimized with Pointer Events)
+        const btnLeft = document.getElementById('btn-left');
+        const btnRight = document.getElementById('btn-right');
+
+        function addTouchListener(elem, action) {
+            // 'pointerdown' is faster than 'click' and 'touchstart' often has 300ms delay if not optimized
+            elem.addEventListener('pointerdown', (e) => {
+                e.preventDefault(); // Prevent accidental selection/scrolling
+                action();
+            });
+        }
+
+        addTouchListener(btnLeft, moveLeft);
+        addTouchListener(btnRight, moveRight);
 
         function update() {
             if (!gameActive) return;
