@@ -114,6 +114,36 @@ document.addEventListener('DOMContentLoaded', () => {
         // Start rotation every 3 seconds
         setInterval(rotateText, 3000);
     }
+    // ===== NOTIFICATION SYSTEM =====
+    function showNotification(message, type = 'success') {
+        let container = document.getElementById('notification-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'notification-container';
+            document.body.appendChild(container);
+        }
+
+        const notification = document.createElement('div');
+        notification.className = `notification-toast ${type}`;
+
+        const icon = type === 'success' ? '<i class="fa-solid fa-circle-check notification-icon"></i>' : '<i class="fa-solid fa-circle-exclamation notification-icon"></i>';
+
+        notification.innerHTML = `
+            ${icon}
+            <span>${message}</span>
+        `;
+
+        container.appendChild(notification);
+
+        // Auto remove
+        setTimeout(() => {
+            notification.classList.add('fade-out');
+            notification.addEventListener('animationend', () => {
+                notification.remove();
+            });
+        }, 4000);
+    }
+
     // ===== GOOGLE SHEETS FORM LOGIC =====
     const sendBtn = document.getElementById("sendButton");
     const messageInput = document.getElementById("userMessageInput");
@@ -129,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const originalIcon = sendBtn.innerHTML; // Save the arrow icon
 
             if (messageText.trim() === "") {
-                alert("Please type a message first!");
+                showNotification("Please type a message first!", "error");
                 return;
             }
 
@@ -145,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ message: messageText })
             })
                 .then(response => {
-                    alert("Message sent successfully!");
+                    showNotification("Message sent successfully!", "success");
                     messageInput.value = ""; // Clear input
                     sendBtn.innerHTML = originalIcon; // Restore arrow
                     sendBtn.disabled = false;
@@ -153,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
                 .catch(error => {
                     console.error('Error!', error.message);
-                    alert("Error sending message.");
+                    showNotification("Error sending message.", "error");
                     sendBtn.innerHTML = originalIcon;
                     sendBtn.disabled = false;
                     sendBtn.style.cursor = "pointer";

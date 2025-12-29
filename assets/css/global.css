@@ -157,3 +157,78 @@ html.lenis {
 .lenis.lenis-scrolling iframe {
     pointer-events: none;
 }
+/* ===== NOTIFICATION SYSTEM ===== */
+#notification-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 90%;
+    max-width: 400px;
+    pointer-events: none; /* Allow clicks through container */
+}
+
+.notification-toast {
+    background: rgba(15, 23, 42, 0.9); /* Dark background */
+    color: #fff;
+    padding: 16px 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    pointer-events: auto; /* Re-enable clicks on toasts */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    
+    /* Animation */
+    opacity: 0;
+    transform: translateY(-20px);
+    animation: toastSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.notification-toast.fade-out {
+    animation: toastFadeOut 0.4s forwards;
+}
+
+/* Notification Types */
+.notification-toast.success {
+    border-left: 4px solid #10b981; /* Green */
+}
+
+.notification-toast.success .notification-icon {
+    color: #10b981;
+}
+
+.notification-toast.error {
+    border-left: 4px solid #ef4444; /* Red */
+}
+
+.notification-toast.error .notification-icon {
+    color: #ef4444;
+}
+
+.notification-icon {
+    font-size: 1.2rem;
+}
+
+@keyframes toastSlideIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes toastFadeOut {
+    to {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.9);
+    }
+}
