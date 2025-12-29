@@ -114,4 +114,51 @@ document.addEventListener('DOMContentLoaded', () => {
         // Start rotation every 3 seconds
         setInterval(rotateText, 3000);
     }
+    // ===== GOOGLE SHEETS FORM LOGIC =====
+    const sendBtn = document.getElementById("sendButton");
+    const messageInput = document.getElementById("userMessageInput");
+
+    // Only run if elements exist on this page
+    if (sendBtn && messageInput) {
+
+        // *** PASTE YOUR GOOGLE APPS SCRIPT URL HERE ***
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxYRWKWjAVwkHRPNCRwfSguQ0JT5mCWobpj5aQx4nYPdR_LVKnLz3_Qd-o-v2OV9mw/exec';
+
+        sendBtn.addEventListener("click", () => {
+            const messageText = messageInput.value;
+            const originalIcon = sendBtn.innerHTML; // Save the arrow icon
+
+            if (messageText.trim() === "") {
+                alert("Please type a message first!");
+                return;
+            }
+
+            // Visual Feedback: Change arrow to a spinner
+            sendBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            sendBtn.disabled = true;
+            sendBtn.style.cursor = "wait";
+
+            fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ message: messageText })
+            })
+                .then(response => {
+                    alert("Message sent successfully!");
+                    messageInput.value = ""; // Clear input
+                    sendBtn.innerHTML = originalIcon; // Restore arrow
+                    sendBtn.disabled = false;
+                    sendBtn.style.cursor = "pointer";
+                })
+                .catch(error => {
+                    console.error('Error!', error.message);
+                    alert("Error sending message.");
+                    sendBtn.innerHTML = originalIcon;
+                    sendBtn.disabled = false;
+                    sendBtn.style.cursor = "pointer";
+                });
+        });
+    }
+    // End of Google Sheets Logic
 });
