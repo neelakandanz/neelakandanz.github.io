@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pallanguzhi 3D - Traditional Tamil Game</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Import Map for Three.js to allow bare imports in modules -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div id="game-container">
+        <!-- Canvas will be injected here by Three.js -->
+
+        <div id="ui-layer">
+            <div id="header" class="hud-panel">
+                <div class="score-box">
+                    <span class="score-label">Player 1</span>
+                    <span id="score-p1" class="score-value">0</span>
+                </div>
+                <h1>Pallanguzhi</h1>
+                <div class="score-box">
+                    <span class="score-label">Player 2</span>
+                    <span id="score-p2" class="score-value">0</span>
+                </div>
+            </div>
+
+            <div id="turn-indicator">Player 1's Turn</div>
+
+            <div id="footer">
+                <div class="hud-panel">
+                    <button id="reset-btn">New Game</button>
+                    <button id="camera-btn">Toggle View</button>
+                </div>
+                <div class="hud-panel" style="font-size: 0.8rem; opacity: 0.7;">
+                    Left Click to Play • Drag to Rotate
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-overlay">
+            <div class="modal-content">
+                <h2>Game Over</h2>
+                <div id="winner-text">Player 1 Wins!</div>
+                <button id="play-again-btn">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Game Script -->
+    <script type="module" src="./game.js"></script>
+</body>
+
+</html>
