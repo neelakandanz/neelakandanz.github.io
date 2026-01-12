@@ -283,7 +283,7 @@ h1 {
 
 /* ===== INFINITE MARQUEE ===== */
 .hero-marquee-container {
-    padding: 10px 0;
+    padding: 20px 0;
     width: 100vw;
     margin-left: calc(-50vw + 50%);
     /* Break out of container */
@@ -295,12 +295,21 @@ h1 {
     background: transparent;
     -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
     mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    /* Space between rows */
 }
 
 .marquee-wrapper {
     display: flex;
     width: max-content;
-    animation: scroll 40s linear infinite;
+    animation: scroll 60s linear infinite;
+    /* Slower default speed */
+}
+
+.marquee-wrapper.reverse {
+    animation-direction: reverse;
 }
 
 .marquee-wrapper:hover {
@@ -327,8 +336,9 @@ h1 {
 
 .marquee-item:hover {
     transform: translateY(-2px);
-    background: rgba(255, 255, 255, 0.8);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    z-index: 10;
 }
 
 .marquee-icon {
