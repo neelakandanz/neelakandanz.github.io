@@ -172,3 +172,43 @@ button:active {
 .hidden {
     display: none !important;
 }
+
+#rules-panel {
+    position: absolute;
+    top: 55%;
+    /* Slightly below center to avoid header */
+    transform: translateY(-50%);
+    left: 20px;
+    width: 280px;
+    text-align: left;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    z-index: 5;
+    background: rgba(30, 20, 10, 0.85);
+    /* Slightly darker for readability */
+}
+
+#rules-panel h3 {
+    text-align: center;
+    color: #eebb66;
+    font-family: 'Cinzel', serif;
+    margin-top: 5px;
+    border-bottom: 1px solid #8b5a2b;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+}
+
+#rules-panel ol {
+    margin: 0;
+    padding-left: 20px;
+    color: #f0e6d2;
+}
+
+#rules-panel li {
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+}
+
+#rules-panel strong {
+    color: #ffdead;
+}
