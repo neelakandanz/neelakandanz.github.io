@@ -1,18 +1,27 @@
 /* Hero Section */
 #hero {
     position: relative;
-    background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
-        url('../../images/hero_bg.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+    background-color: #ffffff;
+    background-image: none !important;
     min-height: 100vh;
     display: flex;
     align-items: center;
     color: var(--color-text);
     /* Dark text */
     /* Ensure text is readable */
+    overflow: hidden;
+    /* Ensure particles don't scrollbar */
+}
+
+#hero-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+    /* Let clicks pass through, JS handles mousemove on parent */
 }
 
 /* Ensure text colors override global dark text if needed */
