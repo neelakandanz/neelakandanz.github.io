@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tamil Letter Catch 3D</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div id="game-container">
+        <!-- HUD -->
+        <div id="ui-layer">
+            <div id="header">
+                <div>Score: <span id="score">0</span></div>
+                <div>Level: <span id="level">1</span></div>
+            </div>
+
+            <div id="target-display">
+                <div class="label">Catch This:</div>
+                <div id="target-letter" class="bouncing">அ</div>
+            </div>
+
+            <div id="start-screen">
+                <h1>Tamil Letter Catch</h1>
+                <p>Catch the correct falling letters!</p>
+                <button id="start-btn">Start Game</button>
+            </div>
+
+            <div id="game-over-screen" class="hidden">
+                <h1>Game Over</h1>
+                <p>Final Score: <span id="final-score">0</span></p>
+                <button id="restart-btn">Try Again</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Game Script -->
+    <script type="module" src="./js/main.js"></script>
+</body>
+
+</html>
