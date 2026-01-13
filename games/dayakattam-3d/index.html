@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dayakattam 3D</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div id="game-container">
+        <!-- UI Overlay -->
+        <div id="ui-layer">
+            <div id="header">
+                <h1>Dayakattam 3D</h1>
+                <div id="turn-indicator">Player 1's Turn</div>
+            </div>
+
+            <div id="controls">
+                <div id="dice-container">
+                    <button id="roll-btn">ROLL DICE</button>
+                    <div id="dice-result">?</div>
+                </div>
+            </div>
+
+            <div id="footer">
+                <button id="camera-btn">Toggle View</button>
+                <button id="rules-btn">Rules</button>
+            </div>
+        </div>
+
+        <!-- Winner Modal -->
+        <div id="winner-modal" class="hidden">
+            <div class="modal-content">
+                <h2 id="winner-text">Player 1 Wins!</h2>
+                <button id="restart-btn">Play Again</button>
+            </div>
+        </div>
+
+        <!-- Rules Modal -->
+        <div id="rules-modal" class="hidden">
+            <div class="modal-content">
+                <h2>Dayakattam Rules</h2>
+                <ul style="text-align: left; margin-bottom: 20px;">
+                    <li><strong>Objective:</strong> Reach the center of the board with your pawn.</li>
+                    <li><strong>Movement:</strong> Roll the dice to move.</li>
+                    <li><strong>Exact Roll:</strong> You must roll the exact number to enter the center.</li>
+                    <li><strong>Turn:</strong> If you roll an invalid move, your turn is skipped.</li>
+                </ul>
+                <button id="close-rules-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Game Script -->
+    <script type="module" src="./js/main.js"></script>
+</body>
+
+</html>
