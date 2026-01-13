@@ -26,10 +26,17 @@ export class Board {
             roughness: 0.5
         });
         const safeMaterial = new THREE.MeshStandardMaterial({
-            color: 0xffd700, // Gold/Safe
+            color: 0xffd700, // Gold/Safe (Center/Corner)
             roughness: 0.3,
             metalness: 0.4
         });
+
+        // Player Zone Materials
+        const p1Mat = new THREE.MeshStandardMaterial({ color: 0xff4444, roughness: 0.5 }); // Red (Bottom)
+        const p2Mat = new THREE.MeshStandardMaterial({ color: 0x44ff44, roughness: 0.5 }); // Green (Top)
+        const p3Mat = new THREE.MeshStandardMaterial({ color: 0x4444ff, roughness: 0.5 }); // Blue (Left)
+        const p4Mat = new THREE.MeshStandardMaterial({ color: 0xffff44, roughness: 0.5 }); // Yellow (Right)
+
         const centerMaterial = new THREE.MeshStandardMaterial({
             color: 0x8b0000, // Red Center
             roughness: 0.5
@@ -49,30 +56,26 @@ export class Board {
         for (let row = 0; row < this.gridSize; row++) {
             for (let col = 0; col < this.gridSize; col++) {
 
-                // Determine Tile Type
+                // Determine Tile Type & Color
                 let mat = tileMaterial;
                 let type = 'normal';
 
-                // Safe Zones (Cross shape often has safe spots)
-                // Center
                 if (row === 3 && col === 3) {
                     mat = centerMaterial;
                     type = 'center';
                 }
-                // Middle of edges (Safe spots in Dayakattam usually)
-                else if ((row === 0 && col === 3) ||
-                    (row === 3 && col === 0) ||
-                    (row === 6 && col === 3) ||
-                    (row === 3 && col === 6)) {
-                    mat = safeMaterial;
-                    type = 'safe';
-                }
-                // Corners (Sometimes safe, usually start points)
+                // Player Start Zones (Safe Tiles)
+                else if (row === 6 && col === 3) { mat = p1Mat; type = 'safe_p1'; } // Bottom
+                else if (row === 0 && col === 3) { mat = p2Mat; type = 'safe_p2'; } // Top
+                else if (row === 3 && col === 0) { mat = p3Mat; type = 'safe_p3'; } // Left
+                else if (row === 3 && col === 6) { mat = p4Mat; type = 'safe_p4'; } // Right
+
+                // Corners
                 else if ((row === 0 && col === 0) ||
                     (row === 0 && col === 6) ||
                     (row === 6 && col === 0) ||
                     (row === 6 && col === 6)) {
-                    // Keep normal or maybe mark as start
+                    mat = safeMaterial;
                     type = 'corner';
                 }
 
