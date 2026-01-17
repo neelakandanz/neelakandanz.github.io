@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog | Neelakandan</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="../assets/css/variables.css?v=2">
+    <link rel="stylesheet" href="../assets/css/global.css?v=2">
+    <link rel="stylesheet" href="../assets/css/components/header.css?v=2">
+    <link rel="stylesheet" href="../assets/css/components/blog.css?v=1">
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header class="glass">
+        <div class="container header-container">
+            <a href="../index.html" class="logo">Neelakandan<span style="color:var(--color-accent)">.</span></a>
+            <button class="nav-toggle" aria-label="Toggle Navigation">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="../index.html#about">About</a></li>
+                    <li><a href="../index.html#skills">Skills</a></li>
+                    <li><a href="../projects.html">Projects</a></li>
+                    <li><a href="#" class="active">Blog</a></li>
+                    <li><a href="../index.html#games">Games</a></li>
+                    <li><a href="../index.html#tools">Tools</a></li>
+                    <li><a href="../index.html#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Page Header -->
+        <section class="section-padding" style="padding-bottom: 2rem;">
+            <div class="container blog-header">
+                <h1 class="gradient-text">Insights & Writings</h1>
+                <p>Thoughts on development, design, and the tech landscape.</p>
+            </div>
+        </section>
+
+        <!-- Blog Section -->
+        <section class="section-padding" style="padding-top: 0;">
+            <div class="container">
+                <div class="blog-grid">
+
+                    <!-- Featured Post -->
+                    <article class="blog-card featured">
+                        <div class="blog-card-image">
+                            <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop"
+                                alt="Coding">
+                        </div>
+                        <div class="blog-card-content">
+                            <div class="blog-meta">
+                                <span class="blog-category">Development</span>
+                                <span class="blog-date">Oct 12, 2023</span>
+                            </div>
+                            <h3>Building Scalable Applications with Flutter</h3>
+                            <p>Discover the best practices for structuring your Flutter projects to ensure they remain
+                                maintainable and scalable as they grow.</p>
+                            <a href="#" class="read-more">Read Article <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </article>
+
+                    <!-- Post 1 -->
+                    <article class="blog-card">
+                        <div class="blog-card-image">
+                            <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1964&auto=format&fit=crop"
+                                alt="UI Design">
+                        </div>
+                        <div class="blog-card-content">
+                            <div class="blog-meta">
+                                <span class="blog-category">Design</span>
+                                <span class="blog-date">Sep 28, 2023</span>
+                            </div>
+                            <h3>The Art of Glassmorphism in Modern UI</h3>
+                            <p>How to effectively use glassmorphism to create depth and hierarchy without compromising
+                                readability.</p>
+                            <a href="#" class="read-more">Read Article <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </article>
+
+                    <!-- Post 2 -->
+                    <article class="blog-card">
+                        <div class="blog-card-image">
+                            <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop"
+                                alt="Cybersecurity">
+                        </div>
+                        <div class="blog-card-content">
+                            <div class="blog-meta">
+                                <span class="blog-category">Security</span>
+                                <span class="blog-date">Sep 15, 2023</span>
+                            </div>
+                            <h3>Securing Your API Endpoints</h3>
+                            <p>Essential security measures every developer should implement to protect their API from
+                                common vulnerabilities.</p>
+                            <a href="#" class="read-more">Read Article <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </article>
+
+                    <!-- Post 3 -->
+                    <article class="blog-card">
+                        <div class="blog-card-image">
+                            <img src="https://images.unsplash.com/photo-1607799275518-d6c19011ea80?q=80&w=2070&auto=format&fit=crop"
+                                alt="Productivity">
+                        </div>
+                        <div class="blog-card-content">
+                            <div class="blog-meta">
+                                <span class="blog-category">Productivity</span>
+                                <span class="blog-date">Aug 05, 2023</span>
+                            </div>
+                            <h3>Mastering the Flow State</h3>
+                            <p>Tips and techniques to get into the zone and maximize your coding productivity.</p>
+                            <a href="#" class="read-more">Read Article <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </article>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="glass"
+        style="margin-top: 0; padding: 2rem 0; text-align: center; border-top: 1px solid var(--color-surface-2);">
+        <p>&copy; 2025 Neelakandan. All rights reserved.</p>
+        <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 0.5rem;">Designed with Modern Web
+            Technologies.</p>
+    </footer>
+
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+    <script src="../assets/js/main.js?v=2"></script>
+</body>
+
+</html>
