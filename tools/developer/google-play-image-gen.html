@@ -453,6 +453,52 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* New Styles for Template Controls */
+        .style-btn {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            background: var(--bg-surface);
+            color: var(--text-secondary);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.8125rem;
+            transition: all 0.2s;
+        }
+
+        .style-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .color-preset {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .color-preset:hover {
+            transform: scale(1.1);
+        }
+
+        .text-input {
+            width: 100%;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
     </style>
 </head>
 
@@ -594,6 +640,109 @@
                         <div class="output-card-body">
                             <div class="scale-control">
                                 <div class="scale-label">
+                                    <span>Orientation</span>
+                                </div>
+                                <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                        <input type="radio" name="orientation" value="landscape" checked
+                                            onchange="updateIconOrientation('landscape')">
+                                        Landscape (16:9)
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                        <input type="radio" name="orientation" value="portrait"
+                                            onchange="updateIconOrientation('portrait')">
+                                        Portrait (9:16)
+                                    </label>
+                                </div>
+
+                                <!-- Template Controls -->
+                                <div
+                                    style="margin-bottom: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+                                    <div class="scale-label" style="margin-bottom: 0.75rem;">
+                                        <span>Style</span>
+                                    </div>
+                                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                                        <button class="style-btn active" id="style-standard"
+                                            onclick="setTemplateStyle('standard')">Standard</button>
+                                        <button class="style-btn" id="style-promo"
+                                            onclick="setTemplateStyle('promo')">Promotional</button>
+                                    </div>
+
+                                    <div id="promo-controls" style="display: none;">
+                                        <!-- Background Controls -->
+                                        <div style="margin-bottom: 1rem;">
+                                            <div style="display: flex; gap: 1rem; margin-bottom: 0.5rem;">
+                                                <div style="flex: 1;">
+                                                    <label
+                                                        style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Background</label>
+                                                    <select id="promoBgType" class="text-input"
+                                                        onchange="redraw('screenshot')">
+                                                        <option value="solid">Solid Color</option>
+                                                        <option value="gradient">Gradient</option>
+                                                        <option value="grid">Tech Grid</option>
+                                                    </select>
+                                                </div>
+                                                <div style="flex: 1;">
+                                                    <label
+                                                        style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Decorations</label>
+                                                    <select id="promoDecor" class="text-input"
+                                                        onchange="redraw('screenshot')">
+                                                        <option value="none">None</option>
+                                                        <option value="sparkles">Sparkles ✨</option>
+                                                        <option value="code">Code Symbols &lt;/&gt;</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div style="display: flex; gap: 0.5rem;">
+                                                <input type="color" id="promoBgColor" value="#4338ca"
+                                                    oninput="redraw('screenshot')" style="height: 32px; width: 60px;">
+                                                <div style="display: flex; gap: 0.25rem;">
+                                                    <div class="color-preset" style="background: #4338ca"
+                                                        onclick="setPromoColor('#4338ca')"></div>
+                                                    <div class="color-preset" style="background: #eab308"
+                                                        onclick="setPromoColor('#eab308')"></div>
+                                                    <div class="color-preset" style="background: #0ea5e9"
+                                                        onclick="setPromoColor('#0ea5e9')"></div>
+                                                    <div class="color-preset" style="background: #be123c"
+                                                        onclick="setPromoColor('#be123c')"></div>
+                                                    <div class="color-preset"
+                                                        style="background: linear-gradient(135deg, #4f46e5, #9333ea)"
+                                                        onclick="setPromoColor('#4f46e5')"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div style="display: grid; gap: 0.75rem;">
+                                            <div>
+                                                <label
+                                                    style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Badge
+                                                    Text</label>
+                                                <input type="text" id="promoBadge" value="Discover"
+                                                    oninput="redraw('screenshot')" class="text-input"
+                                                    placeholder="e.g. New Feature">
+                                            </div>
+                                            <div>
+                                                <label
+                                                    style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Main
+                                                    Title</label>
+                                                <input type="text" id="promoTitle" value="RELAX WITH"
+                                                    oninput="redraw('screenshot')" class="text-input"
+                                                    placeholder="Top Line">
+                                            </div>
+                                            <div>
+                                                <label
+                                                    style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Highlight
+                                                    Title</label>
+                                                <input type="text" id="promoSubtitle" value="Daily Hits"
+                                                    oninput="redraw('screenshot')" class="text-input"
+                                                    placeholder="Bottom Line">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="scale-label">
                                     <span>Scale</span>
                                     <span class="scale-value" id="scaleValueScreenshot">100%</span>
                                 </div>
@@ -603,10 +752,16 @@
                             <div class="canvas-wrapper">
                                 <canvas id="canvasScreenshot" width="1280" height="720"></canvas>
                             </div>
-                            <button class="download-btn"
-                                onclick="download('canvasScreenshot', 'screenshot-landscape', 'jpeg')">
-                                <span>⬇️</span> Download JPG
-                            </button>
+                            <div style="display: flex; gap: 1rem;">
+                                <button class="download-btn"
+                                    onclick="download('canvasScreenshot', 'screenshot', 'png')">
+                                    <span>⬇️</span> PNG
+                                </button>
+                                <button class="download-btn"
+                                    onclick="download('canvasScreenshot', 'screenshot', 'jpeg')">
+                                    <span>⬇️</span> JPG
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -634,6 +789,24 @@
         // State
         let sources = { icon: null, feature: null, screenshot: null };
         let scales = { Feature: 1, Screenshot: 1 };
+        let screenshotOrientation = 'landscape';
+        let currentTemplateStyle = 'standard';
+
+        function setTemplateStyle(style) {
+            currentTemplateStyle = style;
+            document.querySelectorAll('.style-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`style-${style}`).classList.add('active');
+
+            const controls = document.getElementById('promo-controls');
+            controls.style.display = style === 'promo' ? 'block' : 'none';
+
+            redraw('screenshot');
+        }
+
+        function setPromoColor(color) {
+            document.getElementById('promoBgColor').value = color;
+            redraw('screenshot');
+        }
 
         // Handle file upload
         function handleUpload(event, type) {
@@ -676,6 +849,27 @@
             }
         }
 
+        // Update orientation
+        function updateIconOrientation(orientation) {
+            screenshotOrientation = orientation;
+            const canvas = document.getElementById('canvasScreenshot');
+            const title = document.querySelector('#output-screenshot .output-card-title');
+            const size = document.querySelector('#output-screenshot .output-card-size');
+
+            if (orientation === 'landscape') {
+                canvas.width = 1280;
+                canvas.height = 720;
+                title.textContent = 'Screenshot (16:9)';
+                size.textContent = '1280 × 720';
+            } else {
+                canvas.width = 720;
+                canvas.height = 1280;
+                title.textContent = 'Screenshot (9:16)';
+                size.textContent = '720 × 1280';
+            }
+            redraw('screenshot');
+        }
+
         // Redraw canvas
         function redraw(type) {
             const img = sources[type];
@@ -686,9 +880,193 @@
             } else if (type === 'feature') {
                 drawScaled('canvasFeature', 1024, 500, img, scales.Feature);
             } else if (type === 'screenshot') {
-                drawScaled('canvasScreenshot', 1280, 720, img, scales.Screenshot);
+                const w = screenshotOrientation === 'landscape' ? 1280 : 720;
+                const h = screenshotOrientation === 'landscape' ? 720 : 1280;
+
+                if (currentTemplateStyle === 'promo') {
+                    drawPromotional('canvasScreenshot', w, h, img, scales.Screenshot);
+                } else {
+                    drawScaled('canvasScreenshot', w, h, img, scales.Screenshot);
+                }
             }
         }
+
+        // Draw Promotional Template
+        function drawPromotional(canvasId, w, h, img, scale) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+
+            // 1. Background
+            const bgColor = document.getElementById('promoBgColor').value;
+            const bgType = document.getElementById('promoBgType').value;
+
+            if (bgType === 'gradient') {
+                const gradient = ctx.createLinearGradient(0, 0, w, h);
+                gradient.addColorStop(0, bgColor);
+                gradient.addColorStop(1, adjustColor(bgColor, -40)); // Darker variant
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, w, h);
+            } else if (bgType === 'grid') {
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(0, 0, w, h);
+                drawGrid(ctx, w, h);
+            } else {
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(0, 0, w, h);
+            }
+
+            // Decorations
+            const decorType = document.getElementById('promoDecor').value;
+            if (decorType !== 'none') {
+                drawDecorations(ctx, w, h, decorType);
+            }
+
+            // Configuration
+            const badgeText = document.getElementById('promoBadge').value;
+            const titleText = document.getElementById('promoTitle').value;
+            const subText = document.getElementById('promoSubtitle').value;
+
+            // 2. Text Drawing
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center';
+
+            // Badge (with underline/banner look)
+            if (badgeText) {
+                ctx.font = '500 24px Inter';
+                // Small background for badge? Or just text. Let's do simple text first as per reference example 1 (Discover banner)
+                // Drawing a simple banner shape
+                const badgeWidth = ctx.measureText(badgeText).width + 40;
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                // ctx.strokeRect((w/2) - (badgeWidth/2), 40, badgeWidth, 40); // Simple box
+
+                // Draw text
+                ctx.fillText(badgeText.toUpperCase(), w / 2, 70);
+
+                // Underline/Arrow shape
+                ctx.beginPath();
+                ctx.moveTo((w / 2) - (badgeWidth / 2), 80);
+                ctx.lineTo((w / 2) + (badgeWidth / 2), 80);
+                ctx.lineTo((w / 2) + (badgeWidth / 2) - 10, 80); // little arrow effect maybe?
+                ctx.stroke();
+            }
+
+            // Main Title
+            if (titleText) {
+                ctx.font = '800 64px Inter';
+                ctx.fillText(titleText.toUpperCase(), w / 2, 160);
+            }
+
+            // Highlight Title
+            if (subText) {
+                ctx.fillStyle = '#a5daff'; // Light blueish hint, or just white opacity
+                ctx.font = '800 64px Inter';
+                ctx.fillText(subText, w / 2, 230);
+            }
+
+            // 3. Phone Frame Mockup
+            // Define frame area at bottom
+            const frameMargin = w * 0.15; // 15% margin each side
+            const frameWidth = w - (frameMargin * 2);
+            /* 
+               Aspect ratio of frame: assuming the user uploaded a standard mobile shot. 
+               We will contain the user image inside this frame. 
+            */
+            const frameX = frameMargin;
+            const frameY = 300; // Start below text
+            const frameH = h - frameY + 100; // Extend off bottom a bit for "infinite" look
+
+            // Draw Phone Body
+            ctx.save();
+            ctx.beginPath();
+            ctx.roundRect(frameX, frameY, frameWidth, frameH, [40, 40, 0, 0]);
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fill();
+            ctx.clip(); // Clip everything inside phone body
+
+            // Draw User Image
+            // We want to fit the image width to the frame width
+            const imgRatio = img.width / img.height;
+            const drawW = frameWidth;
+            const drawH = drawW / imgRatio;
+
+            // Apply User Scale
+            const scaledW = drawW * scale;
+            const scaledH = drawH * scale;
+            const ox = frameX + (frameWidth - scaledW) / 2;
+            const oy = frameY; // Top padding removed
+
+            ctx.drawImage(img, ox, oy, scaledW, scaledH);
+
+            // Restore (remove clip)
+            ctx.restore();
+
+            // Draw Phone Bezel/Border
+            ctx.strokeStyle = '#1e293b'; // Dark bezel
+            ctx.lineWidth = 12;
+            ctx.shadowColor = 'rgba(0,0,0,0.5)';
+            ctx.shadowBlur = 40;
+            ctx.shadowOffsetY = 20;
+
+            ctx.beginPath();
+            ctx.roundRect(frameX, frameY, frameWidth, frameH, [40, 40, 0, 0]);
+            ctx.stroke();
+
+            // Reset Shadow
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetY = 0;
+        }
+
+        function drawGrid(ctx, w, h) {
+            ctx.save();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            const step = 60;
+
+            for (let x = 0; x < w; x += step) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, h);
+                ctx.stroke();
+            }
+
+            for (let y = 0; y < h; y += step) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(w, y);
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+
+        function drawDecorations(ctx, w, h, type) {
+            ctx.save();
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            const symbols = type === 'code' ? ['{ }', '</>', '//', ';', '[]'] : ['✨', '✦', '★', '•'];
+
+            const positions = [
+                { x: 0.1, y: 0.1, s: 40 }, { x: 0.9, y: 0.15, s: 50 },
+                { x: 0.15, y: 0.4, s: 30 }, { x: 0.85, y: 0.35, s: 45 },
+                { x: 0.5, y: 0.05, s: 20 }, { x: 0.05, y: 0.25, s: 35 },
+                { x: 0.95, y: 0.5, s: 25 }
+            ];
+
+            positions.forEach((pos, i) => {
+                const sym = symbols[i % symbols.length];
+                ctx.font = `bold ${pos.s}px Inter`;
+                ctx.fillText(sym, w * pos.x, h * pos.y);
+            });
+
+            ctx.restore();
+        }
+
+        // Helper to darken color for gradient
+        function adjustColor(color, amount) {
+            return '#' + color.replace(/^#/, '').replace(/../g, color => ('0' + Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
+        }
+
+
 
         // Draw cover (fills entire canvas)
         function drawCover(canvasId, w, h, img) {
