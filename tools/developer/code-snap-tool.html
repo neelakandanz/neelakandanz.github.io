@@ -165,7 +165,9 @@
             resize: none;
             width: 100%;
             min-height: 80px;
-            white-space: pre;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
             tab-size: 2;
             overflow: hidden;
         }
@@ -178,12 +180,18 @@
             display: none;
             font-family: 'JetBrains Mono', monospace;
             font-size: 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
             line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
         }
 
         .hljs {
             background: transparent !important;
             padding: 0 !important;
+            white-space: pre-wrap !important;
         }
 
         /* Control Bar - Simple and Clean */
@@ -464,6 +472,11 @@
                 <input type="range" id="height-slider" min="150" max="800" value="300" class="modern-slider">
             </div>
 
+            <div class="slider-container" style="display: flex; align-items: center; gap: 0.5rem;">
+                <label for="padding-slider" style="color: var(--text-light); font-size: 0.8rem;">Padding:</label>
+                <input type="range" id="padding-slider" min="0" max="128" value="40" class="modern-slider">
+            </div>
+
             <button id="download-btn" class="export-btn">
                 <span>📥</span> Export
             </button>
@@ -716,6 +729,15 @@
         // If we force it, it might cut content. But user wants control.
         // Let's force it to slider default to be consistent with Width.
         codeWindow.style.height = heightSlider.value + 'px';
+
+        // Padding Slider Logic
+        const paddingSlider = document.getElementById('padding-slider');
+        paddingSlider.addEventListener('input', (e) => {
+            const newPadding = e.target.value;
+            captureArea.style.padding = `${newPadding}px`;
+        });
+        // Initialize padding 
+        captureArea.style.padding = paddingSlider.value + 'px';
 
     </script>
 </body>
