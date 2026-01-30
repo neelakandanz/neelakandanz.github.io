@@ -51,58 +51,6 @@
             overflow-x: hidden;
         }
 
-        /* Header */
-        .header {
-            padding: 1rem 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-shrink: 0;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            text-decoration: none;
-            color: var(--text-light);
-        }
-
-        .logo-icon {
-            font-size: 1.25rem;
-        }
-
-        .logo-text {
-            font-weight: 700;
-            font-size: 1.125rem;
-            letter-spacing: -0.02em;
-        }
-
-        .back-link {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 0.8125rem;
-            padding: 0.4rem 0.875rem;
-            border-radius: 6px;
-            transition: all 0.2s;
-            border: 1px solid var(--border-light);
-        }
-
-        .back-link:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-light);
-        }
-
-        /* Tagline */
-        .tagline {
-            text-align: center;
-            font-size: 1.25rem;
-            font-weight: 500;
-            letter-spacing: 0.02em;
-            margin-bottom: 1.5rem;
-            color: var(--text-light);
-            padding: 0 1rem;
-        }
 
         /* Main Content */
         .main-content {
@@ -110,7 +58,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 0 1rem 1.5rem;
+            padding: 0.5rem;
             overflow: auto;
         }
 
@@ -118,11 +66,11 @@
         #capture-area {
             background: var(--bg-container);
             border-radius: var(--radius-lg);
-            padding: 40px;
+            padding: 24px;
             box-shadow:
                 0 0 0 1px rgba(255, 255, 255, 0.1),
                 0 20px 40px -12px rgba(0, 0, 0, 0.3);
-            margin-bottom: 1.5rem;
+            margin-bottom: 0.5rem;
             max-width: 100%;
         }
 
@@ -348,7 +296,7 @@
             }
 
             #capture-area {
-                padding: 56px;
+                padding: 40px;
             }
 
             #code-window {
@@ -439,17 +387,9 @@
 </head>
 
 <body>
-    <!-- Header -->
-    <header class="header">
-        <a href="#" class="logo">
-            <span class="logo-icon">📸</span>
-            <span class="logo-text">CodeSnap</span>
-        </a>
-        <a href="../index.html#tools" class="back-link">← Back</a>
-    </header>
+    <!-- Header Removed -->
 
-    <!-- Tagline -->
-    <p class="tagline">Create and share beautiful images of your source code.</p>
+    <!-- Tagline REMOVED -->
 
     <!-- Main Content -->
     <div class="main-content">
@@ -468,7 +408,7 @@
                     <textarea id="code-editor" spellcheck="false" placeholder="Paste your code here..."></textarea>
                     <pre><code id="code-display"></code></pre>
                 </div>
-                <div class="resize-handle" id="resize-handle"></div>
+                <!-- Removed resize-handle -->
             </div>
         </div>
 
@@ -496,12 +436,13 @@
                 <option value="plaintext">Plain Text</option>
             </select>
 
-            <option value="atom-one-dark">One Dark</option>
-            <option value="dracula">Dracula</option>
-            <option value="monokai">Monokai</option>
-            <option value="github-dark" selected>GitHub Dark</option>
-            <option value="nord">Nord</option>
-            <option value="tokyo-night">Tokyo Night</option>
+            <select id="theme-select" class="modern-select" title="Theme">
+                <option value="atom-one-dark">One Dark</option>
+                <option value="dracula">Dracula</option>
+                <option value="monokai">Monokai</option>
+                <option value="github-dark" selected>GitHub Dark</option>
+                <option value="nord">Nord</option>
+                <option value="tokyo-night">Tokyo Night</option>
             </select>
 
             <select id="bg-select" class="modern-select" title="Background">
@@ -512,6 +453,16 @@
                 <option value="orange">Orange</option>
                 <option value="dark">Dark</option>
             </select>
+
+            <div class="slider-container" style="display: flex; align-items: center; gap: 0.5rem;">
+                <label for="width-slider" style="color: var(--text-light); font-size: 0.8rem;">Width:</label>
+                <input type="range" id="width-slider" min="320" max="800" value="480" class="modern-slider">
+            </div>
+
+            <div class="slider-container" style="display: flex; align-items: center; gap: 0.5rem;">
+                <label for="height-slider" style="color: var(--text-light); font-size: 0.8rem;">Height:</label>
+                <input type="range" id="height-slider" min="150" max="800" value="300" class="modern-slider">
+            </div>
 
             <button id="download-btn" class="export-btn">
                 <span>📥</span> Export
@@ -696,26 +647,18 @@
 
         // --- Drag and Resize Logic ---
 
+        const widthSlider = document.getElementById('width-slider');
+        const titleBar = document.querySelector('.title-bar');
+
         let isDragging = false;
-        let isResizing = false;
         let startX, startY;
         let startLeft, startTop;
-        let startWidth, startHeight;
-
-        const titleBar = document.querySelector('.title-bar');
-        const resizeHandle = document.getElementById('resize-handle');
 
         // Dragging
         titleBar.addEventListener('mousedown', (e) => {
             isDragging = true;
             startX = e.clientX;
             startY = e.clientY;
-
-            // Get current computed position or style
-            // Note: On first load, left/top might be auto. We might need to set them explicitly if we start dragging.
-            // But relying on offsetLeft/offsetTop handles initialization well for relative positioning if we switch to absolute.
-            // However, to drag freely within capture-area, code-window should ideally be absolute or we use transform.
-            // Let's use position: absolute; relative to capture-area (which must be position: relative).
 
             // Ensure capture area is positioned
             if (getComputedStyle(captureArea).position === 'static') {
@@ -726,7 +669,6 @@
                 codeWindow.style.position = 'absolute';
                 codeWindow.style.left = codeWindow.offsetLeft + 'px';
                 codeWindow.style.top = codeWindow.offsetTop + 'px';
-                // Remove margin if it interferes
                 codeWindow.style.margin = '0';
             }
 
@@ -752,58 +694,28 @@
             document.removeEventListener('mouseup', stopDrag);
         }
 
-        // Resizing
-        resizeHandle.addEventListener('mousedown', (e) => {
-            e.preventDefault(); // Prevent text selection
-            e.stopPropagation(); // Don't trigger drag
-            isResizing = true;
-            startX = e.clientX;
-            startY = e.clientY;
-            startWidth = codeWindow.offsetWidth;
-            startHeight = codeWindow.offsetHeight;
-
-            document.addEventListener('mousemove', onResize);
-            document.addEventListener('mouseup', stopResize);
+        // Slider Resize Logic
+        widthSlider.addEventListener('input', (e) => {
+            const newWidth = e.target.value;
+            codeWindow.style.width = `${newWidth}px`;
+            codeWindow.style.maxWidth = 'none';
         });
 
-        function onResize(e) {
-            if (!isResizing) return;
-            const dx = e.clientX - startX;
-            const dy = e.clientY - startY;
+        // Initialize slider value matches window width
+        codeWindow.style.width = widthSlider.value + 'px';
 
-            // Update width and height
-            const newWidth = startWidth + dx;
+        // Height Slider Logic
+        const heightSlider = document.getElementById('height-slider');
+        heightSlider.addEventListener('input', (e) => {
+            const newHeight = e.target.value;
+            codeWindow.style.height = `${newHeight}px`;
+        });
 
-            // We can't easily change height of code-window directly because it fits content.
-            // Instead, we might want to change the width, and let height auto-adjust, 
-            // OR if the user really wants freely resizable 2D box, we need to enforce min-height.
-            // Given the task says "increase code layer size", user probably wants to make it wider/bigger.
-
-            // Let's allow width resizing. Height is driven by content (textarea/pre) usually, 
-            // but we can set a min-height or specific height if we change overflow behavior.
-
-            // For now, let's just resize Width as primary, and let height auto-grow. 
-            // Or if we strictly follow "resize", we set explicit width/height.
-
-            if (newWidth > 320) {
-                codeWindow.style.width = `${newWidth}px`;
-                codeWindow.style.maxWidth = 'none'; // release max-width constraint
-            }
-
-            // Optional: Height resizing ONLY if it makes sense for empty space or bigger padding.
-            // But usually code snaps are "fit to content".
-            // If we force height, we might clip code.
-            // Let's try resizing just width for now as it's most common for "long lines".
-
-            // Actually, "increase code layer size... drag feature" suggests 2D resizing.
-            // Let's start with width.
-        }
-
-        function stopResize() {
-            isResizing = false;
-            document.removeEventListener('mousemove', onResize);
-            document.removeEventListener('mouseup', stopResize);
-        }
+        // Initialize height 
+        // We set it to auto initially or force it? 
+        // If we force it, it might cut content. But user wants control.
+        // Let's force it to slider default to be consistent with Width.
+        codeWindow.style.height = heightSlider.value + 'px';
 
     </script>
 </body>
