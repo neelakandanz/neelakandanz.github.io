@@ -134,6 +134,21 @@
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
             min-width: 320px;
             max-width: 700px;
+            /* Enable absolute positioning for drag */
+            position: relative;
+            width: auto;
+        }
+
+        /* Resize Handle */
+        .resize-handle {
+            position: absolute;
+            bottom: 0px;
+            right: 0px;
+            width: 20px;
+            height: 20px;
+            cursor: se-resize;
+            background: linear-gradient(135deg, transparent 50%, rgba(255, 255, 255, 0.3) 50%);
+            border-bottom-right-radius: var(--radius);
         }
 
         /* Title Bar */
@@ -143,6 +158,14 @@
             padding: 12px 16px;
             background: rgba(0, 0, 0, 0.2);
             position: relative;
+            cursor: grab;
+            /* Show grab cursor */
+            user-select: none;
+            /* Prevent text selection while dragging */
+        }
+
+        .title-bar:active {
+            cursor: grabbing;
         }
 
         .window-dots {
@@ -186,7 +209,8 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 14px;
             line-height: 1.6;
-            color: #abb2bf;
+            line-height: 1.6;
+            color: #ffffff;
             background: transparent;
             border: none;
             outline: none;
@@ -444,6 +468,7 @@
                     <textarea id="code-editor" spellcheck="false" placeholder="Paste your code here..."></textarea>
                     <pre><code id="code-display"></code></pre>
                 </div>
+                <div class="resize-handle" id="resize-handle"></div>
             </div>
         </div>
 
@@ -471,13 +496,12 @@
                 <option value="plaintext">Plain Text</option>
             </select>
 
-            <select id="theme-select" class="modern-select" title="Theme">
-                <option value="atom-one-dark">One Dark</option>
-                <option value="dracula">Dracula</option>
-                <option value="monokai">Monokai</option>
-                <option value="github-dark">GitHub Dark</option>
-                <option value="nord">Nord</option>
-                <option value="tokyo-night">Tokyo Night</option>
+            <option value="atom-one-dark">One Dark</option>
+            <option value="dracula">Dracula</option>
+            <option value="monokai">Monokai</option>
+            <option value="github-dark" selected>GitHub Dark</option>
+            <option value="nord">Nord</option>
+            <option value="tokyo-night">Tokyo Night</option>
             </select>
 
             <select id="bg-select" class="modern-select" title="Background">
@@ -669,6 +693,118 @@
         applyTheme();
         applyBackground();
         updateTitle();
+
+        // --- Drag and Resize Logic ---
+
+        let isDragging = false;
+        let isResizing = false;
+        let startX, startY;
+        let startLeft, startTop;
+        let startWidth, startHeight;
+
+        const titleBar = document.querySelector('.title-bar');
+        const resizeHandle = document.getElementById('resize-handle');
+
+        // Dragging
+        titleBar.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+
+            // Get current computed position or style
+            // Note: On first load, left/top might be auto. We might need to set them explicitly if we start dragging.
+            // But relying on offsetLeft/offsetTop handles initialization well for relative positioning if we switch to absolute.
+            // However, to drag freely within capture-area, code-window should ideally be absolute or we use transform.
+            // Let's use position: absolute; relative to capture-area (which must be position: relative).
+
+            // Ensure capture area is positioned
+            if (getComputedStyle(captureArea).position === 'static') {
+                captureArea.style.position = 'relative';
+            }
+            // Ensure code window is absolute for free movement
+            if (getComputedStyle(codeWindow).position !== 'absolute') {
+                codeWindow.style.position = 'absolute';
+                codeWindow.style.left = codeWindow.offsetLeft + 'px';
+                codeWindow.style.top = codeWindow.offsetTop + 'px';
+                // Remove margin if it interferes
+                codeWindow.style.margin = '0';
+            }
+
+            startLeft = codeWindow.offsetLeft;
+            startTop = codeWindow.offsetTop;
+
+            document.addEventListener('mousemove', onDrag);
+            document.addEventListener('mouseup', stopDrag);
+        });
+
+        function onDrag(e) {
+            if (!isDragging) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+
+            codeWindow.style.left = `${startLeft + dx}px`;
+            codeWindow.style.top = `${startTop + dy}px`;
+        }
+
+        function stopDrag() {
+            isDragging = false;
+            document.removeEventListener('mousemove', onDrag);
+            document.removeEventListener('mouseup', stopDrag);
+        }
+
+        // Resizing
+        resizeHandle.addEventListener('mousedown', (e) => {
+            e.preventDefault(); // Prevent text selection
+            e.stopPropagation(); // Don't trigger drag
+            isResizing = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            startWidth = codeWindow.offsetWidth;
+            startHeight = codeWindow.offsetHeight;
+
+            document.addEventListener('mousemove', onResize);
+            document.addEventListener('mouseup', stopResize);
+        });
+
+        function onResize(e) {
+            if (!isResizing) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+
+            // Update width and height
+            const newWidth = startWidth + dx;
+
+            // We can't easily change height of code-window directly because it fits content.
+            // Instead, we might want to change the width, and let height auto-adjust, 
+            // OR if the user really wants freely resizable 2D box, we need to enforce min-height.
+            // Given the task says "increase code layer size", user probably wants to make it wider/bigger.
+
+            // Let's allow width resizing. Height is driven by content (textarea/pre) usually, 
+            // but we can set a min-height or specific height if we change overflow behavior.
+
+            // For now, let's just resize Width as primary, and let height auto-grow. 
+            // Or if we strictly follow "resize", we set explicit width/height.
+
+            if (newWidth > 320) {
+                codeWindow.style.width = `${newWidth}px`;
+                codeWindow.style.maxWidth = 'none'; // release max-width constraint
+            }
+
+            // Optional: Height resizing ONLY if it makes sense for empty space or bigger padding.
+            // But usually code snaps are "fit to content".
+            // If we force height, we might clip code.
+            // Let's try resizing just width for now as it's most common for "long lines".
+
+            // Actually, "increase code layer size... drag feature" suggests 2D resizing.
+            // Let's start with width.
+        }
+
+        function stopResize() {
+            isResizing = false;
+            document.removeEventListener('mousemove', onResize);
+            document.removeEventListener('mouseup', stopResize);
+        }
+
     </script>
 </body>
 
