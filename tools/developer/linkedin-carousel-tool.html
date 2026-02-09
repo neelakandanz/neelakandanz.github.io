@@ -491,7 +491,8 @@
 
                 <div class="form-group" id="bg-position-group" style="display: none;">
                     <label class="form-label">Image Position</label>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; max-width: 120px;">
+                    <div
+                        style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; max-width: 120px; margin-bottom: 0.5rem;">
                         <button class="pos-btn" data-pos="top left" onclick="setSlidePosition('top left')"
                             title="Top Left">↖</button>
                         <button class="pos-btn" data-pos="top center" onclick="setSlidePosition('top center')"
@@ -511,6 +512,27 @@
                         <button class="pos-btn" data-pos="bottom right" onclick="setSlidePosition('bottom right')"
                             title="Bottom Right">↘</button>
                     </div>
+
+                    <!-- Custom position toggle -->
+                    <button class="pos-btn" id="btn-custom-pos" data-pos="custom" onclick="toggleCustomPosition()"
+                        style="width: 100%; max-width: 120px; margin-bottom: 0.5rem;" title="Free drag position">⊕
+                        Custom</button>
+
+                    <!-- Custom X/Y sliders (hidden by default) -->
+                    <div id="custom-position-sliders" style="display: none;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.75rem; width: 15px;">X</span>
+                            <input type="range" id="input-bg-offset-x" class="form-input" min="-50" max="150" step="1"
+                                value="50" oninput="updateCustomPosition()" style="padding: 0; flex: 1;">
+                            <span id="val-bg-offset-x" style="font-size: 0.75rem; width: 40px;">50%</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 0.75rem; width: 15px;">Y</span>
+                            <input type="range" id="input-bg-offset-y" class="form-input" min="-50" max="150" step="1"
+                                value="50" oninput="updateCustomPosition()" style="padding: 0; flex: 1;">
+                            <span id="val-bg-offset-y" style="font-size: 0.75rem; width: 40px;">50%</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group" id="bg-overlay-group" style="display: none;">
@@ -519,6 +541,17 @@
                         <input type="range" id="input-bg-overlay" class="form-input" min="0" max="80" step="5" value="0"
                             oninput="updateCurrentSlide()" style="padding: 0;">
                         <span id="val-bg-overlay" style="font-size: 0.8rem; width: 35px;">0%</span>
+                    </div>
+                </div>
+
+                <div class="form-group" id="bg-brightness-group" style="display: none;">
+                    <label class="form-label">Image Brightness</label>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 0.7rem; color: var(--text-secondary);">Dim</span>
+                        <input type="range" id="input-bg-brightness" class="form-input" min="50" max="150" step="5"
+                            value="100" oninput="updateCurrentSlide()" style="padding: 0; flex: 1;">
+                        <span style="font-size: 0.7rem; color: var(--text-secondary);">Bright</span>
+                        <span id="val-bg-brightness" style="font-size: 0.8rem; width: 40px;">100%</span>
                     </div>
                 </div>
             </div>
@@ -628,6 +661,10 @@
     <div class="main-area">
         <div class="preview-container">
             <div id="carousel-preview" class="carousel-slide">
+                <!-- Background image layer - separate so brightness filter doesn't affect content -->
+                <div class="bg-image-layer"
+                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;">
+                </div>
                 <!-- Content injected via JS -->
                 <div class="bg-overlay"
                     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;">
@@ -685,6 +722,9 @@
                 bgFit: 'cover',
                 bgPosition: 'center center',
                 bgOverlay: 0,
+                bgBrightness: 100,
+                bgOffsetX: 50,
+                bgOffsetY: 50,
                 bodyBold: false
             },
             {
@@ -696,6 +736,9 @@
                 bgFit: 'cover',
                 bgPosition: 'center center',
                 bgOverlay: 0,
+                bgBrightness: 100,
+                bgOffsetX: 50,
+                bgOffsetY: 50,
                 bodyBold: false
             },
             {
@@ -707,6 +750,9 @@
                 bgFit: 'cover',
                 bgPosition: 'center center',
                 bgOverlay: 0,
+                bgBrightness: 100,
+                bgOffsetX: 50,
+                bgOffsetY: 50,
                 bodyBold: false
             }
         ];
@@ -801,6 +847,9 @@
                 bgFit: 'cover',
                 bgPosition: 'center center',
                 bgOverlay: 0,
+                bgBrightness: 100,
+                bgOffsetX: 50,
+                bgOffsetY: 50,
                 bodyBold: false
             });
             renderSlideList();
@@ -842,13 +891,40 @@
             if (bgPositionGroup) bgPositionGroup.style.display = hasImage ? 'block' : 'none';
             if (bgOverlayGroup) bgOverlayGroup.style.display = hasImage ? 'block' : 'none';
 
+            // Show brightness group
+            const bgBrightnessGroup = document.getElementById('bg-brightness-group');
+            if (bgBrightnessGroup) bgBrightnessGroup.style.display = hasImage ? 'block' : 'none';
+
             // Set current values
             if (bgFitSelect) bgFitSelect.value = slide.bgFit || 'cover';
             if (bgOverlayInput) bgOverlayInput.value = slide.bgOverlay || 0;
             if (bgOverlayVal) bgOverlayVal.textContent = (slide.bgOverlay || 0) + '%';
 
+            // Set brightness value
+            const bgBrightnessInput = document.getElementById('input-bg-brightness');
+            const bgBrightnessVal = document.getElementById('val-bg-brightness');
+            if (bgBrightnessInput) bgBrightnessInput.value = slide.bgBrightness || 100;
+            if (bgBrightnessVal) bgBrightnessVal.textContent = (slide.bgBrightness || 100) + '%';
+
             // Update position buttons
             updatePositionButtons(slide.bgPosition || 'center center');
+
+            // Update custom position sliders
+            const offsetXInput = document.getElementById('input-bg-offset-x');
+            const offsetYInput = document.getElementById('input-bg-offset-y');
+            const offsetXVal = document.getElementById('val-bg-offset-x');
+            const offsetYVal = document.getElementById('val-bg-offset-y');
+            const customSliders = document.getElementById('custom-position-sliders');
+            const customBtn = document.getElementById('btn-custom-pos');
+
+            const isCustom = slide.bgPosition === 'custom';
+            if (customSliders) customSliders.style.display = isCustom ? 'block' : 'none';
+            if (customBtn) customBtn.classList.toggle('active', isCustom);
+
+            if (offsetXInput) offsetXInput.value = slide.bgOffsetX ?? 50;
+            if (offsetYInput) offsetYInput.value = slide.bgOffsetY ?? 50;
+            if (offsetXVal) offsetXVal.textContent = (slide.bgOffsetX ?? 50) + '%';
+            if (offsetYVal) offsetYVal.textContent = (slide.bgOffsetY ?? 50) + '%';
 
             if (bgPreview && bgThumb) {
                 if (slide.bgImage) {
@@ -906,6 +982,14 @@
             const bodyBoldCheckbox = document.getElementById('input-body-bold');
             if (bodyBoldCheckbox) slide.bodyBold = bodyBoldCheckbox.checked;
 
+            // Update brightness
+            const bgBrightnessInput = document.getElementById('input-bg-brightness');
+            const bgBrightnessVal = document.getElementById('val-bg-brightness');
+            if (bgBrightnessInput) {
+                slide.bgBrightness = parseInt(bgBrightnessInput.value) || 100;
+                if (bgBrightnessVal) bgBrightnessVal.textContent = slide.bgBrightness + '%';
+            }
+
             renderSlideList(); // Update list titles
             renderPreview();
         };
@@ -915,10 +999,12 @@
             const bgOptionsGroup = document.getElementById('bg-options-group');
             const bgPositionGroup = document.getElementById('bg-position-group');
             const bgOverlayGroup = document.getElementById('bg-overlay-group');
+            const bgBrightnessGroup = document.getElementById('bg-brightness-group');
 
             if (bgOptionsGroup) bgOptionsGroup.style.display = show ? 'block' : 'none';
             if (bgPositionGroup) bgPositionGroup.style.display = show ? 'block' : 'none';
             if (bgOverlayGroup) bgOverlayGroup.style.display = show ? 'block' : 'none';
+            if (bgBrightnessGroup) bgBrightnessGroup.style.display = show ? 'block' : 'none';
         }
 
         // Update position button states
@@ -933,6 +1019,60 @@
             const slide = slides[currentSlideIndex];
             slide.bgPosition = position;
             updatePositionButtons(position);
+
+            // Hide custom sliders when using preset
+            const customSliders = document.getElementById('custom-position-sliders');
+            const customBtn = document.getElementById('btn-custom-pos');
+            if (customSliders) customSliders.style.display = 'none';
+            if (customBtn) customBtn.classList.remove('active');
+
+            renderPreview();
+        };
+
+        // Toggle custom position mode
+        window.toggleCustomPosition = () => {
+            const slide = slides[currentSlideIndex];
+            const customSliders = document.getElementById('custom-position-sliders');
+            const customBtn = document.getElementById('btn-custom-pos');
+
+            const isCurrentlyCustom = slide.bgPosition === 'custom';
+
+            if (isCurrentlyCustom) {
+                // Switch back to center center
+                slide.bgPosition = 'center center';
+                if (customSliders) customSliders.style.display = 'none';
+                if (customBtn) customBtn.classList.remove('active');
+                updatePositionButtons('center center');
+            } else {
+                // Switch to custom mode
+                slide.bgPosition = 'custom';
+                if (customSliders) customSliders.style.display = 'block';
+                if (customBtn) customBtn.classList.add('active');
+                // Remove active from preset buttons
+                document.querySelectorAll('.pos-btn:not(#btn-custom-pos)').forEach(btn => btn.classList.remove('active'));
+            }
+
+            renderPreview();
+        };
+
+        // Update custom position from sliders
+        window.updateCustomPosition = () => {
+            const slide = slides[currentSlideIndex];
+            const offsetXInput = document.getElementById('input-bg-offset-x');
+            const offsetYInput = document.getElementById('input-bg-offset-y');
+            const offsetXVal = document.getElementById('val-bg-offset-x');
+            const offsetYVal = document.getElementById('val-bg-offset-y');
+
+            if (offsetXInput) {
+                slide.bgOffsetX = parseInt(offsetXInput.value);
+                if (offsetXVal) offsetXVal.textContent = slide.bgOffsetX + '%';
+            }
+            if (offsetYInput) {
+                slide.bgOffsetY = parseInt(offsetYInput.value);
+                if (offsetYVal) offsetYVal.textContent = slide.bgOffsetY + '%';
+            }
+
+            slide.bgPosition = 'custom';
             renderPreview();
         };
 
@@ -1025,24 +1165,47 @@
             const slide = slides[slideIndex];
             const isDark = isColorDark(globalSettings.bg);
 
-            // Apply Styles to Container
+            // Apply Styles to Container (background color only)
             targetElement.style.backgroundColor = globalSettings.bg;
 
             // Per-slide background image takes priority over global
             const slideBackgroundImage = slide.bgImage || globalSettings.bgImage;
+
+            // Get or create background image layer
+            let bgImageLayer = targetElement.querySelector('.bg-image-layer');
+            if (!bgImageLayer) {
+                bgImageLayer = document.createElement('div');
+                bgImageLayer.className = 'bg-image-layer';
+                bgImageLayer.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;';
+                targetElement.insertBefore(bgImageLayer, targetElement.firstChild);
+            }
+
             if (slideBackgroundImage) {
-                targetElement.style.backgroundImage = `url('${slideBackgroundImage}')`;
+                // Apply image to the separate layer (not the main container)
+                bgImageLayer.style.backgroundImage = `url('${slideBackgroundImage}')`;
 
                 // Apply fit mode from slide settings
                 const bgFit = slide.bgFit || 'cover';
-                targetElement.style.backgroundSize = bgFit === 'auto' ? 'auto' : bgFit;
-                targetElement.style.backgroundRepeat = 'no-repeat';
+                bgImageLayer.style.backgroundSize = bgFit === 'auto' ? 'auto' : bgFit;
+                bgImageLayer.style.backgroundRepeat = 'no-repeat';
 
                 // Apply position from slide settings
                 const bgPosition = slide.bgPosition || 'center center';
-                targetElement.style.backgroundPosition = bgPosition;
+                if (bgPosition === 'custom') {
+                    // Use custom X/Y offset values
+                    const offsetX = slide.bgOffsetX ?? 50;
+                    const offsetY = slide.bgOffsetY ?? 50;
+                    bgImageLayer.style.backgroundPosition = `${offsetX}% ${offsetY}%`;
+                } else {
+                    bgImageLayer.style.backgroundPosition = bgPosition;
+                }
+
+                // Apply brightness filter ONLY to the background layer - content stays unaffected
+                const bgBrightness = slide.bgBrightness || 100;
+                bgImageLayer.style.filter = `brightness(${bgBrightness / 100})`;
             } else {
-                targetElement.style.backgroundImage = 'none';
+                bgImageLayer.style.backgroundImage = 'none';
+                bgImageLayer.style.filter = 'none';
             }
 
             // Apply Overlay
