@@ -446,6 +446,12 @@
             </div>
 
             <div class="form-group">
+                <label class="form-label">Background Image URL</label>
+                <input type="text" class="form-input" id="bg-image" placeholder="https://..."
+                    oninput="updateGlobalDesign()">
+            </div>
+
+            <div class="form-group">
                 <label class="form-label">Font Style</label>
                 <select id="font-select" class="form-select" onchange="updateGlobalDesign()">
                     <option value="'Inter', sans-serif">Inter (Clean)</option>
@@ -453,6 +459,24 @@
                     <option value="'Georgia', serif">Georgia (Serif)</option>
                     <option value="'Arial', sans-serif">Arial (Classic)</option>
                 </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Title Size (rem)</label>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <input type="range" id="size-title" class="form-input" min="1.0" max="5.0" step="0.1" value="2.5"
+                        oninput="updateGlobalDesign()" style="padding: 0;">
+                    <span id="val-size-title" style="font-size: 0.8rem; width: 30px;">2.5</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Body Size (rem)</label>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <input type="range" id="size-body" class="form-input" min="0.5" max="3.0" step="0.1" value="1.1"
+                        oninput="updateGlobalDesign()" style="padding: 0;">
+                    <span id="val-size-body" style="font-size: 0.8rem; width: 30px;">1.1</span>
+                </div>
             </div>
 
             <div class="form-group">
@@ -570,7 +594,10 @@
             text: '#111827',
             accent: '#3b82f6',
             font: "'Inter', sans-serif",
-            pattern: 'circles'
+            pattern: 'circles',
+            titleSize: 2.5,
+            bodySize: 1.1,
+            bgImage: ''
         };
 
         // DOM Elements
@@ -598,7 +625,10 @@
                 text: document.getElementById('color-text'),
                 accent: document.getElementById('color-accent'),
                 font: document.getElementById('font-select'),
-                pattern: document.getElementById('pattern-select')
+                pattern: document.getElementById('pattern-select'),
+                titleSize: document.getElementById('size-title'),
+                bodySize: document.getElementById('size-body'),
+                bgImage: document.getElementById('bg-image')
             }
         };
 
@@ -691,8 +721,20 @@
                 text: containers.settings.text.value,
                 accent: containers.settings.accent.value,
                 font: containers.settings.font.value,
-                pattern: containers.settings.pattern.value
+                accent: containers.settings.accent.value,
+                font: containers.settings.font.value,
+                pattern: containers.settings.pattern.value,
+                titleSize: containers.settings.titleSize.value,
+                bodySize: containers.settings.bodySize.value,
+                bgImage: containers.settings.bgImage.value
             };
+
+            // Update slider value displays
+            const valTitle = document.getElementById('val-size-title');
+            const valBody = document.getElementById('val-size-body');
+            if (valTitle) valTitle.textContent = globalSettings.titleSize;
+            if (valBody) valBody.textContent = globalSettings.bodySize;
+
             renderPreview();
         };
 
@@ -703,6 +745,13 @@
 
             // Apply Styles to Container
             targetElement.style.backgroundColor = globalSettings.bg;
+            if (globalSettings.bgImage) {
+                targetElement.style.backgroundImage = `url('${globalSettings.bgImage}')`;
+                targetElement.style.backgroundSize = 'cover';
+                targetElement.style.backgroundPosition = 'center';
+            } else {
+                targetElement.style.backgroundImage = 'none';
+            }
             targetElement.style.color = globalSettings.text;
             targetElement.style.fontFamily = globalSettings.font;
 
@@ -722,8 +771,14 @@
             const handleEl = targetElement.querySelector('.author-handle');
             const avatarEl = targetElement.querySelector('.author-avatar');
 
-            if (titleEl) titleEl.innerHTML = processTitle(slide.title, slide.highlight);
-            if (bodyEl) bodyEl.innerText = slide.body; // InnerText preserves newlines if css white-space is pre-wrap
+            if (titleEl) {
+                titleEl.innerHTML = processTitle(slide.title, slide.highlight);
+                titleEl.style.fontSize = globalSettings.titleSize + 'rem';
+            }
+            if (bodyEl) {
+                bodyEl.innerText = slide.body;
+                bodyEl.style.fontSize = globalSettings.bodySize + 'rem';
+            }
             if (numEl) {
                 numEl.textContent = (slideIndex + 1).toString().padStart(2, '0');
                 numEl.style.color = globalSettings.accent;
@@ -785,12 +840,17 @@
                     slideNode.style.height = '1350px';
                     slideNode.style.transform = 'none';
                     slideNode.style.boxShadow = 'none';
-                    slideNode.style.fontSize = '32px'; // Up-scale fonts
+                    slideNode.style.fontSize = '32px';
 
                     // Fix child font sizes for scale
-                    slideNode.querySelector('.slide-title').style.fontSize = '5rem';
+                    // SCALE FACTOR: 1080 / 400 = 2.7
+                    const scale = 2.7;
+                    const titleSizeRem = parseFloat(globalSettings.titleSize) || 2.5;
+                    const bodySizeRem = parseFloat(globalSettings.bodySize) || 1.1;
+
+                    slideNode.querySelector('.slide-title').style.fontSize = (titleSizeRem * scale) + 'rem';
                     slideNode.querySelector('.slide-title').style.marginBottom = '3rem';
-                    slideNode.querySelector('.slide-text').style.fontSize = '2.5rem';
+                    slideNode.querySelector('.slide-text').style.fontSize = (bodySizeRem * scale) + 'rem';
                     slideNode.querySelector('.slide-number').style.fontSize = '6rem';
                     slideNode.querySelector('.slide-content-wrapper').style.padding = '80px';
 
