@@ -368,6 +368,33 @@
             cursor: pointer;
             background: none;
         }
+
+        /* Position Button Grid */
+        .pos-btn {
+            width: 32px;
+            height: 32px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .pos-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .pos-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
     </style>
 </head>
 
@@ -420,6 +447,72 @@
                     <label class="form-label">Highlight Word (in Title)</label>
                     <input type="text" class="form-input" id="input-highlight" placeholder="Word to highlight..."
                         oninput="updateCurrentSlide()">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Slide Background Image</label>
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <input type="file" id="input-bg-file" accept="image/*" onchange="handleSlideImageUpload(event)"
+                            style="display: none;">
+                        <button class="btn"
+                            style="flex: 1; background: var(--bg-input); border: 1px solid var(--border);"
+                            onclick="document.getElementById('input-bg-file').click()">
+                            <i data-lucide="upload" style="width: 14px;"></i> Upload
+                        </button>
+                        <button class="btn btn-ghost" onclick="clearSlideBgImage()" title="Clear background">
+                            <i data-lucide="x" style="width: 14px;"></i>
+                        </button>
+                    </div>
+                    <input type="text" class="form-input" id="input-bg-url" placeholder="Or paste image URL..."
+                        oninput="updateCurrentSlide()">
+                    <div id="slide-bg-preview" style="margin-top: 0.5rem; display: none;">
+                        <img id="slide-bg-thumb"
+                            style="width: 100%; max-height: 80px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                    </div>
+                </div>
+
+                <!-- Background Image Fit Options -->
+                <div class="form-group" id="bg-options-group" style="display: none;">
+                    <label class="form-label">Image Fit Mode</label>
+                    <select id="input-bg-fit" class="form-select" onchange="updateCurrentSlide()">
+                        <option value="cover">Cover (Fill, may crop)</option>
+                        <option value="contain">Contain (Fit entire image)</option>
+                        <option value="fill">Stretch (Fill exactly)</option>
+                        <option value="auto">Original Size</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="bg-position-group" style="display: none;">
+                    <label class="form-label">Image Position</label>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; max-width: 120px;">
+                        <button class="pos-btn" data-pos="top left" onclick="setSlidePosition('top left')"
+                            title="Top Left">↖</button>
+                        <button class="pos-btn" data-pos="top center" onclick="setSlidePosition('top center')"
+                            title="Top Center">↑</button>
+                        <button class="pos-btn" data-pos="top right" onclick="setSlidePosition('top right')"
+                            title="Top Right">↗</button>
+                        <button class="pos-btn" data-pos="center left" onclick="setSlidePosition('center left')"
+                            title="Center Left">←</button>
+                        <button class="pos-btn active" data-pos="center center"
+                            onclick="setSlidePosition('center center')" title="Center">●</button>
+                        <button class="pos-btn" data-pos="center right" onclick="setSlidePosition('center right')"
+                            title="Center Right">→</button>
+                        <button class="pos-btn" data-pos="bottom left" onclick="setSlidePosition('bottom left')"
+                            title="Bottom Left">↙</button>
+                        <button class="pos-btn" data-pos="bottom center" onclick="setSlidePosition('bottom center')"
+                            title="Bottom Center">↓</button>
+                        <button class="pos-btn" data-pos="bottom right" onclick="setSlidePosition('bottom right')"
+                            title="Bottom Right">↘</button>
+                    </div>
+                </div>
+
+                <div class="form-group" id="bg-overlay-group" style="display: none;">
+                    <label class="form-label">Image Overlay Darkness</label>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="range" id="input-bg-overlay" class="form-input" min="0" max="80" step="5" value="0"
+                            oninput="updateCurrentSlide()" style="padding: 0;">
+                        <span id="val-bg-overlay" style="font-size: 0.8rem; width: 35px;">0%</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -580,19 +673,31 @@
                 id: 1,
                 title: 'The "Expertise" Trap',
                 body: 'We were taught to pick a lane. Learn a trade. Become a specialist. But if AI is on track to handle 80% of specialized tasks, digging deeper isn\'t safe anymore.',
-                highlight: '"Expertise"'
+                highlight: '"Expertise"',
+                bgImage: '',
+                bgFit: 'cover',
+                bgPosition: 'center center',
+                bgOverlay: 0
             },
             {
                 id: 2,
                 title: 'Generalists Rule',
                 body: 'In a world of specialized AI, the human who can connect the dots between domains wins. Breadth > Depth.',
-                highlight: 'Generalists'
+                highlight: 'Generalists',
+                bgImage: '',
+                bgFit: 'cover',
+                bgPosition: 'center center',
+                bgOverlay: 0
             },
             {
                 id: 3,
                 title: 'What to do?',
                 body: '1. Learn fundamental principles\n2. Study multiple disciplines\n3. Focus on synthesis over memorization',
-                highlight: 'do?'
+                highlight: 'do?',
+                bgImage: '',
+                bgFit: 'cover',
+                bgPosition: 'center center',
+                bgOverlay: 0
             }
         ];
 
@@ -681,7 +786,11 @@
                 id: Date.now(),
                 title: 'New Slide',
                 body: 'Add your content here...',
-                highlight: ''
+                highlight: '',
+                bgImage: '',
+                bgFit: 'cover',
+                bgPosition: 'center center',
+                bgOverlay: 0
             });
             renderSlideList();
             loadSlide(slides.length - 1);
@@ -703,6 +812,42 @@
             containers.body.value = slide.body;
             containers.highlight.value = slide.highlight || '';
 
+            // Update background image input and preview
+            const bgUrlInput = document.getElementById('input-bg-url');
+            const bgPreview = document.getElementById('slide-bg-preview');
+            const bgThumb = document.getElementById('slide-bg-thumb');
+            const bgOptionsGroup = document.getElementById('bg-options-group');
+            const bgPositionGroup = document.getElementById('bg-position-group');
+            const bgOverlayGroup = document.getElementById('bg-overlay-group');
+            const bgFitSelect = document.getElementById('input-bg-fit');
+            const bgOverlayInput = document.getElementById('input-bg-overlay');
+            const bgOverlayVal = document.getElementById('val-bg-overlay');
+
+            if (bgUrlInput) bgUrlInput.value = slide.bgImage || '';
+
+            // Show/hide background options based on whether image exists
+            const hasImage = !!slide.bgImage;
+            if (bgOptionsGroup) bgOptionsGroup.style.display = hasImage ? 'block' : 'none';
+            if (bgPositionGroup) bgPositionGroup.style.display = hasImage ? 'block' : 'none';
+            if (bgOverlayGroup) bgOverlayGroup.style.display = hasImage ? 'block' : 'none';
+
+            // Set current values
+            if (bgFitSelect) bgFitSelect.value = slide.bgFit || 'cover';
+            if (bgOverlayInput) bgOverlayInput.value = slide.bgOverlay || 0;
+            if (bgOverlayVal) bgOverlayVal.textContent = (slide.bgOverlay || 0) + '%';
+
+            // Update position buttons
+            updatePositionButtons(slide.bgPosition || 'center center');
+
+            if (bgPreview && bgThumb) {
+                if (slide.bgImage) {
+                    bgThumb.src = slide.bgImage;
+                    bgPreview.style.display = 'block';
+                } else {
+                    bgPreview.style.display = 'none';
+                }
+            }
+
             renderSlideList(); // Update active state
             renderPreview();
         };
@@ -721,9 +866,110 @@
             slide.body = containers.body.value;
             slide.highlight = containers.highlight.value;
 
+            // Update slide background from URL input (file upload handled separately)
+            const bgUrlInput = document.getElementById('input-bg-url');
+            if (bgUrlInput && bgUrlInput.value) {
+                slide.bgImage = bgUrlInput.value;
+                updateSlideBgPreview(slide.bgImage);
+            }
+
+            // Update bg fit, position, and overlay
+            const bgFitSelect = document.getElementById('input-bg-fit');
+            const bgOverlayInput = document.getElementById('input-bg-overlay');
+            const bgOverlayVal = document.getElementById('val-bg-overlay');
+
+            if (bgFitSelect) slide.bgFit = bgFitSelect.value;
+            if (bgOverlayInput) {
+                slide.bgOverlay = parseInt(bgOverlayInput.value) || 0;
+                if (bgOverlayVal) bgOverlayVal.textContent = slide.bgOverlay + '%';
+            }
+
+            // Show/hide background options
+            toggleBgOptions(!!slide.bgImage);
+
             renderSlideList(); // Update list titles
             renderPreview();
         };
+
+        // Toggle background options visibility
+        function toggleBgOptions(show) {
+            const bgOptionsGroup = document.getElementById('bg-options-group');
+            const bgPositionGroup = document.getElementById('bg-position-group');
+            const bgOverlayGroup = document.getElementById('bg-overlay-group');
+
+            if (bgOptionsGroup) bgOptionsGroup.style.display = show ? 'block' : 'none';
+            if (bgPositionGroup) bgPositionGroup.style.display = show ? 'block' : 'none';
+            if (bgOverlayGroup) bgOverlayGroup.style.display = show ? 'block' : 'none';
+        }
+
+        // Update position button states
+        function updatePositionButtons(position) {
+            document.querySelectorAll('.pos-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.pos === position);
+            });
+        }
+
+        // Set slide position
+        window.setSlidePosition = (position) => {
+            const slide = slides[currentSlideIndex];
+            slide.bgPosition = position;
+            updatePositionButtons(position);
+            renderPreview();
+        };
+
+        // Handle file upload for slide background
+        window.handleSlideImageUpload = (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const slide = slides[currentSlideIndex];
+                    slide.bgImage = e.target.result;
+
+                    // Clear URL input since we're using file
+                    const bgUrlInput = document.getElementById('input-bg-url');
+                    if (bgUrlInput) bgUrlInput.value = '';
+
+                    updateSlideBgPreview(slide.bgImage);
+                    toggleBgOptions(true);  // Show options when image is added
+                    renderPreview();
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        // Clear slide background image
+        window.clearSlideBgImage = () => {
+            const slide = slides[currentSlideIndex];
+            slide.bgImage = '';
+            slide.bgFit = 'cover';
+            slide.bgPosition = 'center center';
+            slide.bgOverlay = 0;
+
+            const bgUrlInput = document.getElementById('input-bg-url');
+            const fileInput = document.getElementById('input-bg-file');
+            if (bgUrlInput) bgUrlInput.value = '';
+            if (fileInput) fileInput.value = '';
+
+            updateSlideBgPreview('');
+            toggleBgOptions(false);  // Hide options when image is removed
+            renderPreview();
+        };
+
+        // Update the thumbnail preview
+        function updateSlideBgPreview(imageUrl) {
+            const bgPreview = document.getElementById('slide-bg-preview');
+            const bgThumb = document.getElementById('slide-bg-thumb');
+
+            if (bgPreview && bgThumb) {
+                if (imageUrl) {
+                    bgThumb.src = imageUrl;
+                    bgPreview.style.display = 'block';
+                } else {
+                    bgPreview.style.display = 'none';
+                }
+            }
+        }
 
         window.updateGlobalDesign = () => {
             globalSettings = {
@@ -762,10 +1008,20 @@
 
             // Apply Styles to Container
             targetElement.style.backgroundColor = globalSettings.bg;
-            if (globalSettings.bgImage) {
-                targetElement.style.backgroundImage = `url('${globalSettings.bgImage}')`;
-                targetElement.style.backgroundSize = 'cover';
-                targetElement.style.backgroundPosition = 'center';
+
+            // Per-slide background image takes priority over global
+            const slideBackgroundImage = slide.bgImage || globalSettings.bgImage;
+            if (slideBackgroundImage) {
+                targetElement.style.backgroundImage = `url('${slideBackgroundImage}')`;
+
+                // Apply fit mode from slide settings
+                const bgFit = slide.bgFit || 'cover';
+                targetElement.style.backgroundSize = bgFit === 'auto' ? 'auto' : bgFit;
+                targetElement.style.backgroundRepeat = 'no-repeat';
+
+                // Apply position from slide settings
+                const bgPosition = slide.bgPosition || 'center center';
+                targetElement.style.backgroundPosition = bgPosition;
             } else {
                 targetElement.style.backgroundImage = 'none';
             }
@@ -773,14 +1029,11 @@
             // Apply Overlay
             const overlayEl = targetElement.querySelector('.bg-overlay');
             if (overlayEl) {
-                // Determine overlay color based on text color or theme? 
-                // Usually black if text is light, white if text is dark. 
-                // Let's deduce from Background Color logic or just default to black for now.
-                // Better: Use the BACKGROUND color as the overlay color, but with opacity.
-                // But if bg image is there, we usually want to darken it.
-                // Let's use Black for now.
+                // Use per-slide overlay if slide has background image, otherwise use global
+                const slideHasImage = !!slide.bgImage;
+                const overlayOpacity = slideHasImage ? (slide.bgOverlay || 0) : (globalSettings.overlayOpacity || 0);
                 overlayEl.style.backgroundColor = '#000000';
-                overlayEl.style.opacity = globalSettings.overlayOpacity / 100;
+                overlayEl.style.opacity = overlayOpacity / 100;
             }
 
             targetElement.style.color = globalSettings.text;
