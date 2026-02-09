@@ -282,7 +282,6 @@
         .slide-text {
             font-size: 1.1rem;
             line-height: 1.6;
-            opacity: 0.9;
         }
 
         .slide-footer {
@@ -447,6 +446,14 @@
                     <label class="form-label">Highlight Word (in Title)</label>
                     <input type="text" class="form-input" id="input-highlight" placeholder="Word to highlight..."
                         oninput="updateCurrentSlide()">
+                </div>
+
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="input-body-bold" onchange="updateCurrentSlide()"
+                            style="width: 18px; height: 18px; accent-color: var(--accent);">
+                        <span class="form-label" style="margin: 0;">Bold Body Text</span>
+                    </label>
                 </div>
 
                 <div class="form-group">
@@ -677,7 +684,8 @@
                 bgImage: '',
                 bgFit: 'cover',
                 bgPosition: 'center center',
-                bgOverlay: 0
+                bgOverlay: 0,
+                bodyBold: false
             },
             {
                 id: 2,
@@ -687,7 +695,8 @@
                 bgImage: '',
                 bgFit: 'cover',
                 bgPosition: 'center center',
-                bgOverlay: 0
+                bgOverlay: 0,
+                bodyBold: false
             },
             {
                 id: 3,
@@ -697,7 +706,8 @@
                 bgImage: '',
                 bgFit: 'cover',
                 bgPosition: 'center center',
-                bgOverlay: 0
+                bgOverlay: 0,
+                bodyBold: false
             }
         ];
 
@@ -790,7 +800,8 @@
                 bgImage: '',
                 bgFit: 'cover',
                 bgPosition: 'center center',
-                bgOverlay: 0
+                bgOverlay: 0,
+                bodyBold: false
             });
             renderSlideList();
             loadSlide(slides.length - 1);
@@ -848,6 +859,10 @@
                 }
             }
 
+            // Update body bold checkbox
+            const bodyBoldCheckbox = document.getElementById('input-body-bold');
+            if (bodyBoldCheckbox) bodyBoldCheckbox.checked = slide.bodyBold || false;
+
             renderSlideList(); // Update active state
             renderPreview();
         };
@@ -886,6 +901,10 @@
 
             // Show/hide background options
             toggleBgOptions(!!slide.bgImage);
+
+            // Update body bold
+            const bodyBoldCheckbox = document.getElementById('input-body-bold');
+            if (bodyBoldCheckbox) slide.bodyBold = bodyBoldCheckbox.checked;
 
             renderSlideList(); // Update list titles
             renderPreview();
@@ -1062,6 +1081,7 @@
             if (bodyEl) {
                 bodyEl.innerText = slide.body;
                 bodyEl.style.fontSize = globalSettings.bodySize + 'rem';
+                bodyEl.style.fontWeight = slide.bodyBold ? '700' : '400';
             }
             if (numEl) {
                 numEl.textContent = (slideIndex + 1).toString().padStart(2, '0');
