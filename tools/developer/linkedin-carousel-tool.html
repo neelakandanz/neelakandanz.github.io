@@ -12,6 +12,8 @@
         rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
@@ -509,9 +511,15 @@
 
             <div class="form-group">
                 <label class="form-label">Export</label>
-                <button class="btn btn-primary" id="btn-export" onclick="exportPDF()">
-                    <i data-lucide="download"></i> Download PDF
-                </button>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-primary" id="btn-export" onclick="exportPDF()">
+                        <i data-lucide="file-text"></i> PDF
+                    </button>
+                    <button class="btn btn-primary" id="btn-export-png" onclick="exportPNGs()"
+                        style="background-color: var(--bg-input); border: 1px solid var(--border);">
+                        <i data-lucide="images"></i> PNGs
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -521,6 +529,9 @@
         <div class="preview-container">
             <div id="carousel-preview" class="carousel-slide">
                 <!-- Content injected via JS -->
+                <div class="bg-overlay"
+                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;">
+                </div>
                 <div class="bg-circle"
                     style="top: -50px; left: -50px; width: 200px; height: 200px; background: rgba(59, 130, 246, 0.1);">
                 </div>
@@ -597,7 +608,8 @@
             pattern: 'circles',
             titleSize: 2.5,
             bodySize: 1.1,
-            bgImage: ''
+            bgImage: '',
+            overlayOpacity: 0
         };
 
         // DOM Elements
@@ -628,7 +640,8 @@
                 pattern: document.getElementById('pattern-select'),
                 titleSize: document.getElementById('size-title'),
                 bodySize: document.getElementById('size-body'),
-                bgImage: document.getElementById('bg-image')
+                bgImage: document.getElementById('bg-image'),
+                overlayOpacity: document.getElementById('overlay-opacity')
             }
         };
 
@@ -726,14 +739,18 @@
                 pattern: containers.settings.pattern.value,
                 titleSize: containers.settings.titleSize.value,
                 bodySize: containers.settings.bodySize.value,
-                bgImage: containers.settings.bgImage.value
+                bgImage: containers.settings.bgImage.value,
+                overlayOpacity: containers.settings.overlayOpacity.value
             };
 
             // Update slider value displays
             const valTitle = document.getElementById('val-size-title');
             const valBody = document.getElementById('val-size-body');
+            const valOverlay = document.getElementById('val-overlay-opacity');
+
             if (valTitle) valTitle.textContent = globalSettings.titleSize;
             if (valBody) valBody.textContent = globalSettings.bodySize;
+            if (valOverlay) valOverlay.textContent = globalSettings.overlayOpacity;
 
             renderPreview();
         };
@@ -752,6 +769,20 @@
             } else {
                 targetElement.style.backgroundImage = 'none';
             }
+
+            // Apply Overlay
+            const overlayEl = targetElement.querySelector('.bg-overlay');
+            if (overlayEl) {
+                // Determine overlay color based on text color or theme? 
+                // Usually black if text is light, white if text is dark. 
+                // Let's deduce from Background Color logic or just default to black for now.
+                // Better: Use the BACKGROUND color as the overlay color, but with opacity.
+                // But if bg image is there, we usually want to darken it.
+                // Let's use Black for now.
+                overlayEl.style.backgroundColor = '#000000';
+                overlayEl.style.opacity = globalSettings.overlayOpacity / 100;
+            }
+
             targetElement.style.color = globalSettings.text;
             targetElement.style.fontFamily = globalSettings.font;
 
@@ -885,6 +916,79 @@
             } catch (err) {
                 console.error(err);
                 alert('Failed to generate PDF. Check console.');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        };
+
+        window.exportPNGs = async () => {
+            const btn = document.getElementById('btn-export-png');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Zipping...';
+            btn.disabled = true;
+
+            try {
+                const zip = new JSZip();
+                const exportContainer = document.getElementById('export-container');
+                exportContainer.innerHTML = ''; // Clear
+
+                // Clone the structure for each slide
+                for (let i = 0; i < slides.length; i++) {
+                    const slideNode = containers.preview.slide.cloneNode(true);
+
+                    // Force size for high quality capture (1080x1350)
+                    slideNode.style.width = '1080px';
+                    slideNode.style.height = '1350px';
+                    slideNode.style.transform = 'none';
+                    slideNode.style.boxShadow = 'none';
+                    slideNode.style.fontSize = '32px';
+
+                    // Fix child font sizes for scale
+                    // SCALE FACTOR: 1080 / 400 = 2.7
+                    const scale = 2.7;
+                    const titleSizeRem = parseFloat(globalSettings.titleSize) || 2.5;
+                    const bodySizeRem = parseFloat(globalSettings.bodySize) || 1.1;
+
+                    slideNode.querySelector('.slide-title').style.fontSize = (titleSizeRem * scale) + 'rem';
+                    slideNode.querySelector('.slide-title').style.marginBottom = '3rem';
+                    slideNode.querySelector('.slide-text').style.fontSize = (bodySizeRem * scale) + 'rem';
+                    slideNode.querySelector('.slide-number').style.fontSize = '6rem';
+                    slideNode.querySelector('.slide-content-wrapper').style.padding = '80px';
+
+                    slideNode.querySelector('.author-avatar').style.width = '80px';
+                    slideNode.querySelector('.author-avatar').style.height = '80px';
+                    slideNode.querySelector('.author-name').style.fontSize = '2rem';
+                    slideNode.querySelector('.author-handle').style.fontSize = '1.8rem';
+
+                    // Render content into this node
+                    renderPreview(slideNode, i);
+
+                    exportContainer.appendChild(slideNode);
+
+                    // Wait for images to load if any
+                    await new Promise(r => setTimeout(r, 100));
+
+                    const canvas = await html2canvas(slideNode, {
+                        scale: 1, // Already scaled up via CSS
+                        useCORS: true,
+                        logging: false
+                    });
+
+                    // Convert to Blob
+                    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                    zip.file(`${i + 1}_slide.png`, blob);
+                }
+
+                // Generate Zip
+                const content = await zip.generateAsync({ type: "blob" });
+                saveAs(content, "linkedin_carousel_images.zip");
+
+                exportContainer.innerHTML = ''; // Cleanup
+
+            } catch (err) {
+                console.error(err);
+                alert('Failed to generate PNGs. Check console.');
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
