@@ -876,15 +876,19 @@
                 for (let i = 0; i < slides.length; i++) {
                     const slideNode = containers.preview.slide.cloneNode(true);
 
-                    // Set dimensions
+                    // Set dimensions first
                     slideNode.style.width = EXPORT_WIDTH + 'px';
                     slideNode.style.height = EXPORT_HEIGHT + 'px';
                     slideNode.style.transform = 'none';
                     slideNode.style.boxShadow = 'none';
                     slideNode.style.position = 'relative';
-                    slideNode.style.fontSize = SCALED_BASE_FONT + 'px';
 
-                    // Calculate pixel values for all elements
+                    // Render content FIRST (this sets colors, text, bg image, etc.)
+                    renderPreview(slideNode, i);
+
+                    exportContainer.appendChild(slideNode);
+
+                    // NOW apply pixel-based sizes AFTER renderPreview to override rem values
                     const titleSizeRem = parseFloat(globalSettings.titleSize) || 2.5;
                     const bodySizeRem = parseFloat(globalSettings.bodySize) || 1.1;
 
@@ -897,6 +901,7 @@
                     const handleEl = slideNode.querySelector('.author-handle');
                     const footerEl = slideNode.querySelector('.slide-footer');
 
+                    // Override with PIXEL values (not rem) - this is the key fix!
                     if (titleEl) {
                         titleEl.style.fontSize = (titleSizeRem * SCALED_BASE_FONT) + 'px';
                         titleEl.style.marginBottom = (1.5 * SCALED_BASE_FONT) + 'px';
@@ -945,11 +950,6 @@
                             circle.style.height = (150 * SCALE) + 'px';
                         }
                     });
-
-                    // Render content into this node
-                    renderPreview(slideNode, i);
-
-                    exportContainer.appendChild(slideNode);
 
                     // Wait for images/fonts to load
                     await new Promise(r => setTimeout(r, 200));
@@ -1008,22 +1008,22 @@
                 for (let i = 0; i < slides.length; i++) {
                     const slideNode = containers.preview.slide.cloneNode(true);
 
-                    // Set dimensions
+                    // Set dimensions first
                     slideNode.style.width = EXPORT_WIDTH + 'px';
                     slideNode.style.height = EXPORT_HEIGHT + 'px';
                     slideNode.style.transform = 'none';
                     slideNode.style.boxShadow = 'none';
                     slideNode.style.position = 'relative';
 
-                    // CRITICAL: Set font-size on the element so rem units scale correctly
-                    // rem is relative to root element, so we need to set it explicitly
-                    slideNode.style.fontSize = SCALED_BASE_FONT + 'px';
+                    // Render content FIRST (this sets colors, text, bg image, etc.)
+                    renderPreview(slideNode, i);
 
-                    // Calculate pixel values for all elements using scale factor
+                    exportContainer.appendChild(slideNode);
+
+                    // NOW apply pixel-based sizes AFTER renderPreview to override rem values
                     const titleSizeRem = parseFloat(globalSettings.titleSize) || 2.5;
                     const bodySizeRem = parseFloat(globalSettings.bodySize) || 1.1;
 
-                    // Apply PIXEL values (not rem) to ensure consistency
                     const titleEl = slideNode.querySelector('.slide-title');
                     const textEl = slideNode.querySelector('.slide-text');
                     const numEl = slideNode.querySelector('.slide-number');
@@ -1033,6 +1033,7 @@
                     const handleEl = slideNode.querySelector('.author-handle');
                     const footerEl = slideNode.querySelector('.slide-footer');
 
+                    // Override with PIXEL values (not rem) - this is the key fix!
                     if (titleEl) {
                         titleEl.style.fontSize = (titleSizeRem * SCALED_BASE_FONT) + 'px';
                         titleEl.style.marginBottom = (1.5 * SCALED_BASE_FONT) + 'px';
@@ -1081,11 +1082,6 @@
                             circle.style.height = (150 * SCALE) + 'px';
                         }
                     });
-
-                    // Render content into this node (applies colors, text, etc.)
-                    renderPreview(slideNode, i);
-
-                    exportContainer.appendChild(slideNode);
 
                     // Wait for images/fonts to load
                     await new Promise(r => setTimeout(r, 200));
