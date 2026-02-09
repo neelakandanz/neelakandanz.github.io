@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn Carousel Generator | Neelakandan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-panel: #1e293b;
+            --bg-input: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --border: #334155;
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 380px;
+            background-color: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .tabs {
+            display: flex;
+            padding: 0.5rem 1rem;
+            gap: 0.5rem;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 0.75rem;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background-color: var(--bg-input);
+            color: var(--text-primary);
+        }
+
+        .sidebar-content {
+            flex: 1;
+            padding: 1.5rem;
+            display: none;
+            overflow-y: auto;
+        }
+
+        .sidebar-content.active {
+            display: block;
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.75rem;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Slide List */
+        .slide-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .slide-item {
+            background-color: var(--bg-input);
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            border: 1px solid transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .slide-item.active {
+            border-color: var(--accent);
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+
+        .slide-item-title {
+            font-weight: 500;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-ghost {
+            background-color: transparent;
+            color: var(--text-secondary);
+            padding: 0.5rem;
+            width: auto;
+        }
+
+        .btn-ghost:hover {
+            color: var(--text-primary);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Main Preview Area */
+        .main-area {
+            flex: 1;
+            background-color: #020617;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 2rem;
+        }
+
+        .preview-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Carousel Slide Visuals */
+        .carousel-slide {
+            width: 400px;
+            /* Base width for preview */
+            height: 500px;
+            /* 4:5 aspect ratio standard for LinkedIn */
+            background-color: white;
+            /* Default bg */
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            transform-origin: center center;
+            transition: transform 0.3s ease;
+        }
+
+        /* Slide Content Internal Layout */
+        .slide-content-wrapper {
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            z-index: 2;
+        }
+
+        .slide-header {
+            margin-bottom: auto;
+        }
+
+        .slide-number {
+            font-size: 3rem;
+            font-weight: 800;
+            opacity: 0.15;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .slide-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        .slide-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        .slide-footer {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: #ddd;
+        }
+
+        .author-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .author-name {
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .author-handle {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        /* Background Decorations */
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        /* Controls */
+        .preview-controls {
+            position: absolute;
+            bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            background: var(--bg-panel);
+            padding: 0.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .control-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .color-picker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .color-picker {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            background: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i data-lucide="layers"></i>
+                Carousel Generator
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('content')">Content</button>
+            <button class="tab-btn" onclick="switchTab('design')">Design</button>
+            <button class="tab-btn" onclick="switchTab('settings')">Settings</button>
+        </div>
+
+        <!-- Content Tab -->
+        <div id="tab-content" class="sidebar-content active">
+            <div class="form-group">
+                <button class="btn btn-primary" onclick="addSlide()">
+                    <i data-lucide="plus"></i> Add New Slide
+                </button>
+            </div>
+
+            <div id="slides-container" class="slide-list">
+                <!-- Slides will be injected here -->
+            </div>
+
+            <div style="margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+                <h3 style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-secondary);">Current Slide Edit
+                </h3>
+
+                <div class="form-group">
+                    <label class="form-label">Title</label>
+                    <textarea class="form-textarea" id="input-title" style="min-height: 60px;"
+                        placeholder="Enter catchy title..." oninput="updateCurrentSlide()"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Body Text</label>
+                    <textarea class="form-textarea" id="input-body" placeholder="Explain your point..."
+                        oninput="updateCurrentSlide()"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Highlight Word (in Title)</label>
+                    <input type="text" class="form-input" id="input-highlight" placeholder="Word to highlight..."
+                        oninput="updateCurrentSlide()">
+                </div>
+            </div>
+        </div>
+
+        <!-- Design Tab -->
+        <div id="tab-design" class="sidebar-content">
+            <div class="form-group">
+                <label class="form-label">Theme Colors</label>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <div class="color-picker-wrapper">
+                        <label style="font-size: 0.8rem;">Background</label>
+                        <input type="color" id="color-bg" class="color-picker" value="#ffffff"
+                            oninput="updateGlobalDesign()">
+                    </div>
+                    <div class="color-picker-wrapper">
+                        <label style="font-size: 0.8rem;">Text</label>
+                        <input type="color" id="color-text" class="color-picker" value="#111827"
+                            oninput="updateGlobalDesign()">
+                    </div>
+                    <div class="color-picker-wrapper">
+                        <label style="font-size: 0.8rem;">Accent</label>
+                        <input type="color" id="color-accent" class="color-picker" value="#3b82f6"
+                            oninput="updateGlobalDesign()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Font Style</label>
+                <select id="font-select" class="form-select" onchange="updateGlobalDesign()">
+                    <option value="'Inter', sans-serif">Inter (Clean)</option>
+                    <option value="'JetBrains Mono', monospace">JetBrains Mono (Code)</option>
+                    <option value="'Georgia', serif">Georgia (Serif)</option>
+                    <option value="'Arial', sans-serif">Arial (Classic)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Background Pattern</label>
+                <select id="pattern-select" class="form-select" onchange="updateGlobalDesign()">
+                    <option value="none">Clean</option>
+                    <option value="circles">Abstract Circles</option>
+                    <option value="dots">Dot Matrix</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="tab-settings" class="sidebar-content">
+            <div class="form-group">
+                <label class="form-label">Personal Brand</label>
+                <input type="text" class="form-input" id="setting-name" placeholder="Your Name" value="Neelakandan"
+                    oninput="updateGlobalDesign()">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Handle</label>
+                <input type="text" class="form-input" id="setting-handle" placeholder="@handle" value="@neelakandanz"
+                    oninput="updateGlobalDesign()">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Avatar URL</label>
+                <input type="text" class="form-input" id="setting-avatar" placeholder="https://..."
+                    value="https://github.com/neelakandanz.png" oninput="updateGlobalDesign()">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Export</label>
+                <button class="btn btn-primary" id="btn-export" onclick="exportPDF()">
+                    <i data-lucide="download"></i> Download PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview Area -->
+    <div class="main-area">
+        <div class="preview-container">
+            <div id="carousel-preview" class="carousel-slide">
+                <!-- Content injected via JS -->
+                <div class="bg-circle"
+                    style="top: -50px; left: -50px; width: 200px; height: 200px; background: rgba(59, 130, 246, 0.1);">
+                </div>
+                <div class="bg-circle"
+                    style="bottom: 50px; right: -20px; width: 150px; height: 150px; background: rgba(59, 130, 246, 0.05);">
+                </div>
+
+                <div class="slide-content-wrapper">
+                    <div class="slide-number" id="preview-number">01</div>
+
+                    <div class="slide-header">
+                        <h1 class="slide-title" id="preview-title">The "Expertise" Trap</h1>
+                    </div>
+
+                    <div class="slide-body">
+                        <p class="slide-text" id="preview-body">We were taught to pick a lane. Learn a trade. Become a
+                            specialist...</p>
+                    </div>
+
+                    <div class="slide-footer">
+                        <img src="" class="author-avatar" id="preview-avatar">
+                        <div class="author-info">
+                            <div class="author-name" id="preview-name">Name</div>
+                            <div class="author-handle" id="preview-handle">@handle</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="preview-controls">
+            <button class="control-btn" onclick="prevSlide()"><i data-lucide="chevron-left"></i></button>
+            <span style="font-variant-numeric: tabular-nums; width: 40px; text-align: center;"
+                id="slide-indicator">1/1</span>
+            <button class="control-btn" onclick="nextSlide()"><i data-lucide="chevron-right"></i></button>
+        </div>
+
+        <!-- Hidden container for generating all slides -->
+        <div id="export-container" style="position: fixed; left: -9999px; top: 0;"></div>
+    </div>
+
+    <script>
+        // Store
+        let slides = [
+            {
+                id: 1,
+                title: 'The "Expertise" Trap',
+                body: 'We were taught to pick a lane. Learn a trade. Become a specialist. But if AI is on track to handle 80% of specialized tasks, digging deeper isn\'t safe anymore.',
+                highlight: '"Expertise"'
+            },
+            {
+                id: 2,
+                title: 'Generalists Rule',
+                body: 'In a world of specialized AI, the human who can connect the dots between domains wins. Breadth > Depth.',
+                highlight: 'Generalists'
+            },
+            {
+                id: 3,
+                title: 'What to do?',
+                body: '1. Learn fundamental principles\n2. Study multiple disciplines\n3. Focus on synthesis over memorization',
+                highlight: 'do?'
+            }
+        ];
+
+        let currentSlideIndex = 0;
+        let globalSettings = {
+            name: 'Neelakandan',
+            handle: '@neelakandanz',
+            avatar: 'https://github.com/neelakandanz.png',
+            bg: '#ffffff',
+            text: '#111827',
+            accent: '#3b82f6',
+            font: "'Inter', sans-serif",
+            pattern: 'circles'
+        };
+
+        // DOM Elements
+        const containers = {
+            slides: document.getElementById('slides-container'),
+            title: document.getElementById('input-title'),
+            body: document.getElementById('input-body'),
+            highlight: document.getElementById('input-highlight'),
+
+            preview: {
+                title: document.getElementById('preview-title'),
+                body: document.getElementById('preview-body'),
+                number: document.getElementById('preview-number'),
+                avatar: document.getElementById('preview-avatar'),
+                name: document.getElementById('preview-name'),
+                handle: document.getElementById('preview-handle'),
+                slide: document.getElementById('carousel-preview')
+            },
+
+            settings: {
+                name: document.getElementById('setting-name'),
+                handle: document.getElementById('setting-handle'),
+                avatar: document.getElementById('setting-avatar'),
+                bg: document.getElementById('color-bg'),
+                text: document.getElementById('color-text'),
+                accent: document.getElementById('color-accent'),
+                font: document.getElementById('font-select'),
+                pattern: document.getElementById('pattern-select')
+            }
+        };
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            renderSlideList();
+            loadSlide(0);
+            updateGlobalDesign();
+        });
+
+        // Tabs
+        window.switchTab = (tabId) => {
+            document.querySelectorAll('.sidebar-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            document.getElementById('tab-' + tabId).classList.add('active');
+            event.target.classList.add('active');
+        };
+
+        // Logic
+        window.renderSlideList = () => {
+            containers.slides.innerHTML = slides.map((slide, index) => `
+                <div class="slide-item ${index === currentSlideIndex ? 'active' : ''}" onclick="loadSlide(${index})">
+                    <span class="slide-item-title">${index + 1}. ${slide.title || 'Untitled'}</span>
+                    <button class="btn-ghost" onclick="event.stopPropagation(); deleteSlide(${index})" ${slides.length === 1 ? 'disabled' : ''} style="padding: 2px;">
+                        <i data-lucide="trash-2" style="width: 14px;"></i>
+                    </button>
+                </div>
+            `).join('');
+            lucide.createIcons();
+            document.getElementById('slide-indicator').textContent = `${currentSlideIndex + 1}/${slides.length}`;
+        };
+
+        window.addSlide = () => {
+            slides.push({
+                id: Date.now(),
+                title: 'New Slide',
+                body: 'Add your content here...',
+                highlight: ''
+            });
+            renderSlideList();
+            loadSlide(slides.length - 1);
+        };
+
+        window.deleteSlide = (index) => {
+            if (slides.length <= 1) return;
+            slides.splice(index, 1);
+            if (currentSlideIndex >= slides.length) currentSlideIndex = slides.length - 1;
+            renderSlideList();
+            loadSlide(currentSlideIndex);
+        };
+
+        window.loadSlide = (index) => {
+            currentSlideIndex = index;
+            const slide = slides[index];
+
+            containers.title.value = slide.title;
+            containers.body.value = slide.body;
+            containers.highlight.value = slide.highlight || '';
+
+            renderSlideList(); // Update active state
+            renderPreview();
+        };
+
+        window.nextSlide = () => {
+            if (currentSlideIndex < slides.length - 1) loadSlide(currentSlideIndex + 1);
+        };
+
+        window.prevSlide = () => {
+            if (currentSlideIndex > 0) loadSlide(currentSlideIndex - 1);
+        };
+
+        window.updateCurrentSlide = () => {
+            const slide = slides[currentSlideIndex];
+            slide.title = containers.title.value;
+            slide.body = containers.body.value;
+            slide.highlight = containers.highlight.value;
+
+            renderSlideList(); // Update list titles
+            renderPreview();
+        };
+
+        window.updateGlobalDesign = () => {
+            globalSettings = {
+                name: containers.settings.name.value,
+                handle: containers.settings.handle.value,
+                avatar: containers.settings.avatar.value,
+                bg: containers.settings.bg.value,
+                text: containers.settings.text.value,
+                accent: containers.settings.accent.value,
+                font: containers.settings.font.value,
+                pattern: containers.settings.pattern.value
+            };
+            renderPreview();
+        };
+
+        // Render Logic
+        function renderPreview(targetElement = containers.preview.slide, slideIndex = currentSlideIndex) {
+            const slide = slides[slideIndex];
+            const isDark = isColorDark(globalSettings.bg);
+
+            // Apply Styles to Container
+            targetElement.style.backgroundColor = globalSettings.bg;
+            targetElement.style.color = globalSettings.text;
+            targetElement.style.fontFamily = globalSettings.font;
+
+            // Helper to process title with highlight
+            const processTitle = (text, highlight) => {
+                if (!highlight) return text;
+                const parts = text.split(highlight);
+                if (parts.length === 1) return text;
+                return parts.join(`<span style="color: ${globalSettings.accent}">${highlight}</span>`);
+            };
+
+            // Update DOM inside the container
+            const titleEl = targetElement.querySelector('.slide-title');
+            const bodyEl = targetElement.querySelector('.slide-text');
+            const numEl = targetElement.querySelector('.slide-number');
+            const nameEl = targetElement.querySelector('.author-name');
+            const handleEl = targetElement.querySelector('.author-handle');
+            const avatarEl = targetElement.querySelector('.author-avatar');
+
+            if (titleEl) titleEl.innerHTML = processTitle(slide.title, slide.highlight);
+            if (bodyEl) bodyEl.innerText = slide.body; // InnerText preserves newlines if css white-space is pre-wrap
+            if (numEl) {
+                numEl.textContent = (slideIndex + 1).toString().padStart(2, '0');
+                numEl.style.color = globalSettings.accent;
+            }
+            if (nameEl) nameEl.textContent = globalSettings.name;
+            if (handleEl) handleEl.textContent = globalSettings.handle;
+
+            if (avatarEl) {
+                avatarEl.src = globalSettings.avatar;
+                avatarEl.onerror = () => { avatarEl.style.display = 'none'; };
+                avatarEl.onload = () => { avatarEl.style.display = 'block'; };
+            }
+
+            // Patterns/Decorations
+            // Reset decorations first
+            const existingDecos = targetElement.querySelectorAll('.bg-circle');
+            existingDecos.forEach(d => {
+                d.style.background = globalSettings.accent;
+                // Add opacity
+                d.style.opacity = '0.05';
+            });
+
+            // Specific patterns
+            if (globalSettings.pattern === 'none') {
+                existingDecos.forEach(d => d.style.display = 'none');
+            } else {
+                existingDecos.forEach(d => d.style.display = 'block');
+            }
+
+            // Apply border color of footer to be subtle
+            const footer = targetElement.querySelector('.slide-footer');
+            if (footer) footer.style.borderColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+        }
+
+        // Export Logic
+        window.exportPDF = async () => {
+            const btn = document.getElementById('btn-export');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Generating...';
+            btn.disabled = true;
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'px',
+                    format: [1080, 1350] // LinkedIn ideal ratio 4:5 (1080x1350)
+                });
+
+                const exportContainer = document.getElementById('export-container');
+                exportContainer.innerHTML = ''; // Clear
+
+                // Clone the structure for each slide
+                for (let i = 0; i < slides.length; i++) {
+                    const slideNode = containers.preview.slide.cloneNode(true);
+
+                    // Force size for high quality capture
+                    slideNode.style.width = '1080px';
+                    slideNode.style.height = '1350px';
+                    slideNode.style.transform = 'none';
+                    slideNode.style.boxShadow = 'none';
+                    slideNode.style.fontSize = '32px'; // Up-scale fonts
+
+                    // Fix child font sizes for scale
+                    slideNode.querySelector('.slide-title').style.fontSize = '5rem';
+                    slideNode.querySelector('.slide-title').style.marginBottom = '3rem';
+                    slideNode.querySelector('.slide-text').style.fontSize = '2.5rem';
+                    slideNode.querySelector('.slide-number').style.fontSize = '6rem';
+                    slideNode.querySelector('.slide-content-wrapper').style.padding = '80px';
+
+                    slideNode.querySelector('.author-avatar').style.width = '80px';
+                    slideNode.querySelector('.author-avatar').style.height = '80px';
+                    slideNode.querySelector('.author-name').style.fontSize = '2rem';
+                    slideNode.querySelector('.author-handle').style.fontSize = '1.8rem';
+
+                    // Render content into this node
+                    renderPreview(slideNode, i);
+
+                    exportContainer.appendChild(slideNode);
+
+                    // Wait for images to load if any
+                    await new Promise(r => setTimeout(r, 100));
+
+                    const canvas = await html2canvas(slideNode, {
+                        scale: 1, // Already scaled up via CSS
+                        useCORS: true,
+                        logging: false
+                    });
+
+                    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+                    if (i > 0) pdf.addPage();
+                    pdf.addImage(imgData, 'JPEG', 0, 0, 1080, 1350);
+                }
+
+                pdf.save('linkedin-carousel.pdf');
+                exportContainer.innerHTML = ''; // Cleanup
+
+            } catch (err) {
+                console.error(err);
+                alert('Failed to generate PDF. Check console.');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        };
+
+        // Util
+        function isColorDark(color) {
+            // Simple check
+            const hex = color.replace('#', '');
+            const r = parseInt(hex.substr(0, 2), 16);
+            const g = parseInt(hex.substr(2, 2), 16);
+            const b = parseInt(hex.substr(4, 2), 16);
+            const brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+            return brightness < 155;
+        }
+
+    </script>
+</body>
+
+</html>
